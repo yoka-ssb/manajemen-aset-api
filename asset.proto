@@ -1,0 +1,354 @@
+syntax = "proto3";
+
+package asset;
+
+option go_package = "/assetpb";
+
+import "google/api/annotations.proto";
+
+// Message for data Asset
+message Asset {
+    int32 aset_id = 1;
+    string aset_name = 2;
+    string aset_merk = 3;
+    string aset_spesifikasi = 4;
+    string aset_klasifikasi = 5;
+    string aset_kondisi = 6;
+    string aset_pic = 7;
+    string aset_tgl_pembelian = 8;
+    string aset_status = 9;
+    int32 klasifikasi_nilai_perolehan = 10;
+    int32 klasifikasi_nilai_buku_terakhir = 11;
+    string created_at = 12;
+    string updated_at = 13;
+    int32 outlet_id = 14;
+    string aset_image = 15;
+    int32 nilai_penyusutan = 16;
+    string penanggungjawab = 17;
+}
+
+message CreateItemRequest {
+    Asset item = 1;
+}
+
+message CreateItemResponse {
+    Asset item = 1;
+    bool success = 2;
+}
+
+message GetItemRequest {
+    int32 id = 1;
+}
+
+message GetItemResponse {
+    Asset item = 1;
+    bool success = 2;
+}
+
+message UpdateItemRequest {
+    int32 id = 1;
+    Asset item = 2;
+}
+
+message UpdateItemResponse {
+    Asset item = 1;
+    bool success = 2;
+}
+
+message DeleteItemRequest {
+    int32 id = 1;
+}
+
+message DeleteItemResponse {
+    bool success = 1;
+}
+
+message ListItemsRequest {}
+
+message ListItemsResponse {
+    repeated Asset items = 1;
+}
+
+// Message for data User
+message User {
+    int32 nip = 1;
+    string user_full_name = 2;
+    string user_email = 3;
+    string user_password = 4;
+    int32 role_id = 5;
+    int32 area_id = 6;
+    int32 outlet_id = 7;
+}
+
+message CreateUserRequest {
+    int32 nip = 1;
+    string user_full_name = 2;
+    string user_email = 3;
+    string user_password = 4;
+    int32 role_id = 5;
+    int32 area_id = 6;
+    int32 outlet_id = 7;
+}
+
+message CreateUserResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+message GetUserRequest {
+    int32 nip = 1;
+}
+
+message GetUserResponse {
+    string message = 1;
+    string code = 2;
+    User data = 3;
+    bool success = 4;
+}
+
+message UpdateUserRequest {
+    int32 nip = 1;
+    string user_full_name = 2;
+    string user_email = 3;
+    int32 role_id = 4;
+    int32 area_id = 5;
+    int32 outlet_id = 6;
+}
+
+message UpdateUserResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+message DeleteUserRequest {
+    int32 nip = 1;
+}
+
+message DeleteUserResponse {
+    bool success = 1;
+}
+
+message ListUsersRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    string q = 3;
+}
+
+message ListUsersResponse {
+    repeated User data = 1;
+    int32 total_count = 2;
+    int32 page_number = 3;
+    int32 page_size = 4;
+    string next_page_token = 5;
+}
+
+message ResetPasswordRequest {
+    int32 nip = 1;
+    string user_password = 2;
+    string reset_token = 3;
+}
+
+message ResetPasswordResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+// Message for data Authorization
+message LoginRequest {
+    int32 nip = 1;
+    string user_password = 2;
+}
+
+message LoginResponse {
+    string message = 1;
+    string code = 2;
+    string token = 3;
+    bool success = 4;
+}
+
+message LogoutRequest {
+    string token = 1;
+}
+
+message LogoutResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+message TokenStore {
+    string token = 1;
+}
+
+// Message for data Area
+message Area {
+    int32 area_id = 1;
+    string area_name = 2;
+}
+
+message ListAreaRequest {}
+
+message ListAreaResponse {
+    repeated Area data = 1;
+    string message = 2;
+    string code = 3;
+}
+
+message CreateAreaRequest {
+    string area_name = 1;
+}
+
+message CreateAreaResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+// Message for data Outlet
+message Outlet {
+    int32 outlet_id = 1;
+    string outlet_name = 2;
+}
+
+message ListOutletRequest {
+    int32 area_id = 1;
+}
+
+message ListOutletResponse {
+    repeated Outlet data = 1;
+    string message = 2;
+    string code = 3;
+}
+
+message CreateOutletRequest {
+    int32 area_id = 1;
+    string outlet_name = 2;
+}
+
+message CreateOutletResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+// Message for data Area Outlet
+message AreaOutlet {
+    int32 area_id = 1;
+    int32 outlet_id = 2;
+}
+
+// Services
+service OUTLETService {
+    rpc ListOutlet(ListOutletRequest) returns (ListOutletResponse) {
+        option (google.api.http) = {
+            get: "/api/outlets"
+        };
+    };
+
+    rpc CreateOutlet(CreateOutletRequest) returns (CreateOutletResponse) {
+        option (google.api.http) = {
+            post: "/api/outlets"
+            body: "*"
+        };
+    };
+}
+
+service AREAService {
+    rpc ListArea(ListAreaRequest) returns (ListAreaResponse) {
+        option (google.api.http) = {
+            get: "/api/areas"
+        };
+    };
+
+    rpc CreateArea(CreateAreaRequest) returns (CreateAreaResponse) {
+        option (google.api.http) = {
+            post: "/api/areas"
+            body: "*"
+        };
+    };
+}
+
+service AUTHService {
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/api/login"
+            body: "*"
+        };
+    };
+
+    rpc Logout(LogoutRequest) returns (LogoutResponse) {
+        option (google.api.http) = {
+            post: "/api/logout"
+            body: "*"
+        };
+    };
+}
+
+service USERService {
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+        option (google.api.http) = {
+            post: "/api/users"
+            body: "*"
+        };
+    };
+    rpc GetUser(GetUserRequest) returns (GetUserResponse){
+        option (google.api.http) = {
+            get: "/api/users/{nip}"
+        };
+    };
+    rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+        option (google.api.http) = {
+            put: "/api/users/{nip}"
+            body: "*"
+        };
+    };
+    rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+        option (google.api.http) = {
+            delete: "/api/users/{nip}"
+        };
+    };
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+        option (google.api.http) = {
+            get: "/api/users"
+        };
+    };
+    rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+        option (google.api.http) = {
+            post: "/api/reset-password"
+            body: "*"
+        };
+    }
+}
+
+service ASSETService {
+    rpc CreateItem(CreateItemRequest) returns (CreateItemResponse) {
+        option (google.api.http) = {
+            post: "/api/items"
+            body: "*"
+        };
+    };
+    rpc GetItem(GetItemRequest) returns (GetItemResponse){
+        option (google.api.http) = {
+            get: "/api/items/{id}"
+        };
+    };
+    rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse) {
+        option (google.api.http) = {
+            put: "/api/items/{id}"
+            body: "*"
+        };
+    };
+    rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse) {
+        option (google.api.http) = {
+            delete: "/api/items/{id}"
+        };
+    };
+    rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {
+        option (google.api.http) = {
+            get: "/api/items"
+        };
+    };
+}
