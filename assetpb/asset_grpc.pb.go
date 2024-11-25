@@ -19,6 +19,291 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	MAINTENANCEPERIODService_ListMaintenancePeriod_FullMethodName   = "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod"
+	MAINTENANCEPERIODService_CreateMaintenancePeriod_FullMethodName = "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod"
+)
+
+// MAINTENANCEPERIODServiceClient is the client API for MAINTENANCEPERIODService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// All Services
+type MAINTENANCEPERIODServiceClient interface {
+	ListMaintenancePeriod(ctx context.Context, in *ListMaintenancePeriodRequest, opts ...grpc.CallOption) (*ListMaintenancePeriodResponse, error)
+	CreateMaintenancePeriod(ctx context.Context, in *CreateMaintenancePeriodRequest, opts ...grpc.CallOption) (*CreateMaintenancePeriodResponse, error)
+}
+
+type mAINTENANCEPERIODServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMAINTENANCEPERIODServiceClient(cc grpc.ClientConnInterface) MAINTENANCEPERIODServiceClient {
+	return &mAINTENANCEPERIODServiceClient{cc}
+}
+
+func (c *mAINTENANCEPERIODServiceClient) ListMaintenancePeriod(ctx context.Context, in *ListMaintenancePeriodRequest, opts ...grpc.CallOption) (*ListMaintenancePeriodResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListMaintenancePeriodResponse)
+	err := c.cc.Invoke(ctx, MAINTENANCEPERIODService_ListMaintenancePeriod_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mAINTENANCEPERIODServiceClient) CreateMaintenancePeriod(ctx context.Context, in *CreateMaintenancePeriodRequest, opts ...grpc.CallOption) (*CreateMaintenancePeriodResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateMaintenancePeriodResponse)
+	err := c.cc.Invoke(ctx, MAINTENANCEPERIODService_CreateMaintenancePeriod_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MAINTENANCEPERIODServiceServer is the server API for MAINTENANCEPERIODService service.
+// All implementations must embed UnimplementedMAINTENANCEPERIODServiceServer
+// for forward compatibility.
+//
+// All Services
+type MAINTENANCEPERIODServiceServer interface {
+	ListMaintenancePeriod(context.Context, *ListMaintenancePeriodRequest) (*ListMaintenancePeriodResponse, error)
+	CreateMaintenancePeriod(context.Context, *CreateMaintenancePeriodRequest) (*CreateMaintenancePeriodResponse, error)
+	mustEmbedUnimplementedMAINTENANCEPERIODServiceServer()
+}
+
+// UnimplementedMAINTENANCEPERIODServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedMAINTENANCEPERIODServiceServer struct{}
+
+func (UnimplementedMAINTENANCEPERIODServiceServer) ListMaintenancePeriod(context.Context, *ListMaintenancePeriodRequest) (*ListMaintenancePeriodResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMaintenancePeriod not implemented")
+}
+func (UnimplementedMAINTENANCEPERIODServiceServer) CreateMaintenancePeriod(context.Context, *CreateMaintenancePeriodRequest) (*CreateMaintenancePeriodResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMaintenancePeriod not implemented")
+}
+func (UnimplementedMAINTENANCEPERIODServiceServer) mustEmbedUnimplementedMAINTENANCEPERIODServiceServer() {
+}
+func (UnimplementedMAINTENANCEPERIODServiceServer) testEmbeddedByValue() {}
+
+// UnsafeMAINTENANCEPERIODServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MAINTENANCEPERIODServiceServer will
+// result in compilation errors.
+type UnsafeMAINTENANCEPERIODServiceServer interface {
+	mustEmbedUnimplementedMAINTENANCEPERIODServiceServer()
+}
+
+func RegisterMAINTENANCEPERIODServiceServer(s grpc.ServiceRegistrar, srv MAINTENANCEPERIODServiceServer) {
+	// If the following call pancis, it indicates UnimplementedMAINTENANCEPERIODServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&MAINTENANCEPERIODService_ServiceDesc, srv)
+}
+
+func _MAINTENANCEPERIODService_ListMaintenancePeriod_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMaintenancePeriodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MAINTENANCEPERIODServiceServer).ListMaintenancePeriod(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MAINTENANCEPERIODService_ListMaintenancePeriod_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MAINTENANCEPERIODServiceServer).ListMaintenancePeriod(ctx, req.(*ListMaintenancePeriodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MAINTENANCEPERIODService_CreateMaintenancePeriod_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateMaintenancePeriodRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MAINTENANCEPERIODServiceServer).CreateMaintenancePeriod(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MAINTENANCEPERIODService_CreateMaintenancePeriod_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MAINTENANCEPERIODServiceServer).CreateMaintenancePeriod(ctx, req.(*CreateMaintenancePeriodRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// MAINTENANCEPERIODService_ServiceDesc is the grpc.ServiceDesc for MAINTENANCEPERIODService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var MAINTENANCEPERIODService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.MAINTENANCEPERIODService",
+	HandlerType: (*MAINTENANCEPERIODServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListMaintenancePeriod",
+			Handler:    _MAINTENANCEPERIODService_ListMaintenancePeriod_Handler,
+		},
+		{
+			MethodName: "CreateMaintenancePeriod",
+			Handler:    _MAINTENANCEPERIODService_CreateMaintenancePeriod_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
+	CLASSIFICATIONService_ListClassification_FullMethodName   = "/asset.CLASSIFICATIONService/ListClassification"
+	CLASSIFICATIONService_CreateClassification_FullMethodName = "/asset.CLASSIFICATIONService/CreateClassification"
+)
+
+// CLASSIFICATIONServiceClient is the client API for CLASSIFICATIONService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CLASSIFICATIONServiceClient interface {
+	ListClassification(ctx context.Context, in *ListClassificationRequest, opts ...grpc.CallOption) (*ListClassificationResponse, error)
+	CreateClassification(ctx context.Context, in *CreateClassificationRequest, opts ...grpc.CallOption) (*CreateClassificationResponse, error)
+}
+
+type cLASSIFICATIONServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCLASSIFICATIONServiceClient(cc grpc.ClientConnInterface) CLASSIFICATIONServiceClient {
+	return &cLASSIFICATIONServiceClient{cc}
+}
+
+func (c *cLASSIFICATIONServiceClient) ListClassification(ctx context.Context, in *ListClassificationRequest, opts ...grpc.CallOption) (*ListClassificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListClassificationResponse)
+	err := c.cc.Invoke(ctx, CLASSIFICATIONService_ListClassification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cLASSIFICATIONServiceClient) CreateClassification(ctx context.Context, in *CreateClassificationRequest, opts ...grpc.CallOption) (*CreateClassificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateClassificationResponse)
+	err := c.cc.Invoke(ctx, CLASSIFICATIONService_CreateClassification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CLASSIFICATIONServiceServer is the server API for CLASSIFICATIONService service.
+// All implementations must embed UnimplementedCLASSIFICATIONServiceServer
+// for forward compatibility.
+type CLASSIFICATIONServiceServer interface {
+	ListClassification(context.Context, *ListClassificationRequest) (*ListClassificationResponse, error)
+	CreateClassification(context.Context, *CreateClassificationRequest) (*CreateClassificationResponse, error)
+	mustEmbedUnimplementedCLASSIFICATIONServiceServer()
+}
+
+// UnimplementedCLASSIFICATIONServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedCLASSIFICATIONServiceServer struct{}
+
+func (UnimplementedCLASSIFICATIONServiceServer) ListClassification(context.Context, *ListClassificationRequest) (*ListClassificationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListClassification not implemented")
+}
+func (UnimplementedCLASSIFICATIONServiceServer) CreateClassification(context.Context, *CreateClassificationRequest) (*CreateClassificationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateClassification not implemented")
+}
+func (UnimplementedCLASSIFICATIONServiceServer) mustEmbedUnimplementedCLASSIFICATIONServiceServer() {}
+func (UnimplementedCLASSIFICATIONServiceServer) testEmbeddedByValue()                               {}
+
+// UnsafeCLASSIFICATIONServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CLASSIFICATIONServiceServer will
+// result in compilation errors.
+type UnsafeCLASSIFICATIONServiceServer interface {
+	mustEmbedUnimplementedCLASSIFICATIONServiceServer()
+}
+
+func RegisterCLASSIFICATIONServiceServer(s grpc.ServiceRegistrar, srv CLASSIFICATIONServiceServer) {
+	// If the following call pancis, it indicates UnimplementedCLASSIFICATIONServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&CLASSIFICATIONService_ServiceDesc, srv)
+}
+
+func _CLASSIFICATIONService_ListClassification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListClassificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CLASSIFICATIONServiceServer).ListClassification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CLASSIFICATIONService_ListClassification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CLASSIFICATIONServiceServer).ListClassification(ctx, req.(*ListClassificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CLASSIFICATIONService_CreateClassification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateClassificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CLASSIFICATIONServiceServer).CreateClassification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CLASSIFICATIONService_CreateClassification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CLASSIFICATIONServiceServer).CreateClassification(ctx, req.(*CreateClassificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// CLASSIFICATIONService_ServiceDesc is the grpc.ServiceDesc for CLASSIFICATIONService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var CLASSIFICATIONService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.CLASSIFICATIONService",
+	HandlerType: (*CLASSIFICATIONServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListClassification",
+			Handler:    _CLASSIFICATIONService_ListClassification_Handler,
+		},
+		{
+			MethodName: "CreateClassification",
+			Handler:    _CLASSIFICATIONService_CreateClassification_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
 	OUTLETService_ListOutlet_FullMethodName   = "/asset.OUTLETService/ListOutlet"
 	OUTLETService_CreateOutlet_FullMethodName = "/asset.OUTLETService/CreateOutlet"
 )
@@ -26,8 +311,6 @@ const (
 // OUTLETServiceClient is the client API for OUTLETService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// Services
 type OUTLETServiceClient interface {
 	ListOutlet(ctx context.Context, in *ListOutletRequest, opts ...grpc.CallOption) (*ListOutletResponse, error)
 	CreateOutlet(ctx context.Context, in *CreateOutletRequest, opts ...grpc.CallOption) (*CreateOutletResponse, error)
@@ -64,8 +347,6 @@ func (c *oUTLETServiceClient) CreateOutlet(ctx context.Context, in *CreateOutlet
 // OUTLETServiceServer is the server API for OUTLETService service.
 // All implementations must embed UnimplementedOUTLETServiceServer
 // for forward compatibility.
-//
-// Services
 type OUTLETServiceServer interface {
 	ListOutlet(context.Context, *ListOutletRequest) (*ListOutletResponse, error)
 	CreateOutlet(context.Context, *CreateOutletRequest) (*CreateOutletResponse, error)
@@ -436,6 +717,108 @@ var AUTHService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Logout",
 			Handler:    _AUTHService_Logout_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
+	ROLEService_ListRole_FullMethodName = "/asset.ROLEService/ListRole"
+)
+
+// ROLEServiceClient is the client API for ROLEService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ROLEServiceClient interface {
+	ListRole(ctx context.Context, in *ListRoleRequest, opts ...grpc.CallOption) (*ListRoleResponse, error)
+}
+
+type rOLEServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewROLEServiceClient(cc grpc.ClientConnInterface) ROLEServiceClient {
+	return &rOLEServiceClient{cc}
+}
+
+func (c *rOLEServiceClient) ListRole(ctx context.Context, in *ListRoleRequest, opts ...grpc.CallOption) (*ListRoleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRoleResponse)
+	err := c.cc.Invoke(ctx, ROLEService_ListRole_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ROLEServiceServer is the server API for ROLEService service.
+// All implementations must embed UnimplementedROLEServiceServer
+// for forward compatibility.
+type ROLEServiceServer interface {
+	ListRole(context.Context, *ListRoleRequest) (*ListRoleResponse, error)
+	mustEmbedUnimplementedROLEServiceServer()
+}
+
+// UnimplementedROLEServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedROLEServiceServer struct{}
+
+func (UnimplementedROLEServiceServer) ListRole(context.Context, *ListRoleRequest) (*ListRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListRole not implemented")
+}
+func (UnimplementedROLEServiceServer) mustEmbedUnimplementedROLEServiceServer() {}
+func (UnimplementedROLEServiceServer) testEmbeddedByValue()                     {}
+
+// UnsafeROLEServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ROLEServiceServer will
+// result in compilation errors.
+type UnsafeROLEServiceServer interface {
+	mustEmbedUnimplementedROLEServiceServer()
+}
+
+func RegisterROLEServiceServer(s grpc.ServiceRegistrar, srv ROLEServiceServer) {
+	// If the following call pancis, it indicates UnimplementedROLEServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ROLEService_ServiceDesc, srv)
+}
+
+func _ROLEService_ListRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ROLEServiceServer).ListRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ROLEService_ListRole_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ROLEServiceServer).ListRole(ctx, req.(*ListRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ROLEService_ServiceDesc is the grpc.ServiceDesc for ROLEService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ROLEService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.ROLEService",
+	HandlerType: (*ROLEServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListRole",
+			Handler:    _ROLEService_ListRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

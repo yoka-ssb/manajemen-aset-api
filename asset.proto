@@ -156,6 +156,21 @@ message ResetPasswordResponse {
     bool success = 3;
 }
 
+// Message for data Role
+message Role {
+    int32 role_id = 1;
+    string role_name = 2;
+    string status = 3;
+}
+
+message ListRoleRequest {}
+
+message ListRoleResponse {
+    repeated Role data = 1;
+    string message = 2;
+    string code = 3;
+}
+
 // Message for data Authorization
 message LoginRequest {
     int32 nip = 1;
@@ -240,7 +255,94 @@ message AreaOutlet {
     int32 outlet_id = 2;
 }
 
-// Services
+// Message for data Classification
+message Classification {
+    int32 classification_id = 1;
+    string classification_name = 2;
+    int32 classification_economic_value = 3;
+    int32 maintenance_period_id = 4;
+    string asset_healthy_param = 5;
+}
+
+message ListClassificationRequest {}
+
+message ListClassificationResponse {
+    repeated Classification data = 1;
+    string message = 2;
+    string code = 3;
+}
+
+message CreateClassificationRequest {
+    string classification_name = 1;
+    int32 classification_economic_value = 2;
+    int32 maintenance_period_id = 3;
+    string asset_healthy_param = 4;
+}
+
+message CreateClassificationResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+// Message for data Maintenance Period
+message MaintenancePeriod {
+    int32 period_id = 1;
+    string period_name = 2;
+    string maintenance_date = 3;
+}
+
+message ListMaintenancePeriodRequest {}
+
+message ListMaintenancePeriodResponse {
+    repeated MaintenancePeriod data = 1;
+    string message = 2;
+    string code = 3;
+}
+
+message CreateMaintenancePeriodRequest {
+    string period_name = 1;
+    string maintenance_date = 2;
+}
+
+message CreateMaintenancePeriodResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+
+// All Services
+service MAINTENANCEPERIODService {
+    rpc ListMaintenancePeriod(ListMaintenancePeriodRequest) returns (ListMaintenancePeriodResponse) {
+        option (google.api.http) = {
+            get: "/api/periods"
+        };
+    }
+
+    rpc CreateMaintenancePeriod(CreateMaintenancePeriodRequest) returns (CreateMaintenancePeriodResponse) {
+        option (google.api.http) = {
+            post: "/api/periods"
+            body: "*"
+        };
+    }
+}
+
+service CLASSIFICATIONService {
+    rpc ListClassification(ListClassificationRequest) returns (ListClassificationResponse) {
+        option (google.api.http) = {
+            get: "/api/classifications"
+        };
+    }
+
+    rpc CreateClassification(CreateClassificationRequest) returns (CreateClassificationResponse) {
+        option (google.api.http) = {
+            post: "/api/classifications"
+            body: "*"
+        };
+    }
+}
+
 service OUTLETService {
     rpc ListOutlet(ListOutletRequest) returns (ListOutletResponse) {
         option (google.api.http) = {
@@ -283,6 +385,14 @@ service AUTHService {
         option (google.api.http) = {
             post: "/api/logout"
             body: "*"
+        };
+    };
+}
+
+service ROLEService {
+    rpc ListRole(ListRoleRequest) returns (ListRoleResponse) {
+        option (google.api.http) = {
+            get: "/api/roles"
         };
     };
 }

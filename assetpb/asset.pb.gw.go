@@ -31,6 +31,94 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
+func request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, client MAINTENANCEPERIODServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListMaintenancePeriodRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.ListMaintenancePeriod(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, server MAINTENANCEPERIODServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListMaintenancePeriodRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.ListMaintenancePeriod(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, client MAINTENANCEPERIODServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateMaintenancePeriodRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CreateMaintenancePeriod(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, server MAINTENANCEPERIODServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateMaintenancePeriodRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CreateMaintenancePeriod(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_CLASSIFICATIONService_ListClassification_0(ctx context.Context, marshaler runtime.Marshaler, client CLASSIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListClassificationRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.ListClassification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CLASSIFICATIONService_ListClassification_0(ctx context.Context, marshaler runtime.Marshaler, server CLASSIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListClassificationRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.ListClassification(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_CLASSIFICATIONService_CreateClassification_0(ctx context.Context, marshaler runtime.Marshaler, client CLASSIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateClassificationRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CreateClassification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CLASSIFICATIONService_CreateClassification_0(ctx context.Context, marshaler runtime.Marshaler, server CLASSIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateClassificationRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CreateClassification(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 var (
 	filter_OUTLETService_ListOutlet_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
@@ -185,6 +273,24 @@ func local_request_AUTHService_Logout_0(ctx context.Context, marshaler runtime.M
 	}
 
 	msg, err := server.Logout(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_ROLEService_ListRole_0(ctx context.Context, marshaler runtime.Marshaler, client ROLEServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListRoleRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.ListRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_ROLEService_ListRole_0(ctx context.Context, marshaler runtime.Marshaler, server ROLEServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListRoleRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.ListRole(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -649,6 +755,126 @@ func local_request_ASSETService_ListItems_0(ctx context.Context, marshaler runti
 
 }
 
+// RegisterMAINTENANCEPERIODServiceHandlerServer registers the http handlers for service MAINTENANCEPERIODService to "mux".
+// UnaryRPC     :call MAINTENANCEPERIODServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
+func RegisterMAINTENANCEPERIODServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MAINTENANCEPERIODServiceServer) error {
+
+	mux.Handle("GET", pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+// RegisterCLASSIFICATIONServiceHandlerServer registers the http handlers for service CLASSIFICATIONService to "mux".
+// UnaryRPC     :call CLASSIFICATIONServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterCLASSIFICATIONServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
+func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server CLASSIFICATIONServiceServer) error {
+
+	mux.Handle("GET", pattern_CLASSIFICATIONService_ListClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CLASSIFICATIONService_ListClassification_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CLASSIFICATIONService_ListClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_CLASSIFICATIONService_CreateClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CLASSIFICATIONService_CreateClassification_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CLASSIFICATIONService_CreateClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
 // RegisterOUTLETServiceHandlerServer registers the http handlers for service OUTLETService to "mux".
 // UnaryRPC     :call OUTLETServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -823,6 +1049,41 @@ func RegisterAUTHServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_AUTHService_Logout_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+// RegisterROLEServiceHandlerServer registers the http handlers for service ROLEService to "mux".
+// UnaryRPC     :call ROLEServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterROLEServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
+func RegisterROLEServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ROLEServiceServer) error {
+
+	mux.Handle("GET", pattern_ROLEService_ListRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ROLEService/ListRole", runtime.WithHTTPPathPattern("/api/roles"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ROLEService_ListRole_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ROLEService_ListRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1124,6 +1385,200 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 	return nil
 }
 
+// RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint is same as RegisterMAINTENANCEPERIODServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterMAINTENANCEPERIODServiceHandler(ctx, mux, conn)
+}
+
+// RegisterMAINTENANCEPERIODServiceHandler registers the http handlers for service MAINTENANCEPERIODService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterMAINTENANCEPERIODServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterMAINTENANCEPERIODServiceHandlerClient(ctx, mux, NewMAINTENANCEPERIODServiceClient(conn))
+}
+
+// RegisterMAINTENANCEPERIODServiceHandlerClient registers the http handlers for service MAINTENANCEPERIODService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MAINTENANCEPERIODServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MAINTENANCEPERIODServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "MAINTENANCEPERIODServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterMAINTENANCEPERIODServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MAINTENANCEPERIODServiceClient) error {
+
+	mux.Handle("GET", pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "periods"}, ""))
+
+	pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "periods"}, ""))
+)
+
+var (
+	forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0 = runtime.ForwardResponseMessage
+
+	forward_MAINTENANCEPERIODService_CreateMaintenancePeriod_0 = runtime.ForwardResponseMessage
+)
+
+// RegisterCLASSIFICATIONServiceHandlerFromEndpoint is same as RegisterCLASSIFICATIONServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterCLASSIFICATIONServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterCLASSIFICATIONServiceHandler(ctx, mux, conn)
+}
+
+// RegisterCLASSIFICATIONServiceHandler registers the http handlers for service CLASSIFICATIONService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterCLASSIFICATIONServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterCLASSIFICATIONServiceHandlerClient(ctx, mux, NewCLASSIFICATIONServiceClient(conn))
+}
+
+// RegisterCLASSIFICATIONServiceHandlerClient registers the http handlers for service CLASSIFICATIONService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "CLASSIFICATIONServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "CLASSIFICATIONServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "CLASSIFICATIONServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client CLASSIFICATIONServiceClient) error {
+
+	mux.Handle("GET", pattern_CLASSIFICATIONService_ListClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CLASSIFICATIONService_ListClassification_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CLASSIFICATIONService_ListClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_CLASSIFICATIONService_CreateClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CLASSIFICATIONService_CreateClassification_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CLASSIFICATIONService_CreateClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_CLASSIFICATIONService_ListClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
+
+	pattern_CLASSIFICATIONService_CreateClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
+)
+
+var (
+	forward_CLASSIFICATIONService_ListClassification_0 = runtime.ForwardResponseMessage
+
+	forward_CLASSIFICATIONService_CreateClassification_0 = runtime.ForwardResponseMessage
+)
+
 // RegisterOUTLETServiceHandlerFromEndpoint is same as RegisterOUTLETServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterOUTLETServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
@@ -1413,6 +1868,77 @@ var (
 	forward_AUTHService_Login_0 = runtime.ForwardResponseMessage
 
 	forward_AUTHService_Logout_0 = runtime.ForwardResponseMessage
+)
+
+// RegisterROLEServiceHandlerFromEndpoint is same as RegisterROLEServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterROLEServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterROLEServiceHandler(ctx, mux, conn)
+}
+
+// RegisterROLEServiceHandler registers the http handlers for service ROLEService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterROLEServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterROLEServiceHandlerClient(ctx, mux, NewROLEServiceClient(conn))
+}
+
+// RegisterROLEServiceHandlerClient registers the http handlers for service ROLEService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ROLEServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ROLEServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "ROLEServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterROLEServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ROLEServiceClient) error {
+
+	mux.Handle("GET", pattern_ROLEService_ListRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ROLEService/ListRole", runtime.WithHTTPPathPattern("/api/roles"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ROLEService_ListRole_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ROLEService_ListRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_ROLEService_ListRole_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "roles"}, ""))
+)
+
+var (
+	forward_ROLEService_ListRole_0 = runtime.ForwardResponseMessage
 )
 
 // RegisterUSERServiceHandlerFromEndpoint is same as RegisterUSERServiceHandler but

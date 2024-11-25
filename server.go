@@ -28,6 +28,9 @@ func main() {
 		services.NewUserService(db),
 		services.NewAreaService(db),
 		services.NewOutletService(db),
+		services.NewClassificationService(db),
+		services.NewMaintenancePeriodService(db),
+		services.NewRoleService(db),
 	}
 
 	// Start the gRPC server
@@ -80,6 +83,9 @@ func startHTTPGateway() {
 		{"USERService", assetpb.RegisterUSERServiceHandlerFromEndpoint},
 		{"AREAService", assetpb.RegisterAREAServiceHandlerFromEndpoint},
 		{"OUTLETService", assetpb.RegisterOUTLETServiceHandlerFromEndpoint},
+		{"CLASSIFICATIONService", assetpb.RegisterCLASSIFICATIONServiceHandlerFromEndpoint},
+		{"MAINTENANCEPERIODService", assetpb.RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint},
+		{"ROLEService", assetpb.RegisterROLEServiceHandlerFromEndpoint},
 	}
 	
 	for _, svc := range services {
