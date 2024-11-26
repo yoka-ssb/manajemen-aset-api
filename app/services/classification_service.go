@@ -63,3 +63,10 @@ func (s *ClassificationService) CreateClassification(ctx context.Context, req *a
 		Code: "200",
 		}, nil
 }
+
+func getClassificationById(id int32) *assetpb.Classification {
+
+	var classification assetpb.Classification
+	db.First(&classification, id)
+	return &classification
+}

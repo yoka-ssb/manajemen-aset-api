@@ -8,65 +8,138 @@ import "google/api/annotations.proto";
 
 // Message for data Asset
 message Asset {
-    int32 aset_id = 1;
-    string aset_name = 2;
-    string aset_merk = 3;
-    string aset_spesifikasi = 4;
-    string aset_klasifikasi = 5;
-    string aset_kondisi = 6;
-    string aset_pic = 7;
-    string aset_tgl_pembelian = 8;
-    string aset_status = 9;
-    int32 klasifikasi_nilai_perolehan = 10;
-    int32 klasifikasi_nilai_buku_terakhir = 11;
+    int32 asset_id = 1;
+    string asset_name = 2;
+    string asset_brand = 3;
+    string asset_specification = 4;
+    int32 asset_classification = 5;
+    string asset_condition = 6;
+    int32 asset_pic = 7;
+    string asset_purchase_date = 8;
+    string asset_status = 9;
+    int32 classification_acquisition_value = 10;
+    int32 classification_last_book_value = 11;
     string created_at = 12;
     string updated_at = 13;
     int32 outlet_id = 14;
-    string aset_image = 15;
-    int32 nilai_penyusutan = 16;
-    string penanggungjawab = 17;
+    string outlet_name = 15;
+    int32 area_id = 16;
+    string area_name = 17;
+    string asset_image = 18;
+    int32 deprecation_value = 19;
+    int32 personal_responsible_id = 20;
+    string personal_name = 21;
 }
 
-message CreateItemRequest {
-    Asset item = 1;
+message CreateAssetRequest {
+    string asset_name = 1;
+    string asset_brand = 2;
+    string asset_specification = 3;
+    int32 asset_classification = 4;
+    string asset_condition = 5;
+    int32 asset_pic = 6;
+    string asset_purchase_date = 7;
+    string asset_status = 8;
+    int32 classification_acquisition_value = 9;
+    int32 outlet_id = 10;
+    string asset_image = 11;
+    int32 personal_responsible_id = 12;
+    int32 area_id = 13;
 }
 
-message CreateItemResponse {
-    Asset item = 1;
-    bool success = 2;
+message CreateAssetResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
 }
 
-message GetItemRequest {
+message GetAssetRequest {
     int32 id = 1;
 }
 
-message GetItemResponse {
-    Asset item = 1;
-    bool success = 2;
+message GetAssetResponse {
+    Asset data = 1;
+    string message = 2;
+    string code = 3;
 }
 
-message UpdateItemRequest {
+message UpdateAssetRequest {
     int32 id = 1;
-    Asset item = 2;
+    string asset_name = 2;
+    string asset_brand = 3;
+    string asset_specification = 4;
+    int32 asset_classification = 5;
+    string asset_condition = 6;
+    int32 asset_pic = 7;
+    string asset_purchase_date = 8;
+    string asset_status = 9;
+    int32 classification_acquisition_value = 10;
+    int32 outlet_id = 11;
+    string asset_image = 12;
+    int32 personal_responsible_id = 13;
+    int32 area_id = 14;
 }
 
-message UpdateItemResponse {
-    Asset item = 1;
-    bool success = 2;
+message UpdateAssetResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
 }
 
-message DeleteItemRequest {
+message DeleteAssetRequest {
     int32 id = 1;
 }
 
-message DeleteItemResponse {
-    bool success = 1;
+message DeleteAssetResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
 }
 
-message ListItemsRequest {}
+message ListAssetsRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    string q = 3;
+}
 
-message ListItemsResponse {
-    repeated Asset items = 1;
+message ListAssetsResponse {
+    repeated Asset data = 1;
+    int32 total_count = 2;
+    int32 page_number = 3;
+    int32 page_size = 4;
+    string next_page_token = 5;
+}
+
+// Message for data Asset Update
+message AssetUpdate {
+    int32 asset_update_id = 1;
+    int32 asset_id = 2;
+    string asset_status = 3;
+}
+
+message CreateAssetUpdateRequest {
+    int32 asset_id = 1;
+    string asset_status = 2;
+}
+
+message CreateAssetUpdateResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+// Message for data Personal Responsible
+message PersonalResponsible {
+    int32 personal_id = 1;
+    string personal_name = 2;
+}
+
+message ListPersonalResponsibleRequest {}
+
+message ListPersonalResponsibleResponse {
+    repeated PersonalResponsible data = 1;
+    string message = 2;
+    string code = 3;
 }
 
 // Message for data User
@@ -434,31 +507,43 @@ service USERService {
 }
 
 service ASSETService {
-    rpc CreateItem(CreateItemRequest) returns (CreateItemResponse) {
+    rpc CreateAsset(CreateAssetRequest) returns (CreateAssetResponse) {
         option (google.api.http) = {
-            post: "/api/items"
+            post: "/api/assets"
             body: "*"
         };
     };
-    rpc GetItem(GetItemRequest) returns (GetItemResponse){
+    rpc GetAsset(GetAssetRequest) returns (GetAssetResponse){
         option (google.api.http) = {
-            get: "/api/items/{id}"
+            get: "/api/assets/{id}"
         };
     };
-    rpc UpdateItem(UpdateItemRequest) returns (UpdateItemResponse) {
+    rpc UpdateAsset(UpdateAssetRequest) returns (UpdateAssetResponse) {
         option (google.api.http) = {
-            put: "/api/items/{id}"
+            put: "/api/assets/{id}"
             body: "*"
         };
     };
-    rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse) {
+    rpc DeleteAsset(DeleteAssetRequest) returns (DeleteAssetResponse) {
         option (google.api.http) = {
-            delete: "/api/items/{id}"
+            delete: "/api/assets/{id}"
         };
     };
-    rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {
+    rpc ListAssets(ListAssetsRequest) returns (ListAssetsResponse) {
         option (google.api.http) = {
-            get: "/api/items"
+            get: "/api/assets"
+        };
+    };
+}
+
+service ASSETUPDATEService {
+    rpc CreateAssetUpdate(CreateAssetUpdateRequest) returns (CreateAssetUpdateResponse);
+};
+
+service PERSONALRESPONSIBLEService {
+    rpc ListPersonalResponsible(ListPersonalResponsibleRequest) returns (ListPersonalResponsibleResponse) {
+        option (google.api.http) = {
+            get: "/api/personal-responsibles"
         };
     };
 }

@@ -1118,22 +1118,22 @@ var USERService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ASSETService_CreateItem_FullMethodName = "/asset.ASSETService/CreateItem"
-	ASSETService_GetItem_FullMethodName    = "/asset.ASSETService/GetItem"
-	ASSETService_UpdateItem_FullMethodName = "/asset.ASSETService/UpdateItem"
-	ASSETService_DeleteItem_FullMethodName = "/asset.ASSETService/DeleteItem"
-	ASSETService_ListItems_FullMethodName  = "/asset.ASSETService/ListItems"
+	ASSETService_CreateAsset_FullMethodName = "/asset.ASSETService/CreateAsset"
+	ASSETService_GetAsset_FullMethodName    = "/asset.ASSETService/GetAsset"
+	ASSETService_UpdateAsset_FullMethodName = "/asset.ASSETService/UpdateAsset"
+	ASSETService_DeleteAsset_FullMethodName = "/asset.ASSETService/DeleteAsset"
+	ASSETService_ListAssets_FullMethodName  = "/asset.ASSETService/ListAssets"
 )
 
 // ASSETServiceClient is the client API for ASSETService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ASSETServiceClient interface {
-	CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error)
-	GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error)
-	UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error)
-	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error)
-	ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error)
+	CreateAsset(ctx context.Context, in *CreateAssetRequest, opts ...grpc.CallOption) (*CreateAssetResponse, error)
+	GetAsset(ctx context.Context, in *GetAssetRequest, opts ...grpc.CallOption) (*GetAssetResponse, error)
+	UpdateAsset(ctx context.Context, in *UpdateAssetRequest, opts ...grpc.CallOption) (*UpdateAssetResponse, error)
+	DeleteAsset(ctx context.Context, in *DeleteAssetRequest, opts ...grpc.CallOption) (*DeleteAssetResponse, error)
+	ListAssets(ctx context.Context, in *ListAssetsRequest, opts ...grpc.CallOption) (*ListAssetsResponse, error)
 }
 
 type aSSETServiceClient struct {
@@ -1144,50 +1144,50 @@ func NewASSETServiceClient(cc grpc.ClientConnInterface) ASSETServiceClient {
 	return &aSSETServiceClient{cc}
 }
 
-func (c *aSSETServiceClient) CreateItem(ctx context.Context, in *CreateItemRequest, opts ...grpc.CallOption) (*CreateItemResponse, error) {
+func (c *aSSETServiceClient) CreateAsset(ctx context.Context, in *CreateAssetRequest, opts ...grpc.CallOption) (*CreateAssetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateItemResponse)
-	err := c.cc.Invoke(ctx, ASSETService_CreateItem_FullMethodName, in, out, cOpts...)
+	out := new(CreateAssetResponse)
+	err := c.cc.Invoke(ctx, ASSETService_CreateAsset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aSSETServiceClient) GetItem(ctx context.Context, in *GetItemRequest, opts ...grpc.CallOption) (*GetItemResponse, error) {
+func (c *aSSETServiceClient) GetAsset(ctx context.Context, in *GetAssetRequest, opts ...grpc.CallOption) (*GetAssetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetItemResponse)
-	err := c.cc.Invoke(ctx, ASSETService_GetItem_FullMethodName, in, out, cOpts...)
+	out := new(GetAssetResponse)
+	err := c.cc.Invoke(ctx, ASSETService_GetAsset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aSSETServiceClient) UpdateItem(ctx context.Context, in *UpdateItemRequest, opts ...grpc.CallOption) (*UpdateItemResponse, error) {
+func (c *aSSETServiceClient) UpdateAsset(ctx context.Context, in *UpdateAssetRequest, opts ...grpc.CallOption) (*UpdateAssetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateItemResponse)
-	err := c.cc.Invoke(ctx, ASSETService_UpdateItem_FullMethodName, in, out, cOpts...)
+	out := new(UpdateAssetResponse)
+	err := c.cc.Invoke(ctx, ASSETService_UpdateAsset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aSSETServiceClient) DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...grpc.CallOption) (*DeleteItemResponse, error) {
+func (c *aSSETServiceClient) DeleteAsset(ctx context.Context, in *DeleteAssetRequest, opts ...grpc.CallOption) (*DeleteAssetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteItemResponse)
-	err := c.cc.Invoke(ctx, ASSETService_DeleteItem_FullMethodName, in, out, cOpts...)
+	out := new(DeleteAssetResponse)
+	err := c.cc.Invoke(ctx, ASSETService_DeleteAsset_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aSSETServiceClient) ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error) {
+func (c *aSSETServiceClient) ListAssets(ctx context.Context, in *ListAssetsRequest, opts ...grpc.CallOption) (*ListAssetsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListItemsResponse)
-	err := c.cc.Invoke(ctx, ASSETService_ListItems_FullMethodName, in, out, cOpts...)
+	out := new(ListAssetsResponse)
+	err := c.cc.Invoke(ctx, ASSETService_ListAssets_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1198,11 +1198,11 @@ func (c *aSSETServiceClient) ListItems(ctx context.Context, in *ListItemsRequest
 // All implementations must embed UnimplementedASSETServiceServer
 // for forward compatibility.
 type ASSETServiceServer interface {
-	CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error)
-	GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error)
-	UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error)
-	DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error)
-	ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error)
+	CreateAsset(context.Context, *CreateAssetRequest) (*CreateAssetResponse, error)
+	GetAsset(context.Context, *GetAssetRequest) (*GetAssetResponse, error)
+	UpdateAsset(context.Context, *UpdateAssetRequest) (*UpdateAssetResponse, error)
+	DeleteAsset(context.Context, *DeleteAssetRequest) (*DeleteAssetResponse, error)
+	ListAssets(context.Context, *ListAssetsRequest) (*ListAssetsResponse, error)
 	mustEmbedUnimplementedASSETServiceServer()
 }
 
@@ -1213,20 +1213,20 @@ type ASSETServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedASSETServiceServer struct{}
 
-func (UnimplementedASSETServiceServer) CreateItem(context.Context, *CreateItemRequest) (*CreateItemResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateItem not implemented")
+func (UnimplementedASSETServiceServer) CreateAsset(context.Context, *CreateAssetRequest) (*CreateAssetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAsset not implemented")
 }
-func (UnimplementedASSETServiceServer) GetItem(context.Context, *GetItemRequest) (*GetItemResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetItem not implemented")
+func (UnimplementedASSETServiceServer) GetAsset(context.Context, *GetAssetRequest) (*GetAssetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAsset not implemented")
 }
-func (UnimplementedASSETServiceServer) UpdateItem(context.Context, *UpdateItemRequest) (*UpdateItemResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateItem not implemented")
+func (UnimplementedASSETServiceServer) UpdateAsset(context.Context, *UpdateAssetRequest) (*UpdateAssetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAsset not implemented")
 }
-func (UnimplementedASSETServiceServer) DeleteItem(context.Context, *DeleteItemRequest) (*DeleteItemResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteItem not implemented")
+func (UnimplementedASSETServiceServer) DeleteAsset(context.Context, *DeleteAssetRequest) (*DeleteAssetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAsset not implemented")
 }
-func (UnimplementedASSETServiceServer) ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListItems not implemented")
+func (UnimplementedASSETServiceServer) ListAssets(context.Context, *ListAssetsRequest) (*ListAssetsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAssets not implemented")
 }
 func (UnimplementedASSETServiceServer) mustEmbedUnimplementedASSETServiceServer() {}
 func (UnimplementedASSETServiceServer) testEmbeddedByValue()                      {}
@@ -1249,92 +1249,92 @@ func RegisterASSETServiceServer(s grpc.ServiceRegistrar, srv ASSETServiceServer)
 	s.RegisterService(&ASSETService_ServiceDesc, srv)
 }
 
-func _ASSETService_CreateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateItemRequest)
+func _ASSETService_CreateAsset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAssetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ASSETServiceServer).CreateItem(ctx, in)
+		return srv.(ASSETServiceServer).CreateAsset(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ASSETService_CreateItem_FullMethodName,
+		FullMethod: ASSETService_CreateAsset_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ASSETServiceServer).CreateItem(ctx, req.(*CreateItemRequest))
+		return srv.(ASSETServiceServer).CreateAsset(ctx, req.(*CreateAssetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ASSETService_GetItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetItemRequest)
+func _ASSETService_GetAsset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAssetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ASSETServiceServer).GetItem(ctx, in)
+		return srv.(ASSETServiceServer).GetAsset(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ASSETService_GetItem_FullMethodName,
+		FullMethod: ASSETService_GetAsset_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ASSETServiceServer).GetItem(ctx, req.(*GetItemRequest))
+		return srv.(ASSETServiceServer).GetAsset(ctx, req.(*GetAssetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ASSETService_UpdateItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateItemRequest)
+func _ASSETService_UpdateAsset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAssetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ASSETServiceServer).UpdateItem(ctx, in)
+		return srv.(ASSETServiceServer).UpdateAsset(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ASSETService_UpdateItem_FullMethodName,
+		FullMethod: ASSETService_UpdateAsset_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ASSETServiceServer).UpdateItem(ctx, req.(*UpdateItemRequest))
+		return srv.(ASSETServiceServer).UpdateAsset(ctx, req.(*UpdateAssetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ASSETService_DeleteItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteItemRequest)
+func _ASSETService_DeleteAsset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAssetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ASSETServiceServer).DeleteItem(ctx, in)
+		return srv.(ASSETServiceServer).DeleteAsset(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ASSETService_DeleteItem_FullMethodName,
+		FullMethod: ASSETService_DeleteAsset_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ASSETServiceServer).DeleteItem(ctx, req.(*DeleteItemRequest))
+		return srv.(ASSETServiceServer).DeleteAsset(ctx, req.(*DeleteAssetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ASSETService_ListItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListItemsRequest)
+func _ASSETService_ListAssets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAssetsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ASSETServiceServer).ListItems(ctx, in)
+		return srv.(ASSETServiceServer).ListAssets(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ASSETService_ListItems_FullMethodName,
+		FullMethod: ASSETService_ListAssets_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ASSETServiceServer).ListItems(ctx, req.(*ListItemsRequest))
+		return srv.(ASSETServiceServer).ListAssets(ctx, req.(*ListAssetsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1347,24 +1347,229 @@ var ASSETService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ASSETServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateItem",
-			Handler:    _ASSETService_CreateItem_Handler,
+			MethodName: "CreateAsset",
+			Handler:    _ASSETService_CreateAsset_Handler,
 		},
 		{
-			MethodName: "GetItem",
-			Handler:    _ASSETService_GetItem_Handler,
+			MethodName: "GetAsset",
+			Handler:    _ASSETService_GetAsset_Handler,
 		},
 		{
-			MethodName: "UpdateItem",
-			Handler:    _ASSETService_UpdateItem_Handler,
+			MethodName: "UpdateAsset",
+			Handler:    _ASSETService_UpdateAsset_Handler,
 		},
 		{
-			MethodName: "DeleteItem",
-			Handler:    _ASSETService_DeleteItem_Handler,
+			MethodName: "DeleteAsset",
+			Handler:    _ASSETService_DeleteAsset_Handler,
 		},
 		{
-			MethodName: "ListItems",
-			Handler:    _ASSETService_ListItems_Handler,
+			MethodName: "ListAssets",
+			Handler:    _ASSETService_ListAssets_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
+	ASSETUPDATEService_CreateAssetUpdate_FullMethodName = "/asset.ASSETUPDATEService/CreateAssetUpdate"
+)
+
+// ASSETUPDATEServiceClient is the client API for ASSETUPDATEService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ASSETUPDATEServiceClient interface {
+	CreateAssetUpdate(ctx context.Context, in *CreateAssetUpdateRequest, opts ...grpc.CallOption) (*CreateAssetUpdateResponse, error)
+}
+
+type aSSETUPDATEServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewASSETUPDATEServiceClient(cc grpc.ClientConnInterface) ASSETUPDATEServiceClient {
+	return &aSSETUPDATEServiceClient{cc}
+}
+
+func (c *aSSETUPDATEServiceClient) CreateAssetUpdate(ctx context.Context, in *CreateAssetUpdateRequest, opts ...grpc.CallOption) (*CreateAssetUpdateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAssetUpdateResponse)
+	err := c.cc.Invoke(ctx, ASSETUPDATEService_CreateAssetUpdate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ASSETUPDATEServiceServer is the server API for ASSETUPDATEService service.
+// All implementations must embed UnimplementedASSETUPDATEServiceServer
+// for forward compatibility.
+type ASSETUPDATEServiceServer interface {
+	CreateAssetUpdate(context.Context, *CreateAssetUpdateRequest) (*CreateAssetUpdateResponse, error)
+	mustEmbedUnimplementedASSETUPDATEServiceServer()
+}
+
+// UnimplementedASSETUPDATEServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedASSETUPDATEServiceServer struct{}
+
+func (UnimplementedASSETUPDATEServiceServer) CreateAssetUpdate(context.Context, *CreateAssetUpdateRequest) (*CreateAssetUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAssetUpdate not implemented")
+}
+func (UnimplementedASSETUPDATEServiceServer) mustEmbedUnimplementedASSETUPDATEServiceServer() {}
+func (UnimplementedASSETUPDATEServiceServer) testEmbeddedByValue()                            {}
+
+// UnsafeASSETUPDATEServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ASSETUPDATEServiceServer will
+// result in compilation errors.
+type UnsafeASSETUPDATEServiceServer interface {
+	mustEmbedUnimplementedASSETUPDATEServiceServer()
+}
+
+func RegisterASSETUPDATEServiceServer(s grpc.ServiceRegistrar, srv ASSETUPDATEServiceServer) {
+	// If the following call pancis, it indicates UnimplementedASSETUPDATEServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ASSETUPDATEService_ServiceDesc, srv)
+}
+
+func _ASSETUPDATEService_CreateAssetUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAssetUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ASSETUPDATEServiceServer).CreateAssetUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ASSETUPDATEService_CreateAssetUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ASSETUPDATEServiceServer).CreateAssetUpdate(ctx, req.(*CreateAssetUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ASSETUPDATEService_ServiceDesc is the grpc.ServiceDesc for ASSETUPDATEService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ASSETUPDATEService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.ASSETUPDATEService",
+	HandlerType: (*ASSETUPDATEServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateAssetUpdate",
+			Handler:    _ASSETUPDATEService_CreateAssetUpdate_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
+	PERSONALRESPONSIBLEService_ListPersonalResponsible_FullMethodName = "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible"
+)
+
+// PERSONALRESPONSIBLEServiceClient is the client API for PERSONALRESPONSIBLEService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PERSONALRESPONSIBLEServiceClient interface {
+	ListPersonalResponsible(ctx context.Context, in *ListPersonalResponsibleRequest, opts ...grpc.CallOption) (*ListPersonalResponsibleResponse, error)
+}
+
+type pERSONALRESPONSIBLEServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPERSONALRESPONSIBLEServiceClient(cc grpc.ClientConnInterface) PERSONALRESPONSIBLEServiceClient {
+	return &pERSONALRESPONSIBLEServiceClient{cc}
+}
+
+func (c *pERSONALRESPONSIBLEServiceClient) ListPersonalResponsible(ctx context.Context, in *ListPersonalResponsibleRequest, opts ...grpc.CallOption) (*ListPersonalResponsibleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPersonalResponsibleResponse)
+	err := c.cc.Invoke(ctx, PERSONALRESPONSIBLEService_ListPersonalResponsible_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PERSONALRESPONSIBLEServiceServer is the server API for PERSONALRESPONSIBLEService service.
+// All implementations must embed UnimplementedPERSONALRESPONSIBLEServiceServer
+// for forward compatibility.
+type PERSONALRESPONSIBLEServiceServer interface {
+	ListPersonalResponsible(context.Context, *ListPersonalResponsibleRequest) (*ListPersonalResponsibleResponse, error)
+	mustEmbedUnimplementedPERSONALRESPONSIBLEServiceServer()
+}
+
+// UnimplementedPERSONALRESPONSIBLEServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedPERSONALRESPONSIBLEServiceServer struct{}
+
+func (UnimplementedPERSONALRESPONSIBLEServiceServer) ListPersonalResponsible(context.Context, *ListPersonalResponsibleRequest) (*ListPersonalResponsibleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPersonalResponsible not implemented")
+}
+func (UnimplementedPERSONALRESPONSIBLEServiceServer) mustEmbedUnimplementedPERSONALRESPONSIBLEServiceServer() {
+}
+func (UnimplementedPERSONALRESPONSIBLEServiceServer) testEmbeddedByValue() {}
+
+// UnsafePERSONALRESPONSIBLEServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PERSONALRESPONSIBLEServiceServer will
+// result in compilation errors.
+type UnsafePERSONALRESPONSIBLEServiceServer interface {
+	mustEmbedUnimplementedPERSONALRESPONSIBLEServiceServer()
+}
+
+func RegisterPERSONALRESPONSIBLEServiceServer(s grpc.ServiceRegistrar, srv PERSONALRESPONSIBLEServiceServer) {
+	// If the following call pancis, it indicates UnimplementedPERSONALRESPONSIBLEServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&PERSONALRESPONSIBLEService_ServiceDesc, srv)
+}
+
+func _PERSONALRESPONSIBLEService_ListPersonalResponsible_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPersonalResponsibleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PERSONALRESPONSIBLEServiceServer).ListPersonalResponsible(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PERSONALRESPONSIBLEService_ListPersonalResponsible_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PERSONALRESPONSIBLEServiceServer).ListPersonalResponsible(ctx, req.(*ListPersonalResponsibleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PERSONALRESPONSIBLEService_ServiceDesc is the grpc.ServiceDesc for PERSONALRESPONSIBLEService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PERSONALRESPONSIBLEService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.PERSONALRESPONSIBLEService",
+	HandlerType: (*PERSONALRESPONSIBLEServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListPersonalResponsible",
+			Handler:    _PERSONALRESPONSIBLEService_ListPersonalResponsible_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -168,7 +168,7 @@ func (s *UserService) ListUsers(ctx context.Context, req *assetpb.ListUsersReque
 	}
 
 	// Get the total count of users
-	totalCount, err := getTotalCount()
+	totalCount, err := GetTotalCount("users")
 	if err != nil {
 		log.Default().Println("Error fetching total count:", err)
 		return nil, err
@@ -252,16 +252,4 @@ func getUsers(offset, limit int32, q string) ([]*assetpb.User, error) {
 	}
 
 	return users, nil
-}
-
-func getTotalCount() (int32, error) {
-	// Query the database to get the total count of users
-	var count int32
-	err := db.Raw("SELECT COUNT(*) FROM users").Scan(&count).Error
-	if err != nil {
-		log.Default().Println("Error fetching total count:", err)
-		return 0, err
-	}
-
-	return count, nil
 }

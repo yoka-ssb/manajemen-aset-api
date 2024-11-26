@@ -3,6 +3,7 @@ package services
 import (
 	"asset-management-api/app/database"
 	"asset-management-api/assetpb"
+	"log"
 
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
@@ -30,4 +31,16 @@ func (s *MasterService) Register(server interface{}) {
 // InterfaceService provides a common interface for all services.
 type InterfaceService interface {
 	Register(server interface{})
+}
+
+func GetTotalCount(table string) (int32, error) {
+	// Query the database to get the total count of users
+	var count int32
+	err := db.Raw("SELECT COUNT(*) FROM " + table + "").Scan(&count).Error
+	if err != nil {
+		log.Default().Println("Error fetching total count:", err)
+		return 0, err
+	}
+
+	return count, nil
 }

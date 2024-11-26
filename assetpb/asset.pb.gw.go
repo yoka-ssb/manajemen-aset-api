@@ -547,34 +547,34 @@ func local_request_USERService_ResetPassword_0(ctx context.Context, marshaler ru
 
 }
 
-func request_ASSETService_CreateItem_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateItemRequest
+func request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateAssetRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CreateItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CreateAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ASSETService_CreateItem_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateItemRequest
+func local_request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateAssetRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CreateItem(ctx, &protoReq)
+	msg, err := server.CreateAsset(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_ASSETService_GetItem_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetItemRequest
+func request_ASSETService_GetAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetAssetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -594,13 +594,13 @@ func request_ASSETService_GetItem_0(ctx context.Context, marshaler runtime.Marsh
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.GetItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ASSETService_GetItem_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetItemRequest
+func local_request_ASSETService_GetAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetAssetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -620,43 +620,13 @@ func local_request_ASSETService_GetItem_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.GetItem(ctx, &protoReq)
+	msg, err := server.GetAsset(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_ASSETService_UpdateItem_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateItemRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-
-	protoReq.Id, err = runtime.Int32(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	msg, err := client.UpdateItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func local_request_ASSETService_UpdateItem_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateItemRequest
+func request_ASSETService_UpdateAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateAssetRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -680,13 +650,43 @@ func local_request_ASSETService_UpdateItem_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.UpdateItem(ctx, &protoReq)
+	msg, err := client.UpdateAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func request_ASSETService_DeleteItem_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteItemRequest
+func local_request_ASSETService_UpdateAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateAssetRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := server.UpdateAsset(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_ASSETService_DeleteAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteAssetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -706,13 +706,13 @@ func request_ASSETService_DeleteItem_0(ctx context.Context, marshaler runtime.Ma
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.DeleteItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DeleteAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ASSETService_DeleteItem_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteItemRequest
+func local_request_ASSETService_DeleteAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteAssetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -732,25 +732,61 @@ func local_request_ASSETService_DeleteItem_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.DeleteItem(ctx, &protoReq)
+	msg, err := server.DeleteAsset(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_ASSETService_ListItems_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListItemsRequest
+var (
+	filter_ASSETService_ListAssets_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_ASSETService_ListAssets_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListAssetsRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := client.ListItems(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ASSETService_ListAssets_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.ListAssets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ASSETService_ListItems_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListItemsRequest
+func local_request_ASSETService_ListAssets_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListAssetsRequest
 	var metadata runtime.ServerMetadata
 
-	msg, err := server.ListItems(ctx, &protoReq)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ASSETService_ListAssets_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.ListAssets(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(ctx context.Context, marshaler runtime.Marshaler, client PERSONALRESPONSIBLEServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListPersonalResponsibleRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.ListPersonalResponsible(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(ctx context.Context, marshaler runtime.Marshaler, server PERSONALRESPONSIBLEServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListPersonalResponsibleRequest
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.ListPersonalResponsible(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1257,7 +1293,7 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ASSETServiceServer) error {
 
-	mux.Handle("POST", pattern_ASSETService_CreateItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1265,12 +1301,12 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/CreateItem", runtime.WithHTTPPathPattern("/api/items"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ASSETService_CreateItem_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ASSETService_CreateAsset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1278,11 +1314,11 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_ASSETService_CreateItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_CreateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ASSETService_GetItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1290,12 +1326,12 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/GetItem", runtime.WithHTTPPathPattern("/api/items/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/GetAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ASSETService_GetItem_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ASSETService_GetAsset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1303,11 +1339,11 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_ASSETService_GetItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_GetAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_ASSETService_UpdateItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_ASSETService_UpdateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1315,12 +1351,12 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/UpdateItem", runtime.WithHTTPPathPattern("/api/items/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/UpdateAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ASSETService_UpdateItem_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ASSETService_UpdateAsset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1328,11 +1364,11 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_ASSETService_UpdateItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_UpdateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_ASSETService_DeleteItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_ASSETService_DeleteAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1340,12 +1376,12 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/DeleteItem", runtime.WithHTTPPathPattern("/api/items/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/DeleteAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ASSETService_DeleteItem_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ASSETService_DeleteAsset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1353,11 +1389,11 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_ASSETService_DeleteItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_DeleteAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ASSETService_ListItems_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ASSETService_ListAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1365,12 +1401,12 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/ListItems", runtime.WithHTTPPathPattern("/api/items"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/ListAssets", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ASSETService_ListItems_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ASSETService_ListAssets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1378,7 +1414,42 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_ASSETService_ListItems_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_ListAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+// RegisterPERSONALRESPONSIBLEServiceHandlerServer registers the http handlers for service PERSONALRESPONSIBLEService to "mux".
+// UnaryRPC     :call PERSONALRESPONSIBLEServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
+func RegisterPERSONALRESPONSIBLEServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PERSONALRESPONSIBLEServiceServer) error {
+
+	mux.Handle("GET", pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible", runtime.WithHTTPPathPattern("/api/personal-responsibles"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -2180,113 +2251,113 @@ func RegisterASSETServiceHandler(ctx context.Context, mux *runtime.ServeMux, con
 // "ASSETServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ASSETServiceClient) error {
 
-	mux.Handle("POST", pattern_ASSETService_CreateItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/CreateItem", runtime.WithHTTPPathPattern("/api/items"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ASSETService_CreateItem_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ASSETService_CreateAsset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ASSETService_CreateItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_CreateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ASSETService_GetItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/GetItem", runtime.WithHTTPPathPattern("/api/items/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/GetAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ASSETService_GetItem_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ASSETService_GetAsset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ASSETService_GetItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_GetAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_ASSETService_UpdateItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_ASSETService_UpdateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/UpdateItem", runtime.WithHTTPPathPattern("/api/items/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/UpdateAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ASSETService_UpdateItem_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ASSETService_UpdateAsset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ASSETService_UpdateItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_UpdateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_ASSETService_DeleteItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_ASSETService_DeleteAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/DeleteItem", runtime.WithHTTPPathPattern("/api/items/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/DeleteAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ASSETService_DeleteItem_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ASSETService_DeleteAsset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ASSETService_DeleteItem_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_DeleteAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ASSETService_ListItems_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ASSETService_ListAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/ListItems", runtime.WithHTTPPathPattern("/api/items"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/ListAssets", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ASSETService_ListItems_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ASSETService_ListAssets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ASSETService_ListItems_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_ListAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -2294,25 +2365,96 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_ASSETService_CreateItem_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "items"}, ""))
+	pattern_ASSETService_CreateAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
 
-	pattern_ASSETService_GetItem_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "items", "id"}, ""))
+	pattern_ASSETService_GetAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
 
-	pattern_ASSETService_UpdateItem_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "items", "id"}, ""))
+	pattern_ASSETService_UpdateAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
 
-	pattern_ASSETService_DeleteItem_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "items", "id"}, ""))
+	pattern_ASSETService_DeleteAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
 
-	pattern_ASSETService_ListItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "items"}, ""))
+	pattern_ASSETService_ListAssets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
 )
 
 var (
-	forward_ASSETService_CreateItem_0 = runtime.ForwardResponseMessage
+	forward_ASSETService_CreateAsset_0 = runtime.ForwardResponseMessage
 
-	forward_ASSETService_GetItem_0 = runtime.ForwardResponseMessage
+	forward_ASSETService_GetAsset_0 = runtime.ForwardResponseMessage
 
-	forward_ASSETService_UpdateItem_0 = runtime.ForwardResponseMessage
+	forward_ASSETService_UpdateAsset_0 = runtime.ForwardResponseMessage
 
-	forward_ASSETService_DeleteItem_0 = runtime.ForwardResponseMessage
+	forward_ASSETService_DeleteAsset_0 = runtime.ForwardResponseMessage
 
-	forward_ASSETService_ListItems_0 = runtime.ForwardResponseMessage
+	forward_ASSETService_ListAssets_0 = runtime.ForwardResponseMessage
+)
+
+// RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint is same as RegisterPERSONALRESPONSIBLEServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+
+	return RegisterPERSONALRESPONSIBLEServiceHandler(ctx, mux, conn)
+}
+
+// RegisterPERSONALRESPONSIBLEServiceHandler registers the http handlers for service PERSONALRESPONSIBLEService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterPERSONALRESPONSIBLEServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterPERSONALRESPONSIBLEServiceHandlerClient(ctx, mux, NewPERSONALRESPONSIBLEServiceClient(conn))
+}
+
+// RegisterPERSONALRESPONSIBLEServiceHandlerClient registers the http handlers for service PERSONALRESPONSIBLEService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "PERSONALRESPONSIBLEServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "PERSONALRESPONSIBLEServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "PERSONALRESPONSIBLEServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterPERSONALRESPONSIBLEServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PERSONALRESPONSIBLEServiceClient) error {
+
+	mux.Handle("GET", pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible", runtime.WithHTTPPathPattern("/api/personal-responsibles"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	return nil
+}
+
+var (
+	pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "personal-responsibles"}, ""))
+)
+
+var (
+	forward_PERSONALRESPONSIBLEService_ListPersonalResponsible_0 = runtime.ForwardResponseMessage
 )
