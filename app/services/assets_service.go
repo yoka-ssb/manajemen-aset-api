@@ -140,11 +140,12 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 	log.Default().Println("getting asset with ID: ", req.GetId())
 	var asset assetpb.Asset
 
-	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, personal_responsibles.personal_name AS personal_name, roles.role_name AS asset_pic_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
+	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, personal_responsibles.personal_name AS personal_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
 		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
 		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
 		Joins("LEFT JOIN personal_responsibles ON assets.personal_responsible_id = personal_responsibles.personal_id").
 		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
+		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
 		Where("assets.asset_id = ?", req.GetId())
 
 	result := query.First(&asset)
