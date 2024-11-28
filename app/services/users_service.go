@@ -94,13 +94,10 @@ func (s *UserService) CreateUser(ctx context.Context, req *assetpb.CreateUserReq
 func (s *UserService) GetUser(ctx context.Context, req *assetpb.GetUserRequest) (*assetpb.GetUserResponse, error) {
 	log.Default().Println("Getting user with nip: ", req.GetNip())
 	var user assetpb.User
-	err := db.Select(
-		"nip",
-		"user_full_name",
-		"user_email",
-		"role_id",
-		"area_id",
-		"outlet_id").Where("nip = ?", req.GetNip()).First(&user).Error
+
+	err := db.Select("users.*, roles.role_name AS role_name").
+		Joins("LEFT JOIN roles ON users.role_id = roles.role_id").
+		Where("nip = ?", req.GetNip()).First(&user).Error
 	if err != nil {
 		return &assetpb.GetUserResponse{
 			Message: "User not found",
@@ -237,13 +234,15 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 func getUsers(offset, limit int32, q string) ([]*assetpb.User, error) {
 	// Query the database to get the users
 	var users []*assetpb.User
-	var query *gorm.DB
+	query := db.Select("users.*, roles.role_name AS role_name").
+		Limit(int(limit)).Offset(int(offset))
 
 	if q != "" {
-		query = db.Raw("SELECT * FROM users WHERE user_full_name LIKE ? LIMIT ? OFFSET ?", "%"+q+"%", limit, offset)
-	} else {
-		query = db.Raw("SELECT * FROM users LIMIT ? OFFSET ?", limit, offset)
+		query = query.Where("users.user_full_name LIKE ?", "%"+q+"%")
 	}
+
+	query = query.
+		Joins("LEFT JOIN roles ON users.role_id = roles.role_id")
 
 	err := query.Find(&users).Error
 	if err != nil {

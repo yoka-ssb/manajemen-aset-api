@@ -68,7 +68,18 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 
 	lastBookValue := req.GetClassificationAcquisitionValue() - (deprecationValue * int32(month))
 
+	var lastAsset Asset
+	last := db.Model(&assetpb.Asset{}).Last(&lastAsset)
+	if last.Error != nil {
+		return &assetpb.CreateAssetResponse{
+			Message: "Error getting last asset",
+			Code:    "500",
+			Success: false}, nil
+	}
+	lastID := lastAsset.AssetId
+
 	asset := Asset{
+		AssetId:                        lastID + 1,
 		AssetName:                      req.GetAssetName(),
 		AssetBrand:                     req.GetAssetBrand(),
 		AssetSpecification:             req.GetAssetSpecification(),
@@ -89,6 +100,26 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 	result := db.Create(&asset)
 	if result.Error != nil {
 		log.Fatal(result.Error)
+	}
+
+	log.Default().Println("asset ID: ", asset.AssetId)
+
+	// Hash asset id
+	hashedAssetId, err := utils.HashPassword(fmt.Sprintf("%d", asset.AssetId))
+	if err != nil {
+		return &assetpb.CreateAssetResponse{
+			Message: "Failed to hash asset id",
+			Code:    "400",
+			Success: false}, nil
+	}
+
+	// Update asset id hash
+	update := db.Model(&assetpb.Asset{}).Where("asset_id = ?", asset.AssetId).Update("asset_id_hash", hashedAssetId)
+	if update.Error != nil {
+		return &assetpb.CreateAssetResponse{
+			Message: "Failed to update asset id hash",
+			Code:    "400",
+			Success: false}, nil
 	}
 
 	return &assetpb.CreateAssetResponse{

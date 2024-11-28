@@ -9,26 +9,27 @@ import "google/api/annotations.proto";
 // Message for data Asset
 message Asset {
     int32 asset_id = 1;
-    string asset_name = 2;
-    string asset_brand = 3;
-    string asset_specification = 4;
-    int32 asset_classification = 5;
-    string asset_condition = 6;
-    int32 asset_pic = 7;
-    string asset_purchase_date = 8;
-    string asset_status = 9;
-    int32 classification_acquisition_value = 10;
-    int32 classification_last_book_value = 11;
-    string created_at = 12;
-    string updated_at = 13;
-    int32 outlet_id = 14;
-    string outlet_name = 15;
-    int32 area_id = 16;
-    string area_name = 17;
-    string asset_image = 18;
-    int32 deprecation_value = 19;
-    int32 personal_responsible_id = 20;
-    string personal_name = 21;
+    string asset_id_hash = 2;
+    string asset_name = 3;
+    string asset_brand = 4;
+    string asset_specification = 5;
+    int32 asset_classification = 6;
+    string asset_condition = 7;
+    int32 asset_pic = 8;
+    string asset_purchase_date = 9;
+    string asset_status = 10;
+    int32 classification_acquisition_value = 11;
+    int32 classification_last_book_value = 12;
+    string created_at = 13;
+    string updated_at = 14;
+    int32 outlet_id = 15;
+    string outlet_name = 16;
+    int32 area_id = 17;
+    string area_name = 18;
+    string asset_image = 19;
+    int32 deprecation_value = 20;
+    int32 personal_responsible_id = 21;
+    string personal_name = 22;
 }
 
 message CreateAssetRequest {
@@ -149,8 +150,9 @@ message User {
     string user_email = 3;
     string user_password = 4;
     int32 role_id = 5;
-    int32 area_id = 6;
-    int32 outlet_id = 7;
+    string role_name = 6;
+    int32 area_id = 7;
+    int32 outlet_id = 8;
 }
 
 message CreateUserRequest {
