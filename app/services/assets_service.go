@@ -18,22 +18,22 @@ type AssetService struct {
 }
 
 type Asset struct {
-	AssetId                        int32  `json:"asset_id"`
-	AssetName                      string `json:"asset_name"`
-	AssetBrand                     string `json:"asset_brand"`
-	AssetSpecification             string `json:"asset_specification"`
-	AssetClassification            int32  `json:"asset_classification"`
-	AssetCondition                 string `json:"asset_condition"`
-	AssetPic                       int32  `json:"asset_pic"`
-	AssetPurchaseDate              string `json:"asset_purchase_date"`
-	AssetStatus                    string `json:"asset_status"`
-	ClassificationAcquisitionValue int32  `json:"classification_acquisition_value"`
-	ClassificationLastBookValue    int32  `json:"classification_last_book_value"`
-	AssetImage                     string `json:"asset_image"`
-	PersonalResponsibleId          int32  `json:"personal_responsible_id"`
-	DeprecationValue               int32  `json:"deprecation_value"`
-	OutletId                       int32  `json:"outlet_id"`
-	AreaId                         int32  `json:"area_id"`
+	AssetId                        int32  `json:"asset_id,omitempty"`
+	AssetName                      string `json:"asset_name,omitempty"`
+	AssetBrand                     string `json:"asset_brand,omitempty"`
+	AssetSpecification             string `json:"asset_specification,omitempty"`
+	AssetClassification            int32  `json:"asset_classification,omitempty"`
+	AssetCondition                 string `json:"asset_condition,omitempty"`
+	AssetPic                       int32  `json:"asset_pic,omitempty"`
+	AssetPurchaseDate              string `json:"asset_purchase_date,omitempty"`
+	AssetStatus                    string `json:"asset_status,omitempty"`
+	ClassificationAcquisitionValue int32  `json:"classification_acquisition_value,omitempty"`
+	ClassificationLastBookValue    int32  `json:"classification_last_book_value,omitempty"`
+	AssetImage                     string `json:"asset_image,omitempty"`
+	PersonalResponsibleId          *int32  `json:"personal_responsible_id,omitempty"`
+	DeprecationValue               int32  `json:"deprecation_value,omitempty"`
+	OutletId                       int32  `json:"outlet_id,omitempty"`
+	AreaId                         int32  `json:"area_id,omitempty"`
 }
 
 func NewAssetService(db *gorm.DB) *AssetService {
@@ -78,6 +78,11 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 	}
 	lastID := lastAsset.AssetId
 
+	var personalId *int32
+	if req.PersonalResponsibleId != 0 {
+		personalId = &req.PersonalResponsibleId
+	}
+
 	asset := Asset{
 		AssetId:                        lastID + 1,
 		AssetName:                      req.GetAssetName(),
@@ -91,7 +96,7 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 		ClassificationAcquisitionValue: req.GetClassificationAcquisitionValue(),
 		ClassificationLastBookValue:    lastBookValue,
 		AssetImage:                     req.GetAssetImage(),
-		PersonalResponsibleId:          req.GetPersonalResponsibleId(),
+		PersonalResponsibleId:          personalId,
 		DeprecationValue:               deprecationValue,
 		OutletId:                       req.GetOutletId(),
 		AreaId:                         req.GetAreaId(),
@@ -99,7 +104,10 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 
 	result := db.Create(&asset)
 	if result.Error != nil {
-		log.Fatal(result.Error)
+		return &assetpb.CreateAssetResponse{
+			Message: "Error creating asset",
+			Code:    "500",
+			Success: false}, nil
 	}
 
 	log.Default().Println("asset ID: ", asset.AssetId)
@@ -132,10 +140,11 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 	log.Default().Println("getting asset with ID: ", req.GetId())
 	var asset assetpb.Asset
 
-	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, personal_responsibles.personal_name AS personal_name").
+	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, personal_responsibles.personal_name AS personal_name, roles.role_name AS asset_pic_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
 		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
 		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
 		Joins("LEFT JOIN personal_responsibles ON assets.personal_responsible_id = personal_responsibles.personal_id").
+		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
 		Where("assets.asset_id = ?", req.GetId())
 
 	result := query.First(&asset)

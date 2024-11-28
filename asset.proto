@@ -16,20 +16,22 @@ message Asset {
     int32 asset_classification = 6;
     string asset_condition = 7;
     int32 asset_pic = 8;
-    string asset_purchase_date = 9;
-    string asset_status = 10;
-    int32 classification_acquisition_value = 11;
-    int32 classification_last_book_value = 12;
-    string created_at = 13;
-    string updated_at = 14;
-    int32 outlet_id = 15;
-    string outlet_name = 16;
-    int32 area_id = 17;
-    string area_name = 18;
-    string asset_image = 19;
-    int32 deprecation_value = 20;
-    int32 personal_responsible_id = 21;
-    string personal_name = 22;
+    string asset_pic_name = 9;
+    string asset_purchase_date = 10;
+    string asset_status = 11;
+    int32 classification_acquisition_value = 12;
+    int32 classification_last_book_value = 13;
+    string created_at = 14;
+    string updated_at = 15;
+    int32 outlet_id = 16;
+    string outlet_name = 17;
+    int32 area_id = 18;
+    string area_name = 19;
+    string asset_image = 20;
+    int32 deprecation_value = 21;
+    int32 personal_responsible_id = 22;
+    string personal_name = 23;
+    int32 asset_age = 24;
 }
 
 message CreateAssetRequest {
