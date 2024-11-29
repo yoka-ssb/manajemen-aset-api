@@ -73,7 +73,7 @@ func (s *ClassificationService) CreateClassification(ctx context.Context, req *a
 		"AssetHealthyParam":           req.GetAssetHealthyParam(),
 	}
 
-	result := db.Model(&assetpb.Classification{}).Create(classification)
+	result := db.Model(Classification{}).Create(classification)
 	if result.Error != nil {
 		return &assetpb.CreateClassificationResponse{
 			Message: "Error creating classification",
