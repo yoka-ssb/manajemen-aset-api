@@ -166,6 +166,7 @@ var MAINTENANCEPERIODService_ServiceDesc = grpc.ServiceDesc{
 const (
 	CLASSIFICATIONService_ListClassification_FullMethodName   = "/asset.CLASSIFICATIONService/ListClassification"
 	CLASSIFICATIONService_CreateClassification_FullMethodName = "/asset.CLASSIFICATIONService/CreateClassification"
+	CLASSIFICATIONService_GetClassification_FullMethodName    = "/asset.CLASSIFICATIONService/GetClassification"
 )
 
 // CLASSIFICATIONServiceClient is the client API for CLASSIFICATIONService service.
@@ -174,6 +175,7 @@ const (
 type CLASSIFICATIONServiceClient interface {
 	ListClassification(ctx context.Context, in *ListClassificationRequest, opts ...grpc.CallOption) (*ListClassificationResponse, error)
 	CreateClassification(ctx context.Context, in *CreateClassificationRequest, opts ...grpc.CallOption) (*CreateClassificationResponse, error)
+	GetClassification(ctx context.Context, in *GetClassificationRequest, opts ...grpc.CallOption) (*GetClassificationResponse, error)
 }
 
 type cLASSIFICATIONServiceClient struct {
@@ -204,12 +206,23 @@ func (c *cLASSIFICATIONServiceClient) CreateClassification(ctx context.Context, 
 	return out, nil
 }
 
+func (c *cLASSIFICATIONServiceClient) GetClassification(ctx context.Context, in *GetClassificationRequest, opts ...grpc.CallOption) (*GetClassificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetClassificationResponse)
+	err := c.cc.Invoke(ctx, CLASSIFICATIONService_GetClassification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CLASSIFICATIONServiceServer is the server API for CLASSIFICATIONService service.
 // All implementations must embed UnimplementedCLASSIFICATIONServiceServer
 // for forward compatibility.
 type CLASSIFICATIONServiceServer interface {
 	ListClassification(context.Context, *ListClassificationRequest) (*ListClassificationResponse, error)
 	CreateClassification(context.Context, *CreateClassificationRequest) (*CreateClassificationResponse, error)
+	GetClassification(context.Context, *GetClassificationRequest) (*GetClassificationResponse, error)
 	mustEmbedUnimplementedCLASSIFICATIONServiceServer()
 }
 
@@ -225,6 +238,9 @@ func (UnimplementedCLASSIFICATIONServiceServer) ListClassification(context.Conte
 }
 func (UnimplementedCLASSIFICATIONServiceServer) CreateClassification(context.Context, *CreateClassificationRequest) (*CreateClassificationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateClassification not implemented")
+}
+func (UnimplementedCLASSIFICATIONServiceServer) GetClassification(context.Context, *GetClassificationRequest) (*GetClassificationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClassification not implemented")
 }
 func (UnimplementedCLASSIFICATIONServiceServer) mustEmbedUnimplementedCLASSIFICATIONServiceServer() {}
 func (UnimplementedCLASSIFICATIONServiceServer) testEmbeddedByValue()                               {}
@@ -283,6 +299,24 @@ func _CLASSIFICATIONService_CreateClassification_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CLASSIFICATIONService_GetClassification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetClassificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CLASSIFICATIONServiceServer).GetClassification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CLASSIFICATIONService_GetClassification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CLASSIFICATIONServiceServer).GetClassification(ctx, req.(*GetClassificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CLASSIFICATIONService_ServiceDesc is the grpc.ServiceDesc for CLASSIFICATIONService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -297,6 +331,10 @@ var CLASSIFICATIONService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateClassification",
 			Handler:    _CLASSIFICATIONService_CreateClassification_Handler,
+		},
+		{
+			MethodName: "GetClassification",
+			Handler:    _CLASSIFICATIONService_GetClassification_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

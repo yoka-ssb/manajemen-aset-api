@@ -340,6 +340,7 @@ message Classification {
     int32 classification_economic_value = 3;
     int32 maintenance_period_id = 4;
     string asset_healthy_param = 5;
+    map<string, string> asset_healthy_param_map = 6;
 }
 
 message ListClassificationRequest {}
@@ -361,6 +362,16 @@ message CreateClassificationResponse {
     string message = 1;
     string code = 2;
     bool success = 3;
+}
+
+message GetClassificationRequest {
+    int32 id = 1;
+}
+
+message GetClassificationResponse {
+    Classification data = 1;
+    string message = 2;
+    string code = 3;
 }
 
 // Message for data Maintenance Period
@@ -417,6 +428,12 @@ service CLASSIFICATIONService {
         option (google.api.http) = {
             post: "/api/classifications"
             body: "*"
+        };
+    }
+
+    rpc GetClassification(GetClassificationRequest) returns (GetClassificationResponse) {
+        option (google.api.http) = {
+            get: "/api/classifications/{id}"
         };
     }
 }
