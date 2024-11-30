@@ -61,6 +61,16 @@ message GetAssetRequest {
     int32 id = 1;
 }
 
+message GetAssetByHashRequest {
+    string hash_id = 1;
+}
+
+message GetAssetByHashResponse {
+    Asset data = 1;
+    string message = 2;
+    string code = 3;
+}
+
 message GetAssetResponse {
     Asset data = 1;
     string message = 2;
@@ -540,6 +550,11 @@ service ASSETService {
             get: "/api/assets/{id}"
         };
     };
+    rpc GetAssetByHash(GetAssetByHashRequest) returns (GetAssetByHashResponse){
+        option (google.api.http) = {
+            get: "/api/assets/hash"
+        };
+    }
     rpc UpdateAsset(UpdateAssetRequest) returns (UpdateAssetResponse) {
         option (google.api.http) = {
             put: "/api/assets/{id}"
