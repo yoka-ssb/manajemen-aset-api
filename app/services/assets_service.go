@@ -4,11 +4,14 @@ import (
 	"asset-management-api/app/utils"
 	"asset-management-api/assetpb"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -79,10 +82,13 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 	var lastAsset Asset
 	last := db.Model(&assetpb.Asset{}).Last(&lastAsset)
 	if last.Error != nil {
-		return &assetpb.CreateAssetResponse{
-			Message: "Error getting last asset",
-			Code:    "500",
-			Success: false}, nil
+		log.Println("Error:", last.Error)
+
+		if errors.Is(last.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Asset not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get asset: "+last.Error.Error())
+		}
 	}
 	lastID := lastAsset.AssetId
 
@@ -113,10 +119,8 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 
 	result := db.Create(&asset)
 	if result.Error != nil {
-		return &assetpb.CreateAssetResponse{
-			Message: "Error creating asset",
-			Code:    "500",
-			Success: false}, nil
+		log.Println("Error:", result.Error)
+		return nil, status.Error(codes.Internal, "Failed to create asset: "+result.Error.Error())
 	}
 
 	log.Default().Println("asset ID: ", asset.AssetId)
@@ -124,19 +128,13 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 	// Hash asset id
 	hashedAssetId, err := utils.HashPassword(fmt.Sprintf("%d", asset.AssetId))
 	if err != nil {
-		return &assetpb.CreateAssetResponse{
-			Message: "Failed to hash asset id",
-			Code:    "400",
-			Success: false}, nil
+		return nil, status.Error(codes.Internal, "Failed to hash asset id: "+err.Error())
 	}
 
 	// Update asset id hash
 	update := db.Model(&assetpb.Asset{}).Where("asset_id = ?", asset.AssetId).Update("asset_id_hash", hashedAssetId)
 	if update.Error != nil {
-		return &assetpb.CreateAssetResponse{
-			Message: "Failed to update asset id hash",
-			Code:    "400",
-			Success: false}, nil
+		return nil, status.Error(codes.Internal, "Failed to update asset id hash: "+update.Error.Error())
 	}
 
 	return &assetpb.CreateAssetResponse{
@@ -149,19 +147,25 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 	log.Default().Println("getting asset with ID: ", req.GetId())
 	var asset assetpb.Asset
 
-	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, personal_responsibles.personal_name AS personal_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
+	query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, personal_responsibles.personal_name AS personal_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
 		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
 		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
 		Joins("LEFT JOIN personal_responsibles ON assets.personal_responsible_id = personal_responsibles.personal_id").
 		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
 		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
+		Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
 		Where("assets.asset_id = ?", req.GetId())
 
 	result := query.First(&asset)
-
 	if result.Error != nil {
 		log.Println("Error:", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Asset not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get asset")
+		}
 	}
+
 	return &assetpb.GetAssetResponse{
 		Data:    &asset,
 		Code:    "200",
@@ -181,9 +185,13 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 		Where("assets.asset_id_hash = ?", req.GetHashId())
 
 	result := query.First(&asset)
-
 	if result.Error != nil {
 		log.Println("Error:", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Asset not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get asset")
+		}
 	}
 	return &assetpb.GetAssetByHashResponse{
 		Data:    &asset,
@@ -211,11 +219,7 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAsset
 	}
 	result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.Id).Updates(updates)
 	if result.Error != nil {
-		log.Println("Error updating product:", result.Error)
-		return &assetpb.UpdateAssetResponse{
-			Message: "Error updating asset",
-			Code:    "500",
-			Success: false}, nil
+		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
 	}
 
 	// Insert data to table asset_update
@@ -236,19 +240,17 @@ func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.Updat
 	// Get asset by id
 	asset, err := s.GetAsset(ctx, &assetpb.GetAssetRequest{Id: req.GetId()})
 	if err != nil {
-		return &assetpb.UpdateAssetStatusResponse{
-			Message: "Error creating asset",
-			Code:    "500",
-			Success: false}, nil
+		if status.Code(err) == codes.NotFound {
+			return nil, status.Error(codes.NotFound, "Asset not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get asset")
+		}
 	}
 	
 	// Getting data classification
 	classification := getClassificationById(asset.Data.AssetClassification)
 	if classification == nil {
-		return &assetpb.UpdateAssetStatusResponse{
-			Message: "Error creating asset",
-			Code:    "500",
-			Success: false}, nil
+		return nil, status.Error(codes.NotFound, "Classification not found")
 	}
 
 	// Set maintenance date	
@@ -274,11 +276,7 @@ func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.Updat
 
 	result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.GetId()).Updates(updates)
 	if result.Error != nil {
-		log.Println("Error updating product:", result.Error)
-		return &assetpb.UpdateAssetStatusResponse{
-			Message: "Error updating asset",
-			Code:    "500",
-			Success: false}, nil
+		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
 	}
 
 	// Insert data to table asset_update
@@ -299,7 +297,7 @@ func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAsset
 
 	result := db.Delete(&assetpb.Asset{}, req.GetId())
 	if result.Error != nil {
-		log.Println("Error deleting product:", result.Error)
+		return nil, status.Error(codes.Internal, "Failed to delete asset: "+result.Error.Error())
 	}
 	return &assetpb.DeleteAssetResponse{
 		Message: "Successfully deleting asset",

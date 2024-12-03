@@ -34,6 +34,7 @@ message Asset {
     string personal_name = 24;
     int32 asset_age = 25;
     string asset_maintenance_date = 26;
+    string maintenance_period_name = 27;
 }
 
 message CreateAssetRequest {
