@@ -1156,12 +1156,13 @@ var USERService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ASSETService_CreateAsset_FullMethodName    = "/asset.ASSETService/CreateAsset"
-	ASSETService_GetAsset_FullMethodName       = "/asset.ASSETService/GetAsset"
-	ASSETService_GetAssetByHash_FullMethodName = "/asset.ASSETService/GetAssetByHash"
-	ASSETService_UpdateAsset_FullMethodName    = "/asset.ASSETService/UpdateAsset"
-	ASSETService_DeleteAsset_FullMethodName    = "/asset.ASSETService/DeleteAsset"
-	ASSETService_ListAssets_FullMethodName     = "/asset.ASSETService/ListAssets"
+	ASSETService_CreateAsset_FullMethodName       = "/asset.ASSETService/CreateAsset"
+	ASSETService_GetAsset_FullMethodName          = "/asset.ASSETService/GetAsset"
+	ASSETService_GetAssetByHash_FullMethodName    = "/asset.ASSETService/GetAssetByHash"
+	ASSETService_UpdateAsset_FullMethodName       = "/asset.ASSETService/UpdateAsset"
+	ASSETService_UpdateAssetStatus_FullMethodName = "/asset.ASSETService/UpdateAssetStatus"
+	ASSETService_DeleteAsset_FullMethodName       = "/asset.ASSETService/DeleteAsset"
+	ASSETService_ListAssets_FullMethodName        = "/asset.ASSETService/ListAssets"
 )
 
 // ASSETServiceClient is the client API for ASSETService service.
@@ -1172,6 +1173,7 @@ type ASSETServiceClient interface {
 	GetAsset(ctx context.Context, in *GetAssetRequest, opts ...grpc.CallOption) (*GetAssetResponse, error)
 	GetAssetByHash(ctx context.Context, in *GetAssetByHashRequest, opts ...grpc.CallOption) (*GetAssetByHashResponse, error)
 	UpdateAsset(ctx context.Context, in *UpdateAssetRequest, opts ...grpc.CallOption) (*UpdateAssetResponse, error)
+	UpdateAssetStatus(ctx context.Context, in *UpdateAssetStatusRequest, opts ...grpc.CallOption) (*UpdateAssetStatusResponse, error)
 	DeleteAsset(ctx context.Context, in *DeleteAssetRequest, opts ...grpc.CallOption) (*DeleteAssetResponse, error)
 	ListAssets(ctx context.Context, in *ListAssetsRequest, opts ...grpc.CallOption) (*ListAssetsResponse, error)
 }
@@ -1224,6 +1226,16 @@ func (c *aSSETServiceClient) UpdateAsset(ctx context.Context, in *UpdateAssetReq
 	return out, nil
 }
 
+func (c *aSSETServiceClient) UpdateAssetStatus(ctx context.Context, in *UpdateAssetStatusRequest, opts ...grpc.CallOption) (*UpdateAssetStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAssetStatusResponse)
+	err := c.cc.Invoke(ctx, ASSETService_UpdateAssetStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aSSETServiceClient) DeleteAsset(ctx context.Context, in *DeleteAssetRequest, opts ...grpc.CallOption) (*DeleteAssetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteAssetResponse)
@@ -1252,6 +1264,7 @@ type ASSETServiceServer interface {
 	GetAsset(context.Context, *GetAssetRequest) (*GetAssetResponse, error)
 	GetAssetByHash(context.Context, *GetAssetByHashRequest) (*GetAssetByHashResponse, error)
 	UpdateAsset(context.Context, *UpdateAssetRequest) (*UpdateAssetResponse, error)
+	UpdateAssetStatus(context.Context, *UpdateAssetStatusRequest) (*UpdateAssetStatusResponse, error)
 	DeleteAsset(context.Context, *DeleteAssetRequest) (*DeleteAssetResponse, error)
 	ListAssets(context.Context, *ListAssetsRequest) (*ListAssetsResponse, error)
 	mustEmbedUnimplementedASSETServiceServer()
@@ -1275,6 +1288,9 @@ func (UnimplementedASSETServiceServer) GetAssetByHash(context.Context, *GetAsset
 }
 func (UnimplementedASSETServiceServer) UpdateAsset(context.Context, *UpdateAssetRequest) (*UpdateAssetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateAsset not implemented")
+}
+func (UnimplementedASSETServiceServer) UpdateAssetStatus(context.Context, *UpdateAssetStatusRequest) (*UpdateAssetStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAssetStatus not implemented")
 }
 func (UnimplementedASSETServiceServer) DeleteAsset(context.Context, *DeleteAssetRequest) (*DeleteAssetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAsset not implemented")
@@ -1375,6 +1391,24 @@ func _ASSETService_UpdateAsset_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ASSETService_UpdateAssetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAssetStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ASSETServiceServer).UpdateAssetStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ASSETService_UpdateAssetStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ASSETServiceServer).UpdateAssetStatus(ctx, req.(*UpdateAssetStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ASSETService_DeleteAsset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteAssetRequest)
 	if err := dec(in); err != nil {
@@ -1433,6 +1467,10 @@ var ASSETService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateAsset",
 			Handler:    _ASSETService_UpdateAsset_Handler,
+		},
+		{
+			MethodName: "UpdateAssetStatus",
+			Handler:    _ASSETService_UpdateAssetStatus_Handler,
 		},
 		{
 			MethodName: "DeleteAsset",

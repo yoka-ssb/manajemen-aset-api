@@ -33,6 +33,7 @@ message Asset {
     int32 personal_responsible_id = 23;
     string personal_name = 24;
     int32 asset_age = 25;
+    string asset_maintenance_date = 26;
 }
 
 message CreateAssetRequest {
@@ -100,6 +101,17 @@ message UpdateAssetResponse {
     bool success = 3;
 }
 
+message UpdateAssetStatusRequest {
+    int32 id = 1;
+    string asset_status = 2;
+}
+
+message UpdateAssetStatusResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
 message DeleteAssetRequest {
     int32 id = 1;
 }
@@ -126,9 +138,8 @@ message ListAssetsResponse {
 
 // Message for data Asset Update
 message AssetUpdate {
-    int32 asset_update_id = 1;
-    int32 asset_id = 2;
-    string asset_status = 3;
+    int32 asset_id = 1;
+    string asset_status = 2;
 }
 
 message CreateAssetUpdateRequest {
@@ -561,6 +572,12 @@ service ASSETService {
             body: "*"
         };
     };
+    rpc UpdateAssetStatus(UpdateAssetStatusRequest) returns (UpdateAssetStatusResponse) {
+        option (google.api.http) = {
+            put: "/api/assets/{id}/status"
+            body: "*"
+        };
+    }
     rpc DeleteAsset(DeleteAssetRequest) returns (DeleteAssetResponse) {
         option (google.api.http) = {
             delete: "/api/assets/{id}"

@@ -26,6 +26,7 @@ type Asset struct {
 	AssetCondition                 string `json:"asset_condition,omitempty"`
 	AssetPic                       int32  `json:"asset_pic,omitempty"`
 	AssetPurchaseDate              string `json:"asset_purchase_date,omitempty"`
+	AssetMaintenanceDate           string `json:"asset_maintenance_date,omitempty"`
 	AssetStatus                    string `json:"asset_status,omitempty"`
 	ClassificationAcquisitionValue int32  `json:"classification_acquisition_value,omitempty"`
 	ClassificationLastBookValue    int32  `json:"classification_last_book_value,omitempty"`
@@ -67,7 +68,14 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 	deprecationValue := req.GetClassificationAcquisitionValue() / classification.ClassificationEconomicValue
 
 	lastBookValue := req.GetClassificationAcquisitionValue() - (deprecationValue * int32(month))
-
+	
+	// Set maintenance date
+	period := utils.ExtractMaintenancePeriod(classification.MaintenancePeriodId)
+	maintenanceDate := time.Now().AddDate(0, period, 0)
+	maintenanceDate = time.Date(maintenanceDate.Year(), maintenanceDate.Month(), 20, 0, 0, 0, 0, time.Local)
+	// Parse maintenance date to string
+	maintenanceDateStr := maintenanceDate.Format("2006-01-02")
+	
 	var lastAsset Asset
 	last := db.Model(&assetpb.Asset{}).Last(&lastAsset)
 	if last.Error != nil {
@@ -92,6 +100,7 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 		AssetCondition:                 req.GetAssetCondition(),
 		AssetPic:                       req.GetAssetPic(),
 		AssetPurchaseDate:              req.GetAssetPurchaseDate(),
+		AssetMaintenanceDate:           maintenanceDateStr,
 		AssetStatus:                    req.GetAssetStatus(),
 		ClassificationAcquisitionValue: req.GetClassificationAcquisitionValue(),
 		ClassificationLastBookValue:    lastBookValue,
@@ -219,6 +228,70 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAsset
 		Message: "Successfully updating asset",
 		Code:    "200",
 		Success: true}, nil
+}
+
+func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.UpdateAssetStatusRequest) (*assetpb.UpdateAssetStatusResponse, error) {
+	log.Default().Println("updating item")
+
+	// Get asset by id
+	asset, err := s.GetAsset(ctx, &assetpb.GetAssetRequest{Id: req.GetId()})
+	if err != nil {
+		return &assetpb.UpdateAssetStatusResponse{
+			Message: "Error creating asset",
+			Code:    "500",
+			Success: false}, nil
+	}
+	
+	// Getting data classification
+	classification := getClassificationById(asset.Data.AssetClassification)
+	if classification == nil {
+		return &assetpb.UpdateAssetStatusResponse{
+			Message: "Error creating asset",
+			Code:    "500",
+			Success: false}, nil
+	}
+
+	// Set maintenance date	
+	period := utils.ExtractMaintenancePeriod(classification.MaintenancePeriodId)
+
+	maintenanceDate := time.Now().AddDate(0, period, 0)
+	maintenanceDate = time.Date(maintenanceDate.Year(), maintenanceDate.Month(), 20, 0, 0, 0, 0, time.Local)
+	// Parse maintenance date to string
+	maintenanceDateStr := maintenanceDate.Format("2006-01-02")
+
+	var updates map[string]interface{}
+
+	if req.GetAssetStatus() != "Baik" {
+		updates = map[string]interface{}{
+			"AssetStatus": req.GetAssetStatus(),
+		}
+	} else {
+		updates = map[string]interface{}{
+			"AssetStatus": req.GetAssetStatus(),
+			"AssetMaintenanceDate": maintenanceDateStr,
+		}
+	}
+
+	result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.GetId()).Updates(updates)
+	if result.Error != nil {
+		log.Println("Error updating product:", result.Error)
+		return &assetpb.UpdateAssetStatusResponse{
+			Message: "Error updating asset",
+			Code:    "500",
+			Success: false}, nil
+	}
+
+	// Insert data to table asset_update
+	db.Create(&assetpb.AssetUpdate{
+		AssetId:     req.GetId(),
+		AssetStatus: req.GetAssetStatus(),
+	})
+
+	return &assetpb.UpdateAssetStatusResponse{
+		Message: "Successfully updating asset",
+		Code:    "200",
+		Success: true}, nil
+
 }
 
 func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAssetRequest) (*assetpb.DeleteAssetResponse, error) {
