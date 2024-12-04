@@ -441,6 +441,7 @@ message Submission {
     int32 validator_id = 15;
     string validator_type = 16;
     int32 submission_price = 17;
+    string submission_role_name = 18;
 }
 
 message CreateSubmissionRequest {
@@ -456,6 +457,7 @@ message CreateSubmissionRequest {
     int32 nip = 10;
     int32 asset_id = 11;
     string attachment = 12;
+    string submission_role_name = 13;
 }
 
 message CreateSubmissionResponse {

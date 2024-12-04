@@ -62,21 +62,28 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		return nil, status.Error(codes.NotFound, "Asset name not match")
 	}
 
-	// Validate outlet
-	log.Default().Println("Outlet name: ", asset.OutletName)
-	log.Default().Println("Submission outlet: ", req.SubmissionOutlet)
-	if asset.OutletName != req.SubmissionOutlet {
-		return nil, status.Error(codes.NotFound, "Outlet not match")
+	if req.SubmissionOutlet != "" {
+		// Validate outlet
+		if asset.OutletName != req.SubmissionOutlet {
+			return nil, status.Error(codes.NotFound, "Outlet not match")
+		}
 	}
 
-	// Validate area
-	if asset.AreaName != req.SubmissionArea {
-		return nil, status.Error(codes.NotFound, "Area not match")
+	if req.SubmissionArea != "" {
+		// Validate area
+		if asset.AreaName != req.SubmissionArea {
+			return nil, status.Error(codes.NotFound, "Area not match")
+		}
 	}
 
 	// Validate personal responsible 
 	if asset.PersonalName != req.SubmissionPrName {
 		return nil, status.Error(codes.NotFound, "Personal Responsible not match")
+	}
+
+	// Validate PIC name
+	if asset.AssetPicName != req.SubmissionRoleName {
+		return nil, status.Error(codes.NotFound, "PIC name not match")
 	}
 
 	var lastSubmission Submission
@@ -120,8 +127,8 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 	// Create submission log
 	submissionLog := assetpb.SubmissionLog{
 		SubmissionId: submission.SubmissionId,
-		Status:       "Created",
-		Description:  "Submission Created by " + req.SubmissionName,
+		Status:       "Diajukan",
+		Description:  "Pengajuan dibuat oleh " + req.SubmissionName,
 		PrName:       req.SubmissionPrName,
 	}
 	result = db.Create(&submissionLog)
