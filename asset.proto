@@ -422,8 +422,66 @@ message CreateMaintenancePeriodResponse {
     bool success = 3;
 }
 
+// Message for data Submissions
+message Submission {
+    int32 submission_id = 1;
+    string submission_name = 2;
+    string submission_outlet = 3;
+    string submission_area = 4;
+    string submission_date = 5;
+    string submission_category = 6;
+    string submission_status = 7;
+    string submission_purpose = 8;
+    int32 submission_quantity = 9;
+    string submission_asset_name = 10;
+    string submission_description = 11;
+    int32 nip = 12;
+    int32 asset_id = 13;
+    string attachment = 14;
+    int32 validator_id = 15;
+    string validator_type = 16;
+    int32 submission_price = 17;
+}
+
+message CreateSubmissionRequest {
+    string submission_name = 1;
+    string submission_outlet = 2;
+    string submission_area = 3;
+    string submission_category = 4;
+    string submission_status = 5;
+    string submission_purpose = 6;
+    string submission_asset_name = 7;
+    string submission_description = 8;
+    string submission_pr_name = 9;
+    int32 nip = 10;
+    int32 asset_id = 11;
+    string attachment = 12;
+}
+
+message CreateSubmissionResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
+// Message for data Submission Logs
+message SubmissionLog {
+    int32 submission_id = 1;
+    string status = 2;
+    string description = 3;
+    string pr_name = 4;
+}
 
 // All Services
+service SUBMISSIONService {
+    rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
+        option (google.api.http) = {
+            post: "/api/submissions"
+            body: "*"
+        };
+    }
+}
+
 service MAINTENANCEPERIODService {
     rpc ListMaintenancePeriod(ListMaintenancePeriodRequest) returns (ListMaintenancePeriodResponse) {
         option (google.api.http) = {

@@ -19,6 +19,112 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	SUBMISSIONService_CreateSubmission_FullMethodName = "/asset.SUBMISSIONService/CreateSubmission"
+)
+
+// SUBMISSIONServiceClient is the client API for SUBMISSIONService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// All Services
+type SUBMISSIONServiceClient interface {
+	CreateSubmission(ctx context.Context, in *CreateSubmissionRequest, opts ...grpc.CallOption) (*CreateSubmissionResponse, error)
+}
+
+type sUBMISSIONServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewSUBMISSIONServiceClient(cc grpc.ClientConnInterface) SUBMISSIONServiceClient {
+	return &sUBMISSIONServiceClient{cc}
+}
+
+func (c *sUBMISSIONServiceClient) CreateSubmission(ctx context.Context, in *CreateSubmissionRequest, opts ...grpc.CallOption) (*CreateSubmissionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateSubmissionResponse)
+	err := c.cc.Invoke(ctx, SUBMISSIONService_CreateSubmission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SUBMISSIONServiceServer is the server API for SUBMISSIONService service.
+// All implementations must embed UnimplementedSUBMISSIONServiceServer
+// for forward compatibility.
+//
+// All Services
+type SUBMISSIONServiceServer interface {
+	CreateSubmission(context.Context, *CreateSubmissionRequest) (*CreateSubmissionResponse, error)
+	mustEmbedUnimplementedSUBMISSIONServiceServer()
+}
+
+// UnimplementedSUBMISSIONServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedSUBMISSIONServiceServer struct{}
+
+func (UnimplementedSUBMISSIONServiceServer) CreateSubmission(context.Context, *CreateSubmissionRequest) (*CreateSubmissionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSubmission not implemented")
+}
+func (UnimplementedSUBMISSIONServiceServer) mustEmbedUnimplementedSUBMISSIONServiceServer() {}
+func (UnimplementedSUBMISSIONServiceServer) testEmbeddedByValue()                           {}
+
+// UnsafeSUBMISSIONServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SUBMISSIONServiceServer will
+// result in compilation errors.
+type UnsafeSUBMISSIONServiceServer interface {
+	mustEmbedUnimplementedSUBMISSIONServiceServer()
+}
+
+func RegisterSUBMISSIONServiceServer(s grpc.ServiceRegistrar, srv SUBMISSIONServiceServer) {
+	// If the following call pancis, it indicates UnimplementedSUBMISSIONServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&SUBMISSIONService_ServiceDesc, srv)
+}
+
+func _SUBMISSIONService_CreateSubmission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSubmissionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SUBMISSIONServiceServer).CreateSubmission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SUBMISSIONService_CreateSubmission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SUBMISSIONServiceServer).CreateSubmission(ctx, req.(*CreateSubmissionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// SUBMISSIONService_ServiceDesc is the grpc.ServiceDesc for SUBMISSIONService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var SUBMISSIONService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.SUBMISSIONService",
+	HandlerType: (*SUBMISSIONServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateSubmission",
+			Handler:    _SUBMISSIONService_CreateSubmission_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
 	MAINTENANCEPERIODService_ListMaintenancePeriod_FullMethodName   = "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod"
 	MAINTENANCEPERIODService_CreateMaintenancePeriod_FullMethodName = "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod"
 )
@@ -26,8 +132,6 @@ const (
 // MAINTENANCEPERIODServiceClient is the client API for MAINTENANCEPERIODService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// All Services
 type MAINTENANCEPERIODServiceClient interface {
 	ListMaintenancePeriod(ctx context.Context, in *ListMaintenancePeriodRequest, opts ...grpc.CallOption) (*ListMaintenancePeriodResponse, error)
 	CreateMaintenancePeriod(ctx context.Context, in *CreateMaintenancePeriodRequest, opts ...grpc.CallOption) (*CreateMaintenancePeriodResponse, error)
@@ -64,8 +168,6 @@ func (c *mAINTENANCEPERIODServiceClient) CreateMaintenancePeriod(ctx context.Con
 // MAINTENANCEPERIODServiceServer is the server API for MAINTENANCEPERIODService service.
 // All implementations must embed UnimplementedMAINTENANCEPERIODServiceServer
 // for forward compatibility.
-//
-// All Services
 type MAINTENANCEPERIODServiceServer interface {
 	ListMaintenancePeriod(context.Context, *ListMaintenancePeriodRequest) (*ListMaintenancePeriodResponse, error)
 	CreateMaintenancePeriod(context.Context, *CreateMaintenancePeriodRequest) (*CreateMaintenancePeriodResponse, error)

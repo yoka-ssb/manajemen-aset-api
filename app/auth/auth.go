@@ -79,9 +79,18 @@ func GenerateJWTToken(nip int32) *string {
 	// Set the JWT secret key
 	jwtSecret := os.Getenv("JWT_SECRET")
 
+    // Get user by NIP
+    var user assetpb.User
+    err := db.Where("nip = ?", nip).First(&user).Error
+    if err != nil {
+        fmt.Println(err)
+        return nil
+    }
+
 	// Set the token claims
 	claims := jwt.MapClaims{
 		"sub": nip,
+        "name": user.UserFullName,
 		"exp": time.Now().Add(time.Hour * 72).Unix(),
 	}
 
