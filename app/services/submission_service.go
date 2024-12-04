@@ -57,6 +57,11 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		}
 	}
 
+	// Validate asset status
+	if asset.AssetStatus != "Baik" {
+		return nil, status.Error(codes.NotFound, "Asset already submitted")
+	}
+
 	// Validate asset name
 	if asset.AssetName != req.SubmissionAssetName {
 		return nil, status.Error(codes.NotFound, "Asset name not match")
@@ -134,6 +139,12 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 	result = db.Create(&submissionLog)
 	if result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to create submission log: "+result.Error.Error())
+	}
+
+	// Update asset status
+	result = db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.AssetId).Update("asset_status", req.SubmissionCategory)
+	if result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
 	}
 
 	return &assetpb.CreateSubmissionResponse{
