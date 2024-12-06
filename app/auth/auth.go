@@ -91,7 +91,7 @@ func GenerateJWTToken(nip int32) *string {
 	claims := jwt.MapClaims{
 		"sub": nip,
         "name": user.UserFullName,
-        "role": user.RoleName,
+        "role_id": user.RoleId,
 		"exp": time.Now().Add(time.Hour * 72).Unix(),
 	}
 
