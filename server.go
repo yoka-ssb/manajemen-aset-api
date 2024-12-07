@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"asset-management-api/app/auth"
 	"asset-management-api/app/database"
@@ -17,8 +18,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
 	cors "github.com/rs/cors/wrapper/gin"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -98,7 +99,7 @@ func startHTTPGateway() {
 		{"PERSONALRESPONSIBLEService", assetpb.RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint},
 		{"SUBMISSIONService", assetpb.RegisterSUBMISSIONServiceHandlerFromEndpoint},
 	}
-	
+
 	for _, svc := range services {
 		err := svc.fn(ctx, mux, "localhost:50053", opts)
 		if err != nil {
@@ -135,11 +136,11 @@ func startRESTServer() {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowCredentials: true,
-		AllowOriginFunc:  func(origin string) bool { return true },
-		AllowedHeaders:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "DELETE"},
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization", "Accept"},
+		ExposedHeaders: []string{"Content-Type", "Authorization", "Accept"},
+		MaxAge:         int(12 * time.Hour / time.Second),
 	}))
 
 	r.Use(auth.APIKeyMiddleware(apiKeys))
@@ -153,7 +154,7 @@ func startRESTServer() {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"message": "File uploaded successfully",
+			"message":   "File uploaded successfully",
 			"file_path": filePath,
 		})
 	})
