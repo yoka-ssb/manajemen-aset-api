@@ -18,6 +18,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 func main() {
@@ -112,6 +113,7 @@ func startHTTPGateway() {
 }
 
 func startRESTServer() {
+	// Load environment variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -131,6 +133,15 @@ func startRESTServer() {
 	}
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowOriginFunc:  func(origin string) bool { return true },
+		AllowedHeaders:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "DELETE"},
+	}))
+
 	r.Use(auth.APIKeyMiddleware(apiKeys))
 
 	// Upload file to Nextcloud
