@@ -15,14 +15,14 @@ var NC_ASSET_PATH = os.Getenv("NEXTCLOUD_ASSET_PATH")
 var NC_USERNAME = os.Getenv("NEXTCLOUD_USERNAME")
 var NC_PASSWORD = os.Getenv("NEXTCLOUD_PASSWORD")
 
-func UploadFile(w http.ResponseWriter, r *http.Request, module string) error {
+func UploadFile(w http.ResponseWriter, r *http.Request, module string) (filePath *string, err error) {
 
 	// Parse the multipart form
-	err := r.ParseMultipartForm(10 << 20) // Max memory 10MB
+	err = r.ParseMultipartForm(10 << 20) // Max memory 10MB
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Default().Println(err)
-		return err
+		return nil, err
 	}
 
 	// Get the file from the request
@@ -30,7 +30,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, module string) error {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Default().Println(err)
-		return err
+		return nil, err
 	}
 	defer file.Close()
 
@@ -43,7 +43,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, module string) error {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Default().Println(err)
-		return err
+		return nil, err
 	}
 	req.SetBasicAuth(NC_USERNAME, NC_PASSWORD)
 	req.Header.Set("Content-Type", handler.Header.Get("Content-Type"))
@@ -53,7 +53,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request, module string) error {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Default().Println(err)
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
@@ -61,10 +61,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request, module string) error {
 	if resp.StatusCode != http.StatusCreated {
 		http.Error(w, resp.Status, resp.StatusCode)
 		log.Default().Println(err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	path := module + "/" + handler.Filename
+
+	return &path, nil
 }
 
 func GetFile(w http.ResponseWriter, r *http.Request, filePath string) ([]byte, error) {

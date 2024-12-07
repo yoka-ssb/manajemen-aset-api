@@ -136,12 +136,15 @@ func startRESTServer() {
 	// Upload file to Nextcloud
 	r.POST("/upload", func(c *gin.Context) {
 		module := c.DefaultQuery("module", "")
-		err := utils.UploadFile(c.Writer, c.Request, module)
+		filePath, err := utils.UploadFile(c.Writer, c.Request, module)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
+		c.JSON(http.StatusOK, gin.H{
+			"message": "File uploaded successfully",
+			"file_path": filePath,
+		})
 	})
 
 	r.GET("/get-file", func(c *gin.Context) {
