@@ -6,12 +6,15 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 
 	"asset-management-api/app/auth"
 	"asset-management-api/app/database"
 	"asset-management-api/app/services"
+	"asset-management-api/app/utils"
 	"asset-management-api/assetpb" // Import the generated protobuf package
 
+	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -37,6 +40,9 @@ func main() {
 
 	// Start the gRPC server
 	go startGRPCServer(services)
+
+	// Start the HTTP server
+	go startRESTServer()
 
 	// Start the HTTP Gateway
 	startHTTPGateway()
@@ -103,6 +109,56 @@ func startHTTPGateway() {
 	if err := http.ListenAndServe(":8080", corsHandler(mux)); err != nil {
 		log.Fatalf("HTTP Gateway failed: %v", err)
 	}
+}
+
+func startRESTServer() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	apiKeysEnv := os.Getenv("API_KEYS")
+
+	// Split the API keys into a slice
+	apiKeysSlice := []string{}
+	for _, key := range strings.Split(apiKeysEnv, ",") {
+		apiKeysSlice = append(apiKeysSlice, strings.TrimSpace(key))
+	}
+
+	// Convert the slice to a map
+	apiKeys := make(map[string]bool)
+	for _, key := range apiKeysSlice {
+		apiKeys[key] = true
+	}
+
+	r := gin.Default()
+	r.Use(auth.APIKeyMiddleware(apiKeys))
+
+	// Upload file to Nextcloud
+	r.POST("/upload", func(c *gin.Context) {
+		module := c.DefaultQuery("module", "")
+		err := utils.UploadFile(c.Writer, c.Request, module)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "File uploaded successfully"})
+	})
+
+	r.GET("/get-file", func(c *gin.Context) {
+		filePath := c.DefaultQuery("path", "")
+		res, err := utils.GetFile(c.Writer, c.Request, filePath)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "File downloaded successfully",
+			"file":    res,
+		})
+	})
+
+	log.Println("Server REST started on port 8081")
+	r.Run(":8081")
 }
 
 func corsHandler(h http.Handler) http.Handler {

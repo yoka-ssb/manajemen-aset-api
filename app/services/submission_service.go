@@ -47,6 +47,7 @@ func (s *SubmissionService) Register(server interface{}) {
 }
 
 func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.CreateSubmissionRequest) (*assetpb.CreateSubmissionResponse, error) {
+	log.Default().Println("Creating submission")
 	// Validate asset
 	asset, err := GetAssetById(req.AssetId)
 	if err != nil {
@@ -120,8 +121,8 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		SubmissionDescription: req.SubmissionDescription,
 		Nip:                   req.Nip,
 		AssetId:               req.AssetId,
-		Attachment:            req.Attachment,
 		SubmissionPrName:      req.SubmissionPrName,
+		Attachment:            req.Attachment,
 	}
 
 	result := db.Create(&submission)

@@ -6,11 +6,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -106,6 +108,26 @@ func GenerateJWTToken(nip int32) *string {
 	fmt.Println("generated token:",tokenString)
 
     return &tokenString
+}
+
+// APIKeyMiddleware is a middleware that checks for the presence of a valid API key
+func APIKeyMiddleware(apiKeys map[string]bool) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		apiKey := c.GetHeader("X-API-KEY")
+		if apiKey == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing API key"})
+			c.Abort()
+			return
+		}
+
+		if !apiKeys[apiKey] {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
 }
 
 // func ValidateAuth(request *dto.AuthRequestDto, refreshTokenString string) (*dto.AuthResponseDto, error) {
