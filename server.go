@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"asset-management-api/app/auth"
 	"asset-management-api/app/database"
@@ -18,7 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
-	cors "github.com/rs/cors/wrapper/gin"
 	"google.golang.org/grpc"
 )
 
@@ -135,13 +133,7 @@ func startRESTServer() {
 
 	r := gin.Default()
 
-	r.Use(cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Content-Type", "Authorization", "Accept"},
-		ExposedHeaders: []string{"Content-Type", "Authorization", "Accept"},
-		MaxAge:         int(12 * time.Hour / time.Second),
-	}))
+	r.Use(corsMiddleware())
 
 	r.Use(auth.APIKeyMiddleware(apiKeys))
 
@@ -187,4 +179,22 @@ func corsHandler(h http.Handler) http.Handler {
 		}
 		h.ServeHTTP(w, r)
 	})
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*") // Allow all origins
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+		c.Writer.Header().Set("Access-Control-Expose-Headers", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Handle OPTIONS method
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	}
 }
