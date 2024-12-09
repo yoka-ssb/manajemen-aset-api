@@ -85,7 +85,7 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 		log.Println("Error:", last.Error)
 
 		if errors.Is(last.Error, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "Asset not found")
+			lastAsset.AssetId = 0
 		} else {
 			return nil, status.Error(codes.Internal, "Failed to get asset: "+last.Error.Error())
 		}
