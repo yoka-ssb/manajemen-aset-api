@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SUBMISSIONService_CreateSubmission_FullMethodName = "/asset.SUBMISSIONService/CreateSubmission"
+	SUBMISSIONService_CreateSubmission_FullMethodName       = "/asset.SUBMISSIONService/CreateSubmission"
+	SUBMISSIONService_UpdateSubmissionStatus_FullMethodName = "/asset.SUBMISSIONService/UpdateSubmissionStatus"
 )
 
 // SUBMISSIONServiceClient is the client API for SUBMISSIONService service.
@@ -29,6 +30,7 @@ const (
 // All Services
 type SUBMISSIONServiceClient interface {
 	CreateSubmission(ctx context.Context, in *CreateSubmissionRequest, opts ...grpc.CallOption) (*CreateSubmissionResponse, error)
+	UpdateSubmissionStatus(ctx context.Context, in *UpdateSubmissionStatusRequest, opts ...grpc.CallOption) (*UpdateSubmissionStatusResponse, error)
 }
 
 type sUBMISSIONServiceClient struct {
@@ -49,6 +51,16 @@ func (c *sUBMISSIONServiceClient) CreateSubmission(ctx context.Context, in *Crea
 	return out, nil
 }
 
+func (c *sUBMISSIONServiceClient) UpdateSubmissionStatus(ctx context.Context, in *UpdateSubmissionStatusRequest, opts ...grpc.CallOption) (*UpdateSubmissionStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSubmissionStatusResponse)
+	err := c.cc.Invoke(ctx, SUBMISSIONService_UpdateSubmissionStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SUBMISSIONServiceServer is the server API for SUBMISSIONService service.
 // All implementations must embed UnimplementedSUBMISSIONServiceServer
 // for forward compatibility.
@@ -56,6 +68,7 @@ func (c *sUBMISSIONServiceClient) CreateSubmission(ctx context.Context, in *Crea
 // All Services
 type SUBMISSIONServiceServer interface {
 	CreateSubmission(context.Context, *CreateSubmissionRequest) (*CreateSubmissionResponse, error)
+	UpdateSubmissionStatus(context.Context, *UpdateSubmissionStatusRequest) (*UpdateSubmissionStatusResponse, error)
 	mustEmbedUnimplementedSUBMISSIONServiceServer()
 }
 
@@ -68,6 +81,9 @@ type UnimplementedSUBMISSIONServiceServer struct{}
 
 func (UnimplementedSUBMISSIONServiceServer) CreateSubmission(context.Context, *CreateSubmissionRequest) (*CreateSubmissionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSubmission not implemented")
+}
+func (UnimplementedSUBMISSIONServiceServer) UpdateSubmissionStatus(context.Context, *UpdateSubmissionStatusRequest) (*UpdateSubmissionStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSubmissionStatus not implemented")
 }
 func (UnimplementedSUBMISSIONServiceServer) mustEmbedUnimplementedSUBMISSIONServiceServer() {}
 func (UnimplementedSUBMISSIONServiceServer) testEmbeddedByValue()                           {}
@@ -108,6 +124,24 @@ func _SUBMISSIONService_CreateSubmission_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SUBMISSIONService_UpdateSubmissionStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSubmissionStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SUBMISSIONServiceServer).UpdateSubmissionStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SUBMISSIONService_UpdateSubmissionStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SUBMISSIONServiceServer).UpdateSubmissionStatus(ctx, req.(*UpdateSubmissionStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SUBMISSIONService_ServiceDesc is the grpc.ServiceDesc for SUBMISSIONService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -118,6 +152,10 @@ var SUBMISSIONService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateSubmission",
 			Handler:    _SUBMISSIONService_CreateSubmission_Handler,
+		},
+		{
+			MethodName: "UpdateSubmissionStatus",
+			Handler:    _SUBMISSIONService_UpdateSubmissionStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

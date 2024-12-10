@@ -30,7 +30,7 @@ message Asset {
     string area_name = 20;
     string asset_image = 21;
     int32 deprecation_value = 22;
-    int32 personal_responsible_id = 23;
+    string personal_responsible= 23;
     string personal_name = 24;
     int32 asset_age = 25;
     string asset_maintenance_date = 26;
@@ -49,7 +49,7 @@ message CreateAssetRequest {
     int32 classification_acquisition_value = 9;
     int32 outlet_id = 10;
     string asset_image = 11;
-    int32 personal_responsible_id = 12;
+    string personal_responsible = 12;
     int32 area_id = 13;
 }
 
@@ -92,7 +92,7 @@ message UpdateAssetRequest {
     int32 classification_acquisition_value = 10;
     int32 outlet_id = 11;
     string asset_image = 12;
-    int32 personal_responsible_id = 13;
+    string personal_responsible = 13;
     int32 area_id = 14;
 }
 
@@ -466,6 +466,17 @@ message CreateSubmissionResponse {
     bool success = 3;
 }
 
+message UpdateSubmissionStatusRequest {
+    int32 id = 1;
+    string status = 2;
+}
+
+message UpdateSubmissionStatusResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
 // Message for data Submission Logs
 message SubmissionLog {
     int32 submission_id = 1;
@@ -479,6 +490,13 @@ service SUBMISSIONService {
     rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
         option (google.api.http) = {
             post: "/api/submissions"
+            body: "*"
+        };
+    }
+
+    rpc UpdateSubmissionStatus(UpdateSubmissionStatusRequest) returns (UpdateSubmissionStatusResponse) {
+        option (google.api.http) = {
+            put: "/api/submissions/{id}/status"
             body: "*"
         };
     }

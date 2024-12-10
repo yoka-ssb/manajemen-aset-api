@@ -21,23 +21,23 @@ type AssetService struct {
 }
 
 type Asset struct {
-	AssetId                        int32  `json:"asset_id,omitempty"`
-	AssetName                      string `json:"asset_name,omitempty"`
-	AssetBrand                     string `json:"asset_brand,omitempty"`
-	AssetSpecification             string `json:"asset_specification,omitempty"`
-	AssetClassification            int32  `json:"asset_classification,omitempty"`
-	AssetCondition                 string `json:"asset_condition,omitempty"`
-	AssetPic                       int32  `json:"asset_pic,omitempty"`
-	AssetPurchaseDate              string `json:"asset_purchase_date,omitempty"`
-	AssetMaintenanceDate           string `json:"asset_maintenance_date,omitempty"`
-	AssetStatus                    string `json:"asset_status,omitempty"`
-	ClassificationAcquisitionValue int32  `json:"classification_acquisition_value,omitempty"`
-	ClassificationLastBookValue    int32  `json:"classification_last_book_value,omitempty"`
-	AssetImage                     string `json:"asset_image,omitempty"`
-	PersonalResponsibleId          *int32  `json:"personal_responsible_id,omitempty"`
-	DeprecationValue               int32  `json:"deprecation_value,omitempty"`
-	OutletId                       int32  `json:"outlet_id,omitempty"`
-	AreaId                         int32  `json:"area_id,omitempty"`
+	AssetId                        int32   `json:"asset_id,omitempty"`
+	AssetName                      string  `json:"asset_name,omitempty"`
+	AssetBrand                     string  `json:"asset_brand,omitempty"`
+	AssetSpecification             string  `json:"asset_specification,omitempty"`
+	AssetClassification            int32   `json:"asset_classification,omitempty"`
+	AssetCondition                 string  `json:"asset_condition,omitempty"`
+	AssetPic                       int32   `json:"asset_pic,omitempty"`
+	AssetPurchaseDate              string  `json:"asset_purchase_date,omitempty"`
+	AssetMaintenanceDate           string  `json:"asset_maintenance_date,omitempty"`
+	AssetStatus                    string  `json:"asset_status,omitempty"`
+	ClassificationAcquisitionValue int32   `json:"classification_acquisition_value,omitempty"`
+	ClassificationLastBookValue    int32   `json:"classification_last_book_value,omitempty"`
+	AssetImage                     string  `json:"asset_image,omitempty"`
+	PersonalResponsible            *string `json:"personal_responsible,omitempty"`
+	DeprecationValue               int32   `json:"deprecation_value,omitempty"`
+	OutletId                       int32   `json:"outlet_id,omitempty"`
+	AreaId                         int32   `json:"area_id,omitempty"`
 }
 
 func NewAssetService(db *gorm.DB) *AssetService {
@@ -71,14 +71,14 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 	deprecationValue := req.GetClassificationAcquisitionValue() / classification.ClassificationEconomicValue
 
 	lastBookValue := req.GetClassificationAcquisitionValue() - (deprecationValue * int32(month))
-	
+
 	// Set maintenance date
 	period := utils.ExtractMaintenancePeriod(classification.MaintenancePeriodId)
 	maintenanceDate := time.Now().AddDate(0, period, 0)
 	maintenanceDate = time.Date(maintenanceDate.Year(), maintenanceDate.Month(), 20, 0, 0, 0, 0, time.Local)
 	// Parse maintenance date to string
 	maintenanceDateStr := maintenanceDate.Format("2006-01-02")
-	
+
 	var lastAsset Asset
 	last := db.Model(&assetpb.Asset{}).Last(&lastAsset)
 	if last.Error != nil {
@@ -91,11 +91,7 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 		}
 	}
 	lastID := lastAsset.AssetId
-
-	var personalId *int32
-	if req.PersonalResponsibleId != 0 {
-		personalId = &req.PersonalResponsibleId
-	}
+	personalResponsible := req.PersonalResponsible
 
 	asset := Asset{
 		AssetId:                        lastID + 1,
@@ -111,7 +107,7 @@ func (s *AssetService) CreateAsset(ctx context.Context, req *assetpb.CreateAsset
 		ClassificationAcquisitionValue: req.GetClassificationAcquisitionValue(),
 		ClassificationLastBookValue:    lastBookValue,
 		AssetImage:                     req.GetAssetImage(),
-		PersonalResponsibleId:          personalId,
+		PersonalResponsible:            &personalResponsible,
 		DeprecationValue:               deprecationValue,
 		OutletId:                       req.GetOutletId(),
 		AreaId:                         req.GetAreaId(),
@@ -203,19 +199,19 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAsset
 	log.Default().Println("updating item")
 
 	updates := map[string]interface{}{
-		"AssetName":                       req.GetAssetName(),
-		"AssetBrand":                      req.GetAssetBrand(),
-		"AssetSpecification":              req.GetAssetSpecification(),
-		"AssetClassification":             req.GetAssetClassification(),
-		"AssetCondition":                  req.GetAssetCondition(),
-		"AssetPic":                        req.GetAssetPic(),
-		"AssetPurchaseDate":                req.GetAssetPurchaseDate(),
-		"AssetStatus":                     req.GetAssetStatus(),
+		"AssetName":                      req.GetAssetName(),
+		"AssetBrand":                     req.GetAssetBrand(),
+		"AssetSpecification":             req.GetAssetSpecification(),
+		"AssetClassification":            req.GetAssetClassification(),
+		"AssetCondition":                 req.GetAssetCondition(),
+		"AssetPic":                       req.GetAssetPic(),
+		"AssetPurchaseDate":              req.GetAssetPurchaseDate(),
+		"AssetStatus":                    req.GetAssetStatus(),
 		"ClassificationAcquisitionValue": req.GetClassificationAcquisitionValue(),
-		"AssetImage":                      req.GetAssetImage(),
-		"PersonalResponsibleId":           req.GetPersonalResponsibleId(),
-		"OutletId":                        req.GetOutletId(),
-		"AreaId":                          req.GetAreaId(),
+		"AssetImage":                     req.GetAssetImage(),
+		"PersonalResponsible":            req.GetPersonalResponsible(),
+		"OutletId":                       req.GetOutletId(),
+		"AreaId":                         req.GetAreaId(),
 	}
 	result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.Id).Updates(updates)
 	if result.Error != nil {
@@ -246,14 +242,14 @@ func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.Updat
 			return nil, status.Error(codes.Internal, "Failed to get asset")
 		}
 	}
-	
+
 	// Getting data classification
 	classification := getClassificationById(asset.Data.AssetClassification)
 	if classification == nil {
 		return nil, status.Error(codes.NotFound, "Classification not found")
 	}
 
-	// Set maintenance date	
+	// Set maintenance date
 	period := utils.ExtractMaintenancePeriod(classification.MaintenancePeriodId)
 
 	maintenanceDate := time.Now().AddDate(0, period, 0)
@@ -269,7 +265,7 @@ func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.Updat
 		}
 	} else {
 		updates = map[string]interface{}{
-			"AssetStatus": req.GetAssetStatus(),
+			"AssetStatus":          req.GetAssetStatus(),
 			"AssetMaintenanceDate": maintenanceDateStr,
 		}
 	}

@@ -148,8 +148,60 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
 	}
 
+	// Insert data to table asset_update
+	db.Create(&assetpb.AssetUpdate{
+		AssetId:     req.AssetId,
+		AssetStatus: req.SubmissionCategory,
+	})
+
 	return &assetpb.CreateSubmissionResponse{
 		Message: "Successfully creating submission",
+		Code:    "200",
+		Success: true,
+	}, nil
+}
+
+func (s *SubmissionService) UpdateSubmissionStatus(ctx context.Context, req *assetpb.UpdateSubmissionStatusRequest) (*assetpb.UpdateSubmissionStatusResponse, error) {
+	log.Default().Println("Updating submission status")
+	log.Default().Println("Submission ID: ", req.Id)
+	result := db.Model(&assetpb.Submission{}).Where("submission_id = ?", req.Id).Update("submission_status", req.Status)
+	if result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to update submission status: "+result.Error.Error())
+	}
+
+	// Get detail submission
+	submission := Submission{}
+	result = db.First(&submission, req.Id)
+	if result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to get submission: "+result.Error.Error())
+	}
+
+	// Create submission log
+	submissionLog := assetpb.SubmissionLog{
+		SubmissionId: req.Id,
+		Status:       req.Status,
+		Description:  "Pengajuan dibuat oleh " + submission.SubmissionName,
+		PrName:       submission.SubmissionPrName,
+	}
+	result = db.Create(&submissionLog)
+	if result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to create submission log: "+result.Error.Error())
+	}
+
+	// Update asset status
+	result = db.Model(&assetpb.Asset{}).Where("asset_id = ?", submission.AssetId).Update("asset_status", req.Status)
+	if result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
+	}
+
+	// Insert data to table asset_update
+	db.Create(&assetpb.AssetUpdate{
+		AssetId:     submission.AssetId,
+		AssetStatus: req.Status,
+	})
+
+	return &assetpb.UpdateSubmissionStatusResponse{
+		Message: "Successfully updating submission status",
 		Code:    "200",
 		Success: true,
 	}, nil
