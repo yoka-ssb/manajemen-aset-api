@@ -485,6 +485,28 @@ message SubmissionLog {
     string pr_name = 4;
 }
 
+message GetSubmissionByIdRequest {
+    int32 id = 1;
+}
+
+message GetSubmissionByIdResponse {
+    Submission submission = 4;
+}
+
+message ListSubmissionsRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    string q = 3;
+}
+
+message ListSubmissionsResponse {
+    repeated Submission data = 1;
+    int32 total_count = 2;
+    int32 page_number = 3;
+    int32 page_size = 4;
+    string next_page_token = 5;
+}
+
 // All Services
 service SUBMISSIONService {
     rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
@@ -494,6 +516,18 @@ service SUBMISSIONService {
         };
     }
 
+     rpc ListSubmissions(ListSubmissionsRequest) returns (ListSubmissionsResponse) {
+        option (google.api.http) = {
+            get: "/api/submission"
+        };
+    };
+
+    rpc GetSubmissionById(GetSubmissionByIdRequest) returns (GetSubmissionByIdResponse) {
+        option (google.api.http) = {
+            get: "/api/submissions/{id}"
+        };
+    };
+    
     rpc UpdateSubmissionStatus(UpdateSubmissionStatusRequest) returns (UpdateSubmissionStatusResponse) {
         option (google.api.http) = {
             put: "/api/submissions/{id}/status"

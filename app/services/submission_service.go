@@ -4,6 +4,7 @@ import (
 	"asset-management-api/assetpb"
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -27,13 +28,14 @@ type Submission struct {
 	SubmissionCategory    string `json:"submission_category,omitempty"`
 	SubmissionStatus      string `json:"submission_status,omitempty"`
 	SubmissionPurpose     string `json:"submission_purpose,omitempty"`
-	SubmissionQuantity    int32 `json:"submission_quantity,omitempty"`
+	SubmissionQuantity    int32  `json:"submission_quantity,omitempty"`
 	SubmissionAssetName   string `json:"submission_asset_name,omitempty"`
 	SubmissionDescription string `json:"submission_description,omitempty"`
 	Nip                   int32  `json:"nip,omitempty"`
 	AssetId               int32  `json:"asset_id,omitempty"`
 	Attachment            string `json:"attachment,omitempty"`
 	SubmissionPrName      string `json:"submission_pr_name,omitempty"`
+	SubmissionRoleName    string `json:"submission_role_name,omitempty"`
 }
 
 func NewSubmissionService(db *gorm.DB) *SubmissionService {
@@ -47,65 +49,37 @@ func (s *SubmissionService) Register(server interface{}) {
 }
 
 func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.CreateSubmissionRequest) (*assetpb.CreateSubmissionResponse, error) {
-	log.Default().Println("Creating submission")
+	log.Println("Creating submission")
+
 	// Validate asset
 	asset, err := GetAssetById(req.AssetId)
 	if err != nil {
-		if status.Code(err) == codes.NotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "Asset not found")
-		} else {
-			return nil, status.Error(codes.Internal, "Failed to get asset")
 		}
+		return nil, status.Error(codes.Internal, "Failed to get asset")
 	}
 
-	// Validate asset status
-	if asset.AssetStatus != "Baik" {
-		return nil, status.Error(codes.NotFound, "Asset already submitted")
+	// Validate asset status and other fields
+	if asset.AssetStatus != "Baik" || asset.AssetName != req.SubmissionAssetName ||
+		(req.SubmissionOutlet != "" && asset.OutletName != req.SubmissionOutlet) ||
+		(req.SubmissionArea != "" && asset.AreaName != req.SubmissionArea) ||
+		asset.AssetPicName != req.SubmissionRoleName {
+		return nil, status.Error(codes.NotFound, "Asset or related details do not match")
 	}
 
-	// Validate asset name
-	if asset.AssetName != req.SubmissionAssetName {
-		return nil, status.Error(codes.NotFound, "Asset name not match")
-	}
-
-	if req.SubmissionOutlet != "" {
-		// Validate outlet
-		if asset.OutletName != req.SubmissionOutlet {
-			return nil, status.Error(codes.NotFound, "Outlet not match")
-		}
-	}
-
-	if req.SubmissionArea != "" {
-		// Validate area
-		if asset.AreaName != req.SubmissionArea {
-			return nil, status.Error(codes.NotFound, "Area not match")
-		}
-	}
-
-	// Validate personal responsible 
-	if asset.PersonalName != req.SubmissionPrName {
-		return nil, status.Error(codes.NotFound, "Personal Responsible not match")
-	}
-
-	// Validate PIC name
-	if asset.AssetPicName != req.SubmissionRoleName {
-		return nil, status.Error(codes.NotFound, "PIC name not match")
-	}
-
+	// Get the last Submission ID
 	var lastSubmission Submission
 	last := db.Model(&assetpb.Submission{}).Last(&lastSubmission)
 	if last.Error != nil {
 		log.Println("Error:", last.Error)
-
 		if errors.Is(last.Error, gorm.ErrRecordNotFound) {
-			// Create first submission
 			lastSubmission.SubmissionId = 0
 		} else {
 			return nil, status.Error(codes.Internal, "Failed to get submission: "+last.Error.Error())
 		}
 	}
 	lastID := lastSubmission.SubmissionId
-	// convert time to string
 	submissionDate := time.Now().Format("2006-01-02")
 
 	submission := Submission{
@@ -122,87 +96,178 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		Nip:                   req.Nip,
 		AssetId:               req.AssetId,
 		SubmissionPrName:      req.SubmissionPrName,
+		SubmissionRoleName:    req.SubmissionRoleName,
 		Attachment:            req.Attachment,
 	}
 
 	result := db.Create(&submission)
 	if result.Error != nil {
-		return nil, status.Error(codes.Internal, "Failed to create asset: "+result.Error.Error())
+		return nil, status.Error(codes.Internal, "Failed to create submission: "+result.Error.Error())
 	}
 
-	// Create submission log
+	// Log submission
 	submissionLog := assetpb.SubmissionLog{
 		SubmissionId: submission.SubmissionId,
 		Status:       "Diajukan",
 		Description:  "Pengajuan dibuat oleh " + req.SubmissionName,
 		PrName:       req.SubmissionPrName,
 	}
-	result = db.Create(&submissionLog)
-	if result.Error != nil {
+	if result := db.Create(&submissionLog); result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to create submission log: "+result.Error.Error())
 	}
 
 	// Update asset status
-	result = db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.AssetId).Update("asset_status", req.SubmissionCategory)
-	if result.Error != nil {
-		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
+	if result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", req.AssetId).Update("asset_status", req.SubmissionCategory); result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to update asset status: "+result.Error.Error())
 	}
 
-	// Insert data to table asset_update
-	db.Create(&assetpb.AssetUpdate{
+	// Record asset update
+	if result := db.Create(&assetpb.AssetUpdate{
 		AssetId:     req.AssetId,
 		AssetStatus: req.SubmissionCategory,
-	})
+	}); result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to create asset update: "+result.Error.Error())
+	}
 
 	return &assetpb.CreateSubmissionResponse{
-		Message: "Successfully creating submission",
+		Message: "Successfully created submission",
 		Code:    "200",
 		Success: true,
 	}, nil
 }
 
 func (s *SubmissionService) UpdateSubmissionStatus(ctx context.Context, req *assetpb.UpdateSubmissionStatusRequest) (*assetpb.UpdateSubmissionStatusResponse, error) {
-	log.Default().Println("Updating submission status")
-	log.Default().Println("Submission ID: ", req.Id)
+	log.Println("Updating submission status for ID:", req.Id)
 	result := db.Model(&assetpb.Submission{}).Where("submission_id = ?", req.Id).Update("submission_status", req.Status)
 	if result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to update submission status: "+result.Error.Error())
 	}
 
-	// Get detail submission
 	submission := Submission{}
-	result = db.First(&submission, req.Id)
-	if result.Error != nil {
+	if result := db.First(&submission, req.Id); result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to get submission: "+result.Error.Error())
 	}
 
-	// Create submission log
 	submissionLog := assetpb.SubmissionLog{
 		SubmissionId: req.Id,
 		Status:       req.Status,
-		Description:  "Pengajuan dibuat oleh " + submission.SubmissionName,
+		Description:  "Status updated by " + submission.SubmissionName,
 		PrName:       submission.SubmissionPrName,
 	}
-	result = db.Create(&submissionLog)
-	if result.Error != nil {
+	if result := db.Create(&submissionLog); result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to create submission log: "+result.Error.Error())
 	}
 
 	// Update asset status
-	result = db.Model(&assetpb.Asset{}).Where("asset_id = ?", submission.AssetId).Update("asset_status", req.Status)
-	if result.Error != nil {
-		return nil, status.Error(codes.Internal, "Failed to update asset: "+result.Error.Error())
+	if result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", submission.AssetId).Update("asset_status", req.Status); result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to update asset status: "+result.Error.Error())
 	}
 
-	// Insert data to table asset_update
-	db.Create(&assetpb.AssetUpdate{
+	// Record asset update
+	if result := db.Create(&assetpb.AssetUpdate{
 		AssetId:     submission.AssetId,
 		AssetStatus: req.Status,
-	})
+	}); result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to create asset update: "+result.Error.Error())
+	}
 
 	return &assetpb.UpdateSubmissionStatusResponse{
-		Message: "Successfully updating submission status",
+		Message: "Successfully updated submission status",
 		Code:    "200",
 		Success: true,
 	}, nil
+}
+
+func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.ListSubmissionsRequest) (*assetpb.ListSubmissionsResponse, error) {
+	log.Println("Listing submissions")
+
+	pageNumber := req.GetPageNumber()
+	pageSize := req.GetPageSize()
+	q := req.GetQ()
+
+	offset := (pageNumber - 1) * pageSize
+	limit := pageSize
+
+	submissions, err := GetSubmissions(offset, limit, q)
+	if err != nil {
+		log.Println("Error fetching submissions:", err)
+		return nil, err
+	}
+
+	totalCount, err := GetTotalCount("submissions")
+	if err != nil {
+		log.Println("Error fetching total count:", err)
+		return nil, err
+	}
+
+	resp := &assetpb.ListSubmissionsResponse{
+		Data:       submissions,
+		TotalCount: totalCount,
+		PageNumber: pageNumber,
+		PageSize:   pageSize,
+	}
+
+	if totalCount > offset+limit {
+		resp.NextPageToken = fmt.Sprintf("page_token_%d", pageNumber+1)
+	}
+
+	return resp, nil
+}
+
+func GetSubmissions(offset, limit int32, q string) ([]*assetpb.Submission, error) {
+	var submissions []*assetpb.Submission
+	query := db.Select("submissions.*, users.nip AS nip, assets.asset_id AS asset_id").
+		Limit(int(limit)).
+		Offset(int(offset))
+
+	if q != "" {
+		query = query.Where("submissions.submission_name LIKE ?", "%"+q+"%")
+	}
+
+	err := query.Joins("LEFT JOIN users ON users.nip = submissions.nip").
+		Joins("LEFT JOIN assets ON assets.asset_id = submissions.asset_id").
+		Find(&submissions).Error
+
+	if err != nil {
+		log.Println("Error fetching submissions:", err)
+		return nil, err
+	}
+
+	return submissions, nil
+}
+
+func GetSubmissionById(id int32) (*assetpb.Submission, error) {
+    var submission assetpb.Submission
+    log.Println("Fetching submission with ID:", id)
+    
+    query := db.Select("submissions.*, users.nip AS nip, assets.asset_id AS asset_id").
+        Joins("LEFT JOIN users ON users.nip = users.nip").
+        Joins("LEFT JOIN assets ON assets.asset_id = assets.asset_id").
+        Where("submissions.submission_id = ?", id)
+
+    result := query.First(&submission)
+    if result.Error != nil {
+        log.Println("Error fetching submission:", result.Error)
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            return nil, status.Error(codes.NotFound, "Submission not found")
+        } else {
+            return nil, status.Error(codes.Internal, "Failed to get submission")
+        }
+    }
+    return &submission, nil
+}
+
+func (s *SubmissionService) GetSubmissionById(ctx context.Context, req *assetpb.GetSubmissionByIdRequest) (*assetpb.GetSubmissionByIdResponse, error) {
+    log.Println("Fetching submission with ID:", req.Id)
+
+    // Panggil fungsi helper untuk mendapatkan submission dari DB.
+    submission, err := GetSubmissionById(req.Id)
+    if err != nil {
+        log.Println("Error fetching submission:", err)
+        return nil, err
+    }
+
+    return &assetpb.GetSubmissionByIdResponse{
+        Submission: submission,
+    }, nil
 }

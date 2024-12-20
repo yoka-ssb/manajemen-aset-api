@@ -10,6 +10,7 @@ package assetpb
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -24,1005 +25,888 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_SUBMISSIONService_CreateSubmission_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateSubmissionRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateSubmissionRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateSubmission(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SUBMISSIONService_CreateSubmission_0(ctx context.Context, marshaler runtime.Marshaler, server SUBMISSIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateSubmissionRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateSubmissionRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateSubmission(ctx, &protoReq)
 	return msg, metadata, err
+}
 
+var filter_SUBMISSIONService_ListSubmissions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_SUBMISSIONService_ListSubmissions_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListSubmissionsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SUBMISSIONService_ListSubmissions_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.ListSubmissions(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SUBMISSIONService_ListSubmissions_0(ctx context.Context, marshaler runtime.Marshaler, server SUBMISSIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListSubmissionsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SUBMISSIONService_ListSubmissions_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListSubmissions(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_SUBMISSIONService_GetSubmissionById_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetSubmissionByIdRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := client.GetSubmissionById(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SUBMISSIONService_GetSubmissionById_0(ctx context.Context, marshaler runtime.Marshaler, server SUBMISSIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetSubmissionByIdRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := server.GetSubmissionById(ctx, &protoReq)
+	return msg, metadata, err
 }
 
 func request_SUBMISSIONService_UpdateSubmissionStatus_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateSubmissionStatusRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateSubmissionStatusRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.UpdateSubmissionStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_SUBMISSIONService_UpdateSubmissionStatus_0(ctx context.Context, marshaler runtime.Marshaler, server SUBMISSIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateSubmissionStatusRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateSubmissionStatusRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.UpdateSubmissionStatus(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, client MAINTENANCEPERIODServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListMaintenancePeriodRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListMaintenancePeriodRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := client.ListMaintenancePeriod(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, server MAINTENANCEPERIODServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListMaintenancePeriodRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListMaintenancePeriodRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.ListMaintenancePeriod(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, client MAINTENANCEPERIODServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateMaintenancePeriodRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateMaintenancePeriodRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateMaintenancePeriod(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, server MAINTENANCEPERIODServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateMaintenancePeriodRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateMaintenancePeriodRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateMaintenancePeriod(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_CLASSIFICATIONService_ListClassification_0(ctx context.Context, marshaler runtime.Marshaler, client CLASSIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListClassificationRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListClassificationRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := client.ListClassification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_CLASSIFICATIONService_ListClassification_0(ctx context.Context, marshaler runtime.Marshaler, server CLASSIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListClassificationRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListClassificationRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.ListClassification(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_CLASSIFICATIONService_CreateClassification_0(ctx context.Context, marshaler runtime.Marshaler, client CLASSIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateClassificationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateClassificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateClassification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_CLASSIFICATIONService_CreateClassification_0(ctx context.Context, marshaler runtime.Marshaler, server CLASSIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateClassificationRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateClassificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateClassification(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_CLASSIFICATIONService_GetClassification_0(ctx context.Context, marshaler runtime.Marshaler, client CLASSIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetClassificationRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetClassificationRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.GetClassification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_CLASSIFICATIONService_GetClassification_0(ctx context.Context, marshaler runtime.Marshaler, server CLASSIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetClassificationRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetClassificationRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.GetClassification(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_OUTLETService_ListOutlet_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_OUTLETService_ListOutlet_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_OUTLETService_ListOutlet_0(ctx context.Context, marshaler runtime.Marshaler, client OUTLETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListOutletRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListOutletRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OUTLETService_ListOutlet_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ListOutlet(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OUTLETService_ListOutlet_0(ctx context.Context, marshaler runtime.Marshaler, server OUTLETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListOutletRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListOutletRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OUTLETService_ListOutlet_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListOutlet(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_OUTLETService_CreateOutlet_0(ctx context.Context, marshaler runtime.Marshaler, client OUTLETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateOutletRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateOutletRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateOutlet(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_OUTLETService_CreateOutlet_0(ctx context.Context, marshaler runtime.Marshaler, server OUTLETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateOutletRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateOutletRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateOutlet(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AREAService_ListArea_0(ctx context.Context, marshaler runtime.Marshaler, client AREAServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAreaRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAreaRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := client.ListArea(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AREAService_ListArea_0(ctx context.Context, marshaler runtime.Marshaler, server AREAServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAreaRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAreaRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.ListArea(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AREAService_CreateArea_0(ctx context.Context, marshaler runtime.Marshaler, client AREAServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAreaRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAreaRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateArea(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AREAService_CreateArea_0(ctx context.Context, marshaler runtime.Marshaler, server AREAServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAreaRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAreaRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateArea(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AUTHService_Login_0(ctx context.Context, marshaler runtime.Marshaler, client AUTHServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LoginRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq LoginRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.Login(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AUTHService_Login_0(ctx context.Context, marshaler runtime.Marshaler, server AUTHServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LoginRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq LoginRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.Login(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AUTHService_Logout_0(ctx context.Context, marshaler runtime.Marshaler, client AUTHServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LogoutRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq LogoutRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.Logout(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AUTHService_Logout_0(ctx context.Context, marshaler runtime.Marshaler, server AUTHServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq LogoutRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq LogoutRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.Logout(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ROLEService_ListRole_0(ctx context.Context, marshaler runtime.Marshaler, client ROLEServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRoleRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListRoleRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := client.ListRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ROLEService_ListRole_0(ctx context.Context, marshaler runtime.Marshaler, server ROLEServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRoleRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListRoleRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.ListRole(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_USERService_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, client USERServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateUserRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_USERService_CreateUser_0(ctx context.Context, marshaler runtime.Marshaler, server USERServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateUserRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateUserRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateUser(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_USERService_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, client USERServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetUserRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetUserRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["nip"]
+	val, ok := pathParams["nip"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nip")
 	}
-
 	protoReq.Nip, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nip", err)
 	}
-
 	msg, err := client.GetUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_USERService_GetUser_0(ctx context.Context, marshaler runtime.Marshaler, server USERServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetUserRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetUserRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["nip"]
+	val, ok := pathParams["nip"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nip")
 	}
-
 	protoReq.Nip, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nip", err)
 	}
-
 	msg, err := server.GetUser(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_USERService_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, client USERServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateUserRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateUserRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["nip"]
+	val, ok := pathParams["nip"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nip")
 	}
-
 	protoReq.Nip, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nip", err)
 	}
-
 	msg, err := client.UpdateUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_USERService_UpdateUser_0(ctx context.Context, marshaler runtime.Marshaler, server USERServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateUserRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateUserRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["nip"]
+	val, ok := pathParams["nip"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nip")
 	}
-
 	protoReq.Nip, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nip", err)
 	}
-
 	msg, err := server.UpdateUser(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_USERService_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler, client USERServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteUserRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteUserRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["nip"]
+	val, ok := pathParams["nip"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nip")
 	}
-
 	protoReq.Nip, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nip", err)
 	}
-
 	msg, err := client.DeleteUser(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_USERService_DeleteUser_0(ctx context.Context, marshaler runtime.Marshaler, server USERServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteUserRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteUserRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["nip"]
+	val, ok := pathParams["nip"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nip")
 	}
-
 	protoReq.Nip, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nip", err)
 	}
-
 	msg, err := server.DeleteUser(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_USERService_ListUsers_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_USERService_ListUsers_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_USERService_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, client USERServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListUsersRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListUsersRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_USERService_ListUsers_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ListUsers(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_USERService_ListUsers_0(ctx context.Context, marshaler runtime.Marshaler, server USERServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListUsersRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListUsersRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_USERService_ListUsers_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListUsers(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_USERService_ResetPassword_0(ctx context.Context, marshaler runtime.Marshaler, client USERServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ResetPasswordRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ResetPasswordRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ResetPassword(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_USERService_ResetPassword_0(ctx context.Context, marshaler runtime.Marshaler, server USERServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ResetPasswordRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ResetPasswordRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ResetPassword(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAssetRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAssetRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.CreateAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateAssetRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateAssetRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateAsset(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ASSETService_GetAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAssetRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetAssetRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.GetAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_GetAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAssetRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetAssetRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.GetAsset(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_ASSETService_GetAssetByHash_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_ASSETService_GetAssetByHash_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_ASSETService_GetAssetByHash_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAssetByHashRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetAssetByHashRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ASSETService_GetAssetByHash_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.GetAssetByHash(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_GetAssetByHash_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetAssetByHashRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq GetAssetByHashRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ASSETService_GetAssetByHash_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.GetAssetByHash(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ASSETService_UpdateAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateAssetRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateAssetRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.UpdateAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_UpdateAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateAssetRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateAssetRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.UpdateAsset(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ASSETService_UpdateAssetStatus_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateAssetStatusRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateAssetStatusRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.UpdateAssetStatus(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_UpdateAssetStatus_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateAssetStatusRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq UpdateAssetStatusRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.UpdateAssetStatus(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ASSETService_DeleteAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteAssetRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteAssetRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := client.DeleteAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_DeleteAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteAssetRequest
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq DeleteAssetRequest
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["id"]
+	val, ok := pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
 	}
-
 	protoReq.Id, err = runtime.Int32(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-
 	msg, err := server.DeleteAsset(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
-var (
-	filter_ASSETService_ListAssets_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-)
+var filter_ASSETService_ListAssets_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_ASSETService_ListAssets_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAssetsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAssetsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ASSETService_ListAssets_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := client.ListAssets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ASSETService_ListAssets_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAssetsRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListAssetsRequest
+		metadata runtime.ServerMetadata
+	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ASSETService_ListAssets_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListAssets(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(ctx context.Context, marshaler runtime.Marshaler, client PERSONALRESPONSIBLEServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListPersonalResponsibleRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListPersonalResponsibleRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := client.ListPersonalResponsible(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(ctx context.Context, marshaler runtime.Marshaler, server PERSONALRESPONSIBLEServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListPersonalResponsibleRequest
-	var metadata runtime.ServerMetadata
-
+	var (
+		protoReq ListPersonalResponsibleRequest
+		metadata runtime.ServerMetadata
+	)
 	msg, err := server.ListPersonalResponsible(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterSUBMISSIONServiceHandlerServer registers the http handlers for service SUBMISSIONService to "mux".
@@ -1031,16 +915,13 @@ func local_request_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(ctx cont
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterSUBMISSIONServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SUBMISSIONServiceServer) error {
-
-	mux.Handle("POST", pattern_SUBMISSIONService_CreateSubmission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_SUBMISSIONService_CreateSubmission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/CreateSubmission", runtime.WithHTTPPathPattern("/api/submissions"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/CreateSubmission", runtime.WithHTTPPathPattern("/api/submissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1052,20 +933,55 @@ func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SUBMISSIONService_CreateSubmission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_SUBMISSIONService_UpdateSubmissionStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_ListSubmissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/UpdateSubmissionStatus", runtime.WithHTTPPathPattern("/api/submissions/{id}/status"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissions", runtime.WithHTTPPathPattern("/api/submission"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SUBMISSIONService_ListSubmissions_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_ListSubmissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_GetSubmissionById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/GetSubmissionById", runtime.WithHTTPPathPattern("/api/submissions/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SUBMISSIONService_GetSubmissionById_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_GetSubmissionById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_SUBMISSIONService_UpdateSubmissionStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/UpdateSubmissionStatus", runtime.WithHTTPPathPattern("/api/submissions/{id}/status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1077,9 +993,7 @@ func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SUBMISSIONService_UpdateSubmissionStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1091,16 +1005,13 @@ func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.Se
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterMAINTENANCEPERIODServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MAINTENANCEPERIODServiceServer) error {
-
-	mux.Handle("GET", pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1112,20 +1023,15 @@ func RegisterMAINTENANCEPERIODServiceHandlerServer(ctx context.Context, mux *run
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1137,9 +1043,7 @@ func RegisterMAINTENANCEPERIODServiceHandlerServer(ctx context.Context, mux *run
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1151,16 +1055,13 @@ func RegisterMAINTENANCEPERIODServiceHandlerServer(ctx context.Context, mux *run
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterCLASSIFICATIONServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server CLASSIFICATIONServiceServer) error {
-
-	mux.Handle("GET", pattern_CLASSIFICATIONService_ListClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CLASSIFICATIONService_ListClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1172,20 +1073,15 @@ func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_CLASSIFICATIONService_ListClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_CLASSIFICATIONService_CreateClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_CLASSIFICATIONService_CreateClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1197,20 +1093,15 @@ func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_CLASSIFICATIONService_CreateClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_CLASSIFICATIONService_GetClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CLASSIFICATIONService_GetClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/GetClassification", runtime.WithHTTPPathPattern("/api/classifications/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/GetClassification", runtime.WithHTTPPathPattern("/api/classifications/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1222,9 +1113,7 @@ func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_CLASSIFICATIONService_GetClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1236,16 +1125,13 @@ func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtim
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterOUTLETServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterOUTLETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server OUTLETServiceServer) error {
-
-	mux.Handle("GET", pattern_OUTLETService_ListOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_OUTLETService_ListOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.OUTLETService/ListOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.OUTLETService/ListOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1257,20 +1143,15 @@ func RegisterOUTLETServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OUTLETService_ListOutlet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_OUTLETService_CreateOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_OUTLETService_CreateOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.OUTLETService/CreateOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.OUTLETService/CreateOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1282,9 +1163,7 @@ func RegisterOUTLETServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OUTLETService_CreateOutlet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1296,16 +1175,13 @@ func RegisterOUTLETServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAREAServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAREAServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AREAServiceServer) error {
-
-	mux.Handle("GET", pattern_AREAService_ListArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AREAService_ListArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AREAService/ListArea", runtime.WithHTTPPathPattern("/api/areas"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AREAService/ListArea", runtime.WithHTTPPathPattern("/api/areas"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1317,20 +1193,15 @@ func RegisterAREAServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AREAService_ListArea_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AREAService_CreateArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AREAService_CreateArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AREAService/CreateArea", runtime.WithHTTPPathPattern("/api/areas"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AREAService/CreateArea", runtime.WithHTTPPathPattern("/api/areas"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1342,9 +1213,7 @@ func RegisterAREAServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AREAService_CreateArea_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1356,16 +1225,13 @@ func RegisterAREAServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAUTHServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAUTHServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AUTHServiceServer) error {
-
-	mux.Handle("POST", pattern_AUTHService_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AUTHService_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AUTHService/Login", runtime.WithHTTPPathPattern("/api/login"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AUTHService/Login", runtime.WithHTTPPathPattern("/api/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1377,20 +1243,15 @@ func RegisterAUTHServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AUTHService_Login_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AUTHService_Logout_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AUTHService_Logout_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AUTHService/Logout", runtime.WithHTTPPathPattern("/api/logout"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.AUTHService/Logout", runtime.WithHTTPPathPattern("/api/logout"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1402,9 +1263,7 @@ func RegisterAUTHServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AUTHService_Logout_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1416,16 +1275,13 @@ func RegisterAUTHServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterROLEServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterROLEServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ROLEServiceServer) error {
-
-	mux.Handle("GET", pattern_ROLEService_ListRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ROLEService_ListRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ROLEService/ListRole", runtime.WithHTTPPathPattern("/api/roles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ROLEService/ListRole", runtime.WithHTTPPathPattern("/api/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1437,9 +1293,7 @@ func RegisterROLEServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ROLEService_ListRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1451,16 +1305,13 @@ func RegisterROLEServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterUSERServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server USERServiceServer) error {
-
-	mux.Handle("POST", pattern_USERService_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_USERService_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/CreateUser", runtime.WithHTTPPathPattern("/api/users"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/CreateUser", runtime.WithHTTPPathPattern("/api/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1472,20 +1323,15 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_CreateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_USERService_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_USERService_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/GetUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/GetUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1497,20 +1343,15 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_GetUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_USERService_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_USERService_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/UpdateUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/UpdateUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1522,20 +1363,15 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_UpdateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_USERService_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_USERService_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/DeleteUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/DeleteUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1547,20 +1383,15 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_DeleteUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_USERService_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_USERService_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/ListUsers", runtime.WithHTTPPathPattern("/api/users"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/ListUsers", runtime.WithHTTPPathPattern("/api/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1572,20 +1403,15 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_ListUsers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_USERService_ResetPassword_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_USERService_ResetPassword_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/ResetPassword", runtime.WithHTTPPathPattern("/api/reset-password"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.USERService/ResetPassword", runtime.WithHTTPPathPattern("/api/reset-password"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1597,9 +1423,7 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_ResetPassword_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1611,16 +1435,13 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterASSETServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ASSETServiceServer) error {
-
-	mux.Handle("POST", pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1632,20 +1453,15 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_CreateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/GetAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/GetAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1657,20 +1473,15 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_GetAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ASSETService_GetAssetByHash_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ASSETService_GetAssetByHash_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/GetAssetByHash", runtime.WithHTTPPathPattern("/api/assets/hash"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/GetAssetByHash", runtime.WithHTTPPathPattern("/api/assets/hash"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1682,20 +1493,15 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_GetAssetByHash_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_ASSETService_UpdateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_ASSETService_UpdateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/UpdateAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/UpdateAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1707,20 +1513,15 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_UpdateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_ASSETService_UpdateAssetStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_ASSETService_UpdateAssetStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/UpdateAssetStatus", runtime.WithHTTPPathPattern("/api/assets/{id}/status"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/UpdateAssetStatus", runtime.WithHTTPPathPattern("/api/assets/{id}/status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1732,20 +1533,15 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_UpdateAssetStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_ASSETService_DeleteAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_ASSETService_DeleteAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/DeleteAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/DeleteAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1757,20 +1553,15 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_DeleteAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ASSETService_ListAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ASSETService_ListAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/ListAssets", runtime.WithHTTPPathPattern("/api/assets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/ListAssets", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1782,9 +1573,7 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_ListAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1796,16 +1585,13 @@ func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterPERSONALRESPONSIBLEServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PERSONALRESPONSIBLEServiceServer) error {
-
-	mux.Handle("GET", pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible", runtime.WithHTTPPathPattern("/api/personal-responsibles"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible", runtime.WithHTTPPathPattern("/api/personal-responsibles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1817,9 +1603,7 @@ func RegisterPERSONALRESPONSIBLEServiceHandlerServer(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -1846,7 +1630,6 @@ func RegisterSUBMISSIONServiceHandlerFromEndpoint(ctx context.Context, mux *runt
 			}
 		}()
 	}()
-
 	return RegisterSUBMISSIONServiceHandler(ctx, mux, conn)
 }
 
@@ -1862,14 +1645,11 @@ func RegisterSUBMISSIONServiceHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "SUBMISSIONServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client SUBMISSIONServiceClient) error {
-
-	mux.Handle("POST", pattern_SUBMISSIONService_CreateSubmission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_SUBMISSIONService_CreateSubmission_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/CreateSubmission", runtime.WithHTTPPathPattern("/api/submissions"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/CreateSubmission", runtime.WithHTTPPathPattern("/api/submissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1880,18 +1660,47 @@ func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SUBMISSIONService_CreateSubmission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_SUBMISSIONService_UpdateSubmissionStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_ListSubmissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/UpdateSubmissionStatus", runtime.WithHTTPPathPattern("/api/submissions/{id}/status"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissions", runtime.WithHTTPPathPattern("/api/submission"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SUBMISSIONService_ListSubmissions_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_ListSubmissions_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_GetSubmissionById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/GetSubmissionById", runtime.WithHTTPPathPattern("/api/submissions/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SUBMISSIONService_GetSubmissionById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_GetSubmissionById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPut, pattern_SUBMISSIONService_UpdateSubmissionStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/UpdateSubmissionStatus", runtime.WithHTTPPathPattern("/api/submissions/{id}/status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1902,23 +1711,22 @@ func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.Se
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_SUBMISSIONService_UpdateSubmissionStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_SUBMISSIONService_CreateSubmission_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submissions"}, ""))
-
+	pattern_SUBMISSIONService_CreateSubmission_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submissions"}, ""))
+	pattern_SUBMISSIONService_ListSubmissions_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submission"}, ""))
+	pattern_SUBMISSIONService_GetSubmissionById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "submissions", "id"}, ""))
 	pattern_SUBMISSIONService_UpdateSubmissionStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "submissions", "id", "status"}, ""))
 )
 
 var (
-	forward_SUBMISSIONService_CreateSubmission_0 = runtime.ForwardResponseMessage
-
+	forward_SUBMISSIONService_CreateSubmission_0       = runtime.ForwardResponseMessage
+	forward_SUBMISSIONService_ListSubmissions_0        = runtime.ForwardResponseMessage
+	forward_SUBMISSIONService_GetSubmissionById_0      = runtime.ForwardResponseMessage
 	forward_SUBMISSIONService_UpdateSubmissionStatus_0 = runtime.ForwardResponseMessage
 )
 
@@ -1943,7 +1751,6 @@ func RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint(ctx context.Context, mu
 			}
 		}()
 	}()
-
 	return RegisterMAINTENANCEPERIODServiceHandler(ctx, mux, conn)
 }
 
@@ -1959,14 +1766,11 @@ func RegisterMAINTENANCEPERIODServiceHandler(ctx context.Context, mux *runtime.S
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "MAINTENANCEPERIODServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterMAINTENANCEPERIODServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MAINTENANCEPERIODServiceClient) error {
-
-	mux.Handle("GET", pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1977,18 +1781,13 @@ func RegisterMAINTENANCEPERIODServiceHandlerClient(ctx context.Context, mux *run
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod", runtime.WithHTTPPathPattern("/api/periods"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1999,23 +1798,18 @@ func RegisterMAINTENANCEPERIODServiceHandlerClient(ctx context.Context, mux *run
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_MAINTENANCEPERIODService_CreateMaintenancePeriod_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "periods"}, ""))
-
+	pattern_MAINTENANCEPERIODService_ListMaintenancePeriod_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "periods"}, ""))
 	pattern_MAINTENANCEPERIODService_CreateMaintenancePeriod_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "periods"}, ""))
 )
 
 var (
-	forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0 = runtime.ForwardResponseMessage
-
+	forward_MAINTENANCEPERIODService_ListMaintenancePeriod_0   = runtime.ForwardResponseMessage
 	forward_MAINTENANCEPERIODService_CreateMaintenancePeriod_0 = runtime.ForwardResponseMessage
 )
 
@@ -2040,7 +1834,6 @@ func RegisterCLASSIFICATIONServiceHandlerFromEndpoint(ctx context.Context, mux *
 			}
 		}()
 	}()
-
 	return RegisterCLASSIFICATIONServiceHandler(ctx, mux, conn)
 }
 
@@ -2056,14 +1849,11 @@ func RegisterCLASSIFICATIONServiceHandler(ctx context.Context, mux *runtime.Serv
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "CLASSIFICATIONServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client CLASSIFICATIONServiceClient) error {
-
-	mux.Handle("GET", pattern_CLASSIFICATIONService_ListClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CLASSIFICATIONService_ListClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2074,18 +1864,13 @@ func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_CLASSIFICATIONService_ListClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_CLASSIFICATIONService_CreateClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_CLASSIFICATIONService_CreateClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2096,18 +1881,13 @@ func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_CLASSIFICATIONService_CreateClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_CLASSIFICATIONService_GetClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CLASSIFICATIONService_GetClassification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/GetClassification", runtime.WithHTTPPathPattern("/api/classifications/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/GetClassification", runtime.WithHTTPPathPattern("/api/classifications/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2118,28 +1898,21 @@ func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtim
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_CLASSIFICATIONService_GetClassification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_CLASSIFICATIONService_ListClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
-
+	pattern_CLASSIFICATIONService_ListClassification_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
 	pattern_CLASSIFICATIONService_CreateClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
-
-	pattern_CLASSIFICATIONService_GetClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "classifications", "id"}, ""))
+	pattern_CLASSIFICATIONService_GetClassification_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "classifications", "id"}, ""))
 )
 
 var (
-	forward_CLASSIFICATIONService_ListClassification_0 = runtime.ForwardResponseMessage
-
+	forward_CLASSIFICATIONService_ListClassification_0   = runtime.ForwardResponseMessage
 	forward_CLASSIFICATIONService_CreateClassification_0 = runtime.ForwardResponseMessage
-
-	forward_CLASSIFICATIONService_GetClassification_0 = runtime.ForwardResponseMessage
+	forward_CLASSIFICATIONService_GetClassification_0    = runtime.ForwardResponseMessage
 )
 
 // RegisterOUTLETServiceHandlerFromEndpoint is same as RegisterOUTLETServiceHandler but
@@ -2163,7 +1936,6 @@ func RegisterOUTLETServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.
 			}
 		}()
 	}()
-
 	return RegisterOUTLETServiceHandler(ctx, mux, conn)
 }
 
@@ -2179,14 +1951,11 @@ func RegisterOUTLETServiceHandler(ctx context.Context, mux *runtime.ServeMux, co
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "OUTLETServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterOUTLETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client OUTLETServiceClient) error {
-
-	mux.Handle("GET", pattern_OUTLETService_ListOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_OUTLETService_ListOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.OUTLETService/ListOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.OUTLETService/ListOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2197,18 +1966,13 @@ func RegisterOUTLETServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OUTLETService_ListOutlet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_OUTLETService_CreateOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_OUTLETService_CreateOutlet_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.OUTLETService/CreateOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.OUTLETService/CreateOutlet", runtime.WithHTTPPathPattern("/api/outlets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2219,23 +1983,18 @@ func RegisterOUTLETServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_OUTLETService_CreateOutlet_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_OUTLETService_ListOutlet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "outlets"}, ""))
-
+	pattern_OUTLETService_ListOutlet_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "outlets"}, ""))
 	pattern_OUTLETService_CreateOutlet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "outlets"}, ""))
 )
 
 var (
-	forward_OUTLETService_ListOutlet_0 = runtime.ForwardResponseMessage
-
+	forward_OUTLETService_ListOutlet_0   = runtime.ForwardResponseMessage
 	forward_OUTLETService_CreateOutlet_0 = runtime.ForwardResponseMessage
 )
 
@@ -2260,7 +2019,6 @@ func RegisterAREAServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 			}
 		}()
 	}()
-
 	return RegisterAREAServiceHandler(ctx, mux, conn)
 }
 
@@ -2276,14 +2034,11 @@ func RegisterAREAServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AREAServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAREAServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AREAServiceClient) error {
-
-	mux.Handle("GET", pattern_AREAService_ListArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AREAService_ListArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.AREAService/ListArea", runtime.WithHTTPPathPattern("/api/areas"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.AREAService/ListArea", runtime.WithHTTPPathPattern("/api/areas"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2294,18 +2049,13 @@ func RegisterAREAServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AREAService_ListArea_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AREAService_CreateArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AREAService_CreateArea_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.AREAService/CreateArea", runtime.WithHTTPPathPattern("/api/areas"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.AREAService/CreateArea", runtime.WithHTTPPathPattern("/api/areas"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2316,23 +2066,18 @@ func RegisterAREAServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AREAService_CreateArea_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_AREAService_ListArea_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "areas"}, ""))
-
+	pattern_AREAService_ListArea_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "areas"}, ""))
 	pattern_AREAService_CreateArea_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "areas"}, ""))
 )
 
 var (
-	forward_AREAService_ListArea_0 = runtime.ForwardResponseMessage
-
+	forward_AREAService_ListArea_0   = runtime.ForwardResponseMessage
 	forward_AREAService_CreateArea_0 = runtime.ForwardResponseMessage
 )
 
@@ -2357,7 +2102,6 @@ func RegisterAUTHServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 			}
 		}()
 	}()
-
 	return RegisterAUTHServiceHandler(ctx, mux, conn)
 }
 
@@ -2373,14 +2117,11 @@ func RegisterAUTHServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AUTHServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAUTHServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AUTHServiceClient) error {
-
-	mux.Handle("POST", pattern_AUTHService_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AUTHService_Login_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.AUTHService/Login", runtime.WithHTTPPathPattern("/api/login"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.AUTHService/Login", runtime.WithHTTPPathPattern("/api/login"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2391,18 +2132,13 @@ func RegisterAUTHServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AUTHService_Login_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_AUTHService_Logout_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AUTHService_Logout_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.AUTHService/Logout", runtime.WithHTTPPathPattern("/api/logout"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.AUTHService/Logout", runtime.WithHTTPPathPattern("/api/logout"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2413,23 +2149,18 @@ func RegisterAUTHServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_AUTHService_Logout_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_AUTHService_Login_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "login"}, ""))
-
+	pattern_AUTHService_Login_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "login"}, ""))
 	pattern_AUTHService_Logout_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "logout"}, ""))
 )
 
 var (
-	forward_AUTHService_Login_0 = runtime.ForwardResponseMessage
-
+	forward_AUTHService_Login_0  = runtime.ForwardResponseMessage
 	forward_AUTHService_Logout_0 = runtime.ForwardResponseMessage
 )
 
@@ -2454,7 +2185,6 @@ func RegisterROLEServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 			}
 		}()
 	}()
-
 	return RegisterROLEServiceHandler(ctx, mux, conn)
 }
 
@@ -2470,14 +2200,11 @@ func RegisterROLEServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ROLEServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterROLEServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ROLEServiceClient) error {
-
-	mux.Handle("GET", pattern_ROLEService_ListRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ROLEService_ListRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ROLEService/ListRole", runtime.WithHTTPPathPattern("/api/roles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ROLEService/ListRole", runtime.WithHTTPPathPattern("/api/roles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2488,11 +2215,8 @@ func RegisterROLEServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ROLEService_ListRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
@@ -2525,7 +2249,6 @@ func RegisterUSERServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 			}
 		}()
 	}()
-
 	return RegisterUSERServiceHandler(ctx, mux, conn)
 }
 
@@ -2541,14 +2264,11 @@ func RegisterUSERServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "USERServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client USERServiceClient) error {
-
-	mux.Handle("POST", pattern_USERService_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_USERService_CreateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/CreateUser", runtime.WithHTTPPathPattern("/api/users"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/CreateUser", runtime.WithHTTPPathPattern("/api/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2559,18 +2279,13 @@ func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_CreateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_USERService_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_USERService_GetUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/GetUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/GetUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2581,18 +2296,13 @@ func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_GetUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_USERService_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_USERService_UpdateUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/UpdateUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/UpdateUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2603,18 +2313,13 @@ func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_UpdateUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_USERService_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_USERService_DeleteUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/DeleteUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/DeleteUser", runtime.WithHTTPPathPattern("/api/users/{nip}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2625,18 +2330,13 @@ func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_DeleteUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_USERService_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_USERService_ListUsers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/ListUsers", runtime.WithHTTPPathPattern("/api/users"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/ListUsers", runtime.WithHTTPPathPattern("/api/users"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2647,18 +2347,13 @@ func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_ListUsers_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_USERService_ResetPassword_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_USERService_ResetPassword_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/ResetPassword", runtime.WithHTTPPathPattern("/api/reset-password"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.USERService/ResetPassword", runtime.WithHTTPPathPattern("/api/reset-password"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2669,39 +2364,26 @@ func RegisterUSERServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_USERService_ResetPassword_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_USERService_CreateUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "users"}, ""))
-
-	pattern_USERService_GetUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "users", "nip"}, ""))
-
-	pattern_USERService_UpdateUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "users", "nip"}, ""))
-
-	pattern_USERService_DeleteUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "users", "nip"}, ""))
-
-	pattern_USERService_ListUsers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "users"}, ""))
-
+	pattern_USERService_CreateUser_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "users"}, ""))
+	pattern_USERService_GetUser_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "users", "nip"}, ""))
+	pattern_USERService_UpdateUser_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "users", "nip"}, ""))
+	pattern_USERService_DeleteUser_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "users", "nip"}, ""))
+	pattern_USERService_ListUsers_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "users"}, ""))
 	pattern_USERService_ResetPassword_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "reset-password"}, ""))
 )
 
 var (
-	forward_USERService_CreateUser_0 = runtime.ForwardResponseMessage
-
-	forward_USERService_GetUser_0 = runtime.ForwardResponseMessage
-
-	forward_USERService_UpdateUser_0 = runtime.ForwardResponseMessage
-
-	forward_USERService_DeleteUser_0 = runtime.ForwardResponseMessage
-
-	forward_USERService_ListUsers_0 = runtime.ForwardResponseMessage
-
+	forward_USERService_CreateUser_0    = runtime.ForwardResponseMessage
+	forward_USERService_GetUser_0       = runtime.ForwardResponseMessage
+	forward_USERService_UpdateUser_0    = runtime.ForwardResponseMessage
+	forward_USERService_DeleteUser_0    = runtime.ForwardResponseMessage
+	forward_USERService_ListUsers_0     = runtime.ForwardResponseMessage
 	forward_USERService_ResetPassword_0 = runtime.ForwardResponseMessage
 )
 
@@ -2726,7 +2408,6 @@ func RegisterASSETServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.S
 			}
 		}()
 	}()
-
 	return RegisterASSETServiceHandler(ctx, mux, conn)
 }
 
@@ -2742,14 +2423,11 @@ func RegisterASSETServiceHandler(ctx context.Context, mux *runtime.ServeMux, con
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ASSETServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ASSETServiceClient) error {
-
-	mux.Handle("POST", pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2760,18 +2438,13 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_CreateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/GetAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/GetAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2782,18 +2455,13 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_GetAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ASSETService_GetAssetByHash_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ASSETService_GetAssetByHash_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/GetAssetByHash", runtime.WithHTTPPathPattern("/api/assets/hash"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/GetAssetByHash", runtime.WithHTTPPathPattern("/api/assets/hash"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2804,18 +2472,13 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_GetAssetByHash_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_ASSETService_UpdateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_ASSETService_UpdateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/UpdateAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/UpdateAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2826,18 +2489,13 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_UpdateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("PUT", pattern_ASSETService_UpdateAssetStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_ASSETService_UpdateAssetStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/UpdateAssetStatus", runtime.WithHTTPPathPattern("/api/assets/{id}/status"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/UpdateAssetStatus", runtime.WithHTTPPathPattern("/api/assets/{id}/status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2848,18 +2506,13 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_UpdateAssetStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("DELETE", pattern_ASSETService_DeleteAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_ASSETService_DeleteAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/DeleteAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/DeleteAsset", runtime.WithHTTPPathPattern("/api/assets/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2870,18 +2523,13 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_DeleteAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ASSETService_ListAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ASSETService_ListAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/ListAssets", runtime.WithHTTPPathPattern("/api/assets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/ListAssets", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2892,44 +2540,29 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ASSETService_ListAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_ASSETService_CreateAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
-
-	pattern_ASSETService_GetAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
-
-	pattern_ASSETService_GetAssetByHash_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "assets", "hash"}, ""))
-
-	pattern_ASSETService_UpdateAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
-
+	pattern_ASSETService_CreateAsset_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
+	pattern_ASSETService_GetAsset_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
+	pattern_ASSETService_GetAssetByHash_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "assets", "hash"}, ""))
+	pattern_ASSETService_UpdateAsset_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
 	pattern_ASSETService_UpdateAssetStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "assets", "id", "status"}, ""))
-
-	pattern_ASSETService_DeleteAsset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
-
-	pattern_ASSETService_ListAssets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
+	pattern_ASSETService_DeleteAsset_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
+	pattern_ASSETService_ListAssets_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
 )
 
 var (
-	forward_ASSETService_CreateAsset_0 = runtime.ForwardResponseMessage
-
-	forward_ASSETService_GetAsset_0 = runtime.ForwardResponseMessage
-
-	forward_ASSETService_GetAssetByHash_0 = runtime.ForwardResponseMessage
-
-	forward_ASSETService_UpdateAsset_0 = runtime.ForwardResponseMessage
-
+	forward_ASSETService_CreateAsset_0       = runtime.ForwardResponseMessage
+	forward_ASSETService_GetAsset_0          = runtime.ForwardResponseMessage
+	forward_ASSETService_GetAssetByHash_0    = runtime.ForwardResponseMessage
+	forward_ASSETService_UpdateAsset_0       = runtime.ForwardResponseMessage
 	forward_ASSETService_UpdateAssetStatus_0 = runtime.ForwardResponseMessage
-
-	forward_ASSETService_DeleteAsset_0 = runtime.ForwardResponseMessage
-
-	forward_ASSETService_ListAssets_0 = runtime.ForwardResponseMessage
+	forward_ASSETService_DeleteAsset_0       = runtime.ForwardResponseMessage
+	forward_ASSETService_ListAssets_0        = runtime.ForwardResponseMessage
 )
 
 // RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint is same as RegisterPERSONALRESPONSIBLEServiceHandler but
@@ -2953,7 +2586,6 @@ func RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint(ctx context.Context, 
 			}
 		}()
 	}()
-
 	return RegisterPERSONALRESPONSIBLEServiceHandler(ctx, mux, conn)
 }
 
@@ -2969,14 +2601,11 @@ func RegisterPERSONALRESPONSIBLEServiceHandler(ctx context.Context, mux *runtime
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "PERSONALRESPONSIBLEServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterPERSONALRESPONSIBLEServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PERSONALRESPONSIBLEServiceClient) error {
-
-	mux.Handle("GET", pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_PERSONALRESPONSIBLEService_ListPersonalResponsible_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible", runtime.WithHTTPPathPattern("/api/personal-responsibles"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.PERSONALRESPONSIBLEService/ListPersonalResponsible", runtime.WithHTTPPathPattern("/api/personal-responsibles"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2987,11 +2616,8 @@ func RegisterPERSONALRESPONSIBLEServiceHandlerClient(ctx context.Context, mux *r
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_PERSONALRESPONSIBLEService_ListPersonalResponsible_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
