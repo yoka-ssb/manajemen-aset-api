@@ -77,9 +77,9 @@ func JWTAuthMiddleware(jwtSecret string, excludeMethods []string) grpc.UnaryServ
 }
 
 func GenerateJWTToken(nip int32) *string {
-	godotenv.Load(".env")
-	// Set the JWT secret key
-	jwtSecret := os.Getenv("JWT_SECRET")
+    godotenv.Load(".env")
+    // Set the JWT secret key
+    jwtSecret := os.Getenv("JWT_SECRET")
 
     // Get user by NIP
     var user assetpb.User
@@ -89,23 +89,25 @@ func GenerateJWTToken(nip int32) *string {
         return nil
     }
 
-	// Set the token claims
-	claims := jwt.MapClaims{
-		"sub": nip,
+    // Set the token claims
+    claims := jwt.MapClaims{
+        "sub": nip,
         "name": user.UserFullName,
         "role_id": user.RoleId,
-		"exp": time.Now().Add(time.Hour * 72).Unix(),
-	}
+        "outlet_id": user.OutletId,
+		"area_id" : user.AreaId,
+        "exp": time.Now().Add(time.Hour * 72).Unix(),
+    }
 
-	// Generate the token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(jwtSecret))
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
+    // Generate the token
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    tokenString, err := token.SignedString([]byte(jwtSecret))
+    if err != nil {
+        fmt.Println(err)
+        return nil
+    }
 
-	fmt.Println("generated token:",tokenString)
+    fmt.Println("generated token:", tokenString)
 
     return &tokenString
 }

@@ -239,6 +239,222 @@ var SUBMISSIONService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
+	NOTIFICATIONService_InsertNotification_FullMethodName              = "/asset.NOTIFICATIONService/InsertNotification"
+	NOTIFICATIONService_InsertNotificationsForAllAssets_FullMethodName = "/asset.NOTIFICATIONService/InsertNotificationsForAllAssets"
+	NOTIFICATIONService_GetListNotification_FullMethodName             = "/asset.NOTIFICATIONService/GetListNotification"
+	NOTIFICATIONService_GetNotification_FullMethodName                 = "/asset.NOTIFICATIONService/GetNotification"
+)
+
+// NOTIFICATIONServiceClient is the client API for NOTIFICATIONService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type NOTIFICATIONServiceClient interface {
+	InsertNotification(ctx context.Context, in *InsertNotificationRequest, opts ...grpc.CallOption) (*InsertNotificationResponse, error)
+	InsertNotificationsForAllAssets(ctx context.Context, in *InsertAllRequest, opts ...grpc.CallOption) (*InsertAllResponse, error)
+	GetListNotification(ctx context.Context, in *GetListNotificationRequest, opts ...grpc.CallOption) (*GetListNotificationResponse, error)
+	GetNotification(ctx context.Context, in *GetNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error)
+}
+
+type nOTIFICATIONServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewNOTIFICATIONServiceClient(cc grpc.ClientConnInterface) NOTIFICATIONServiceClient {
+	return &nOTIFICATIONServiceClient{cc}
+}
+
+func (c *nOTIFICATIONServiceClient) InsertNotification(ctx context.Context, in *InsertNotificationRequest, opts ...grpc.CallOption) (*InsertNotificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InsertNotificationResponse)
+	err := c.cc.Invoke(ctx, NOTIFICATIONService_InsertNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nOTIFICATIONServiceClient) InsertNotificationsForAllAssets(ctx context.Context, in *InsertAllRequest, opts ...grpc.CallOption) (*InsertAllResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InsertAllResponse)
+	err := c.cc.Invoke(ctx, NOTIFICATIONService_InsertNotificationsForAllAssets_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nOTIFICATIONServiceClient) GetListNotification(ctx context.Context, in *GetListNotificationRequest, opts ...grpc.CallOption) (*GetListNotificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetListNotificationResponse)
+	err := c.cc.Invoke(ctx, NOTIFICATIONService_GetListNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nOTIFICATIONServiceClient) GetNotification(ctx context.Context, in *GetNotificationsRequest, opts ...grpc.CallOption) (*GetNotificationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetNotificationsResponse)
+	err := c.cc.Invoke(ctx, NOTIFICATIONService_GetNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// NOTIFICATIONServiceServer is the server API for NOTIFICATIONService service.
+// All implementations must embed UnimplementedNOTIFICATIONServiceServer
+// for forward compatibility.
+type NOTIFICATIONServiceServer interface {
+	InsertNotification(context.Context, *InsertNotificationRequest) (*InsertNotificationResponse, error)
+	InsertNotificationsForAllAssets(context.Context, *InsertAllRequest) (*InsertAllResponse, error)
+	GetListNotification(context.Context, *GetListNotificationRequest) (*GetListNotificationResponse, error)
+	GetNotification(context.Context, *GetNotificationsRequest) (*GetNotificationsResponse, error)
+	mustEmbedUnimplementedNOTIFICATIONServiceServer()
+}
+
+// UnimplementedNOTIFICATIONServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedNOTIFICATIONServiceServer struct{}
+
+func (UnimplementedNOTIFICATIONServiceServer) InsertNotification(context.Context, *InsertNotificationRequest) (*InsertNotificationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsertNotification not implemented")
+}
+func (UnimplementedNOTIFICATIONServiceServer) InsertNotificationsForAllAssets(context.Context, *InsertAllRequest) (*InsertAllResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsertNotificationsForAllAssets not implemented")
+}
+func (UnimplementedNOTIFICATIONServiceServer) GetListNotification(context.Context, *GetListNotificationRequest) (*GetListNotificationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListNotification not implemented")
+}
+func (UnimplementedNOTIFICATIONServiceServer) GetNotification(context.Context, *GetNotificationsRequest) (*GetNotificationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNotification not implemented")
+}
+func (UnimplementedNOTIFICATIONServiceServer) mustEmbedUnimplementedNOTIFICATIONServiceServer() {}
+func (UnimplementedNOTIFICATIONServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeNOTIFICATIONServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to NOTIFICATIONServiceServer will
+// result in compilation errors.
+type UnsafeNOTIFICATIONServiceServer interface {
+	mustEmbedUnimplementedNOTIFICATIONServiceServer()
+}
+
+func RegisterNOTIFICATIONServiceServer(s grpc.ServiceRegistrar, srv NOTIFICATIONServiceServer) {
+	// If the following call pancis, it indicates UnimplementedNOTIFICATIONServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&NOTIFICATIONService_ServiceDesc, srv)
+}
+
+func _NOTIFICATIONService_InsertNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertNotificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NOTIFICATIONServiceServer).InsertNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NOTIFICATIONService_InsertNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NOTIFICATIONServiceServer).InsertNotification(ctx, req.(*InsertNotificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NOTIFICATIONService_InsertNotificationsForAllAssets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertAllRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NOTIFICATIONServiceServer).InsertNotificationsForAllAssets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NOTIFICATIONService_InsertNotificationsForAllAssets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NOTIFICATIONServiceServer).InsertNotificationsForAllAssets(ctx, req.(*InsertAllRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NOTIFICATIONService_GetListNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListNotificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NOTIFICATIONServiceServer).GetListNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NOTIFICATIONService_GetListNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NOTIFICATIONServiceServer).GetListNotification(ctx, req.(*GetListNotificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NOTIFICATIONService_GetNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNotificationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NOTIFICATIONServiceServer).GetNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NOTIFICATIONService_GetNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NOTIFICATIONServiceServer).GetNotification(ctx, req.(*GetNotificationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// NOTIFICATIONService_ServiceDesc is the grpc.ServiceDesc for NOTIFICATIONService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var NOTIFICATIONService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.NOTIFICATIONService",
+	HandlerType: (*NOTIFICATIONServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "InsertNotification",
+			Handler:    _NOTIFICATIONService_InsertNotification_Handler,
+		},
+		{
+			MethodName: "InsertNotificationsForAllAssets",
+			Handler:    _NOTIFICATIONService_InsertNotificationsForAllAssets_Handler,
+		},
+		{
+			MethodName: "GetListNotification",
+			Handler:    _NOTIFICATIONService_GetListNotification_Handler,
+		},
+		{
+			MethodName: "GetNotification",
+			Handler:    _NOTIFICATIONService_GetNotification_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
 	MAINTENANCEPERIODService_ListMaintenancePeriod_FullMethodName   = "/asset.MAINTENANCEPERIODService/ListMaintenancePeriod"
 	MAINTENANCEPERIODService_CreateMaintenancePeriod_FullMethodName = "/asset.MAINTENANCEPERIODService/CreateMaintenancePeriod"
 )

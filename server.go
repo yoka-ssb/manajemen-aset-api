@@ -12,7 +12,7 @@ import (
 	"asset-management-api/app/database"
 	"asset-management-api/app/services"
 	"asset-management-api/app/utils"
-	"asset-management-api/assetpb" // Import the generated protobuf package
+	"asset-management-api/assetpb" 
 
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -25,7 +25,7 @@ func main() {
 	db := database.DBConn()
 
 	// Create services
-	services := []services.InterfaceService{
+	servicesList := []services.InterfaceService{
 		services.NewAuthService(db),
 		services.NewAssetService(db),
 		services.NewUserService(db),
@@ -36,10 +36,11 @@ func main() {
 		services.NewRoleService(db),
 		services.NewPersonalResponsibleService(db),
 		services.NewSubmissionService(db),
+		services.NewNotificationService(db),
 	}
 
 	// Start the gRPC server
-	go startGRPCServer(services)
+	go startGRPCServer(servicesList)
 
 	// Start the HTTP server
 	go startRESTServer()
@@ -48,7 +49,7 @@ func main() {
 	startHTTPGateway()
 }
 
-func startGRPCServer(services []services.InterfaceService) {
+func startGRPCServer(servicesList []services.InterfaceService) {
 	lis, err := net.Listen("tcp", ":50053")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
@@ -66,7 +67,7 @@ func startGRPCServer(services []services.InterfaceService) {
 	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(auth.JWTAuthMiddleware(jwtSecret, excludedMethods)))
 
 	// Dynamically register all services
-	for _, svc := range services {
+	for _, svc := range servicesList {
 		svc.Register(grpcServer)
 	}
 
@@ -81,7 +82,7 @@ func startHTTPGateway() {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
-	// Regoster gRPC-Gateway handlers
+	// Register gRPC-Gateway handlers
 	services := []struct {
 		name string
 		fn   func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
@@ -96,6 +97,7 @@ func startHTTPGateway() {
 		{"ROLEService", assetpb.RegisterROLEServiceHandlerFromEndpoint},
 		{"PERSONALRESPONSIBLEService", assetpb.RegisterPERSONALRESPONSIBLEServiceHandlerFromEndpoint},
 		{"SUBMISSIONService", assetpb.RegisterSUBMISSIONServiceHandlerFromEndpoint},
+		{"NOTIFICATIONService", assetpb.RegisterNOTIFICATIONServiceHandlerFromEndpoint},
 	}
 
 	for _, svc := range services {
@@ -163,6 +165,10 @@ func startRESTServer() {
 			"file":    res,
 		})
 	})
+
+	// Add the new endpoint for listing assets
+	assetService := services.NewAssetService(database.DBConn())
+	r.GET("/assets", assetService.ListAssetsHandler)
 
 	log.Println("Server REST started on port 8081")
 	r.Run(":8081")

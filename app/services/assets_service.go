@@ -7,12 +7,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
+	"strconv"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"github.com/gin-gonic/gin"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type AssetService struct {
@@ -299,89 +303,166 @@ func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAsset
 		Success: true}, nil
 }
 
-func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRequest) (*assetpb.ListAssetsResponse, error) {
-	log.Default().Println("Listing assets")
-	// Get the page number and page size from the request
-	pageNumber := req.GetPageNumber()
-	pageSize := req.GetPageSize()
-	q := req.GetQ()
+func (s *AssetService) ListAssetsHandler(c *gin.Context) {
+    // Get query parameters
+    pageNumberParam := c.DefaultQuery("page_number", "1")
+    pageSizeParam := c.DefaultQuery("page_size", "10")
+    q := c.DefaultQuery("q", "")
+    roleIDParam := c.Query("role_id")
+    outletIDParam := c.Query("outlet_id")
+    areaIDParam := c.Query("area_id")
 
-	// Calculate the offset and limit for the query
-	offset := (pageNumber - 1) * pageSize
-	limit := pageSize
+    // Convert query parameters to appropriate types
+    pageNumber, err := strconv.Atoi(pageNumberParam)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
+        return
+    }
 
-	// Get the assets from the database
-	assets, err := getAssets(offset, limit, q)
-	if err != nil {
-		log.Default().Println("Error fetching assets:", err)
-		return nil, err
-	}
+    pageSize, err := strconv.Atoi(pageSizeParam)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+        return
+    }
 
-	// Get the total count of assets
-	totalCount, err := GetTotalCount("assets")
-	if err != nil {
-		log.Default().Println("Error fetching total count:", err)
-		return nil, err
-	}
+    roleID, err := strconv.Atoi(roleIDParam)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role ID"})
+        return
+    }
 
-	// Create a response
-	resp := &assetpb.ListAssetsResponse{
-		Data:       assets,
-		TotalCount: totalCount,
-		PageNumber: pageNumber,
-		PageSize:   pageSize,
-	}
+    var outletID *wrapperspb.Int32Value
+    if outletIDParam != "" {
+        outletIDInt, err := strconv.Atoi(outletIDParam)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid outlet ID"})
+            return
+        }
+        outletID = wrapperspb.Int32(int32(outletIDInt))
+    }
 
-	// Calculate the next page token
-	if totalCount > offset+limit {
-		resp.NextPageToken = fmt.Sprintf("page_token_%d", pageNumber+1)
-	}
+    var areaID *wrapperspb.Int32Value
+    if areaIDParam != "" {
+        areaIDInt, err := strconv.Atoi(areaIDParam)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid area ID"})
+            return
+        }
+        areaID = wrapperspb.Int32(int32(areaIDInt))
+    }
 
-	return resp, nil
+    // Create the request object
+    req := &assetpb.ListAssetsRequest{
+        PageNumber:  int32(pageNumber),
+        PageSize:    int32(pageSize),
+        Q:           q,
+        UserRoleId:  int32(roleID),
+		UserOutletId: outletID,
+		UserAreaId: areaID,
+    }
+
+    // Call the ListAssets function
+    resp, err := s.ListAssets(context.Background(), req)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Return the response
+    c.JSON(http.StatusOK, resp)
 }
 
-func getAssets(offset, limit int32, q string) ([]*assetpb.Asset, error) {
-	// Query the database to get the assets
-	var assets []*assetpb.Asset
-	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name").
-		Limit(int(limit)).Offset(int(offset))
+func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRequest) (*assetpb.ListAssetsResponse, error) {
+    log.Default().Println("Listing assets")
+    // Get the page number and page size from the request
+    pageNumber := req.GetPageNumber()
+    pageSize := req.GetPageSize()
+    q := req.GetQ()
+    userRoleID := req.GetUserRoleId()
+    userOutletID := req.GetUserOutletId()
+    userAreaID := req.GetUserAreaId()
 
-	if q != "" {
-		query = query.Where("assets.asset_name LIKE ?", "%"+q+"%")
-	}
+    // Calculate the offset and limit for the query
+    offset := (pageNumber - 1) * pageSize
+    limit := pageSize
 
-	// get data area name, outlet name, personal name
-	query = query.
-		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
-		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id")
+    // Get the assets from the database
+    assets, err := getAssets(int(offset), int(limit), q, userRoleID, userOutletID, userAreaID)
+    if err != nil {
+        log.Default().Println("Error fetching assets:", err)
+        return nil, err
+    }
 
-	err := query.Find(&assets).Error
-	if err != nil {
-		log.Default().Println("Error fetching assets:", err)
-		return nil, err
-	}
+    // Get the total count of assets
+    totalCount, err := GetTotalCount("assets")
+    if err != nil {
+        log.Default().Println("Error fetching total count:", err)
+        return nil, err
+    }
 
-	return assets, nil
+    // Create a response
+    resp := &assetpb.ListAssetsResponse{
+        Data:       assets,
+        TotalCount: totalCount,
+        PageNumber: pageNumber,
+        PageSize:   pageSize,
+    }
+
+    // Calculate the next page token
+    if totalCount > offset+limit {
+        resp.NextPageToken = fmt.Sprintf("page_token_%d", pageNumber+1)
+    }
+
+    return resp, nil
+}
+
+func getAssets(offset, limit int, q string, userRoleID int32, userOutletID, areaID *wrapperspb.Int32Value) ([]*assetpb.Asset, error) {
+    var assets []*assetpb.Asset
+
+    query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
+        Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
+        Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
+        Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
+        Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
+        Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
+        Where("assets.asset_name LIKE ?", "%"+q+"%").
+        Offset(offset).
+        Limit(limit)
+
+    if userRoleID == 6 && userOutletID != nil {
+        query = query.Where("assets.outlet_id = ?", userOutletID.GetValue())
+    }
+
+    if userRoleID == 5 && areaID != nil {
+        query = query.Where("assets.area_id = ?", areaID.GetValue())
+    }
+
+    result := query.Find(&assets)
+    if result.Error != nil {
+        return nil, result.Error
+    }
+
+    return assets, nil
 }
 
 func GetAssetById(id int32) (*assetpb.Asset, error) {
-	var asset assetpb.Asset
-	query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
-		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
-		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
-		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
-		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
-		Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
-		Where("assets.asset_id = ?", id)
+    var asset assetpb.Asset
+    query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
+        Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
+        Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
+        Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
+        Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
+        Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
+        Where("assets.asset_id = ?", id)
 
-	result := query.First(&asset)
-	if result.Error != nil {
-		log.Println("Error:", result.Error)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "Asset not found")
-		} else {
-			return nil, status.Error(codes.Internal, "Failed to get asset")
-		}
-	}
-	return &asset, nil
+    result := query.First(&asset)
+    if result.Error != nil {
+        log.Println("Error:", result.Error)
+        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+            return nil, status.Error(codes.NotFound, "Asset not found")
+        } else {
+            return nil, status.Error(codes.Internal, "Failed to get asset")
+        }
+    }
+    return &asset, nil
 }

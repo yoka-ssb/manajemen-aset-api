@@ -114,28 +114,39 @@ func (s *UserService) GetUser(ctx context.Context, req *assetpb.GetUserRequest) 
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, req *assetpb.UpdateUserRequest) (*assetpb.UpdateUserResponse, error) {
-
 	updates := map[string]interface{}{
-		"UserFullName": req.GetUserFullName(),
-		"UserEmail":    req.GetUserEmail(),
-		"RoleId":       req.GetRoleId(),
-		"AreaId":       req.GetAreaId(),
-		"OutletId":     req.GetOutletId(),
+		"user_full_name": req.GetUserFullName(),
+		"user_email":     req.GetUserEmail(),
+		"role_id":        req.GetRoleId(),
 	}
 
-	err := db.Model(&assetpb.User{}).Where("nip = ?", req.Nip).Updates(updates).Error
+	// Tambahkan area_id hanya jika nilainya > 0
+	if req.GetAreaId() > 0 {
+		updates["area_id"] = req.GetAreaId()
+	}
+
+	// Tambahkan outlet_id hanya jika nilainya > 0
+	if req.GetOutletId() > 0 {
+		updates["outlet_id"] = req.GetOutletId()
+	}
+
+	// Lakukan pembaruan
+	err := s.DB.Model(&User{}).Where("nip = ?", req.GetNip()).Updates(updates).Error
 	if err != nil {
 		return &assetpb.UpdateUserResponse{
-			Message: err.Error(),
+			Message: "Failed to update user: " + err.Error(),
 			Code:    "400",
-			Success: false}, nil
+			Success: false,
+		}, nil
 	}
 
 	return &assetpb.UpdateUserResponse{
-		Message: "Suceccfully created user",
+		Message: "Successfully updated user",
 		Code:    "200",
-		Success: true}, nil
+		Success: true,
+	}, nil
 }
+
 
 func (s *UserService) DeleteUser(ctx context.Context, req *assetpb.DeleteUserRequest) (*assetpb.DeleteUserResponse, error) {
 	log.Default().Println("Deleting user")

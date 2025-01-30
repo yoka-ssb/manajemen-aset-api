@@ -169,6 +169,122 @@ func local_request_SUBMISSIONService_UpdateSubmissionStatus_0(ctx context.Contex
 	return msg, metadata, err
 }
 
+func request_NOTIFICATIONService_InsertNotification_0(ctx context.Context, marshaler runtime.Marshaler, client NOTIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq InsertNotificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.InsertNotification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_NOTIFICATIONService_InsertNotification_0(ctx context.Context, marshaler runtime.Marshaler, server NOTIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq InsertNotificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.InsertNotification(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_NOTIFICATIONService_InsertNotificationsForAllAssets_0(ctx context.Context, marshaler runtime.Marshaler, client NOTIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq InsertAllRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.InsertNotificationsForAllAssets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_NOTIFICATIONService_InsertNotificationsForAllAssets_0(ctx context.Context, marshaler runtime.Marshaler, server NOTIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq InsertAllRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.InsertNotificationsForAllAssets(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_NOTIFICATIONService_GetListNotification_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_NOTIFICATIONService_GetListNotification_0(ctx context.Context, marshaler runtime.Marshaler, client NOTIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetListNotificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_NOTIFICATIONService_GetListNotification_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.GetListNotification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_NOTIFICATIONService_GetListNotification_0(ctx context.Context, marshaler runtime.Marshaler, server NOTIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetListNotificationRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_NOTIFICATIONService_GetListNotification_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.GetListNotification(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+func request_NOTIFICATIONService_GetNotification_0(ctx context.Context, marshaler runtime.Marshaler, client NOTIFICATIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetNotificationsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := client.GetNotification(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_NOTIFICATIONService_GetNotification_0(ctx context.Context, marshaler runtime.Marshaler, server NOTIFICATIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetNotificationsRequest
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.Int32(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	msg, err := server.GetNotification(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_MAINTENANCEPERIODService_ListMaintenancePeriod_0(ctx context.Context, marshaler runtime.Marshaler, client MAINTENANCEPERIODServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ListMaintenancePeriodRequest
@@ -999,6 +1115,96 @@ func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.Se
 	return nil
 }
 
+// RegisterNOTIFICATIONServiceHandlerServer registers the http handlers for service NOTIFICATIONService to "mux".
+// UnaryRPC     :call NOTIFICATIONServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNOTIFICATIONServiceHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
+func RegisterNOTIFICATIONServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NOTIFICATIONServiceServer) error {
+	mux.Handle(http.MethodPost, pattern_NOTIFICATIONService_InsertNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.NOTIFICATIONService/InsertNotification", runtime.WithHTTPPathPattern("/api/notifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_NOTIFICATIONService_InsertNotification_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_InsertNotification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_NOTIFICATIONService_InsertNotificationsForAllAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.NOTIFICATIONService/InsertNotificationsForAllAssets", runtime.WithHTTPPathPattern("/api/notifications/all"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_NOTIFICATIONService_InsertNotificationsForAllAssets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_InsertNotificationsForAllAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_NOTIFICATIONService_GetListNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.NOTIFICATIONService/GetListNotification", runtime.WithHTTPPathPattern("/api/notifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_NOTIFICATIONService_GetListNotification_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_GetListNotification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_NOTIFICATIONService_GetNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.NOTIFICATIONService/GetNotification", runtime.WithHTTPPathPattern("/api/notification/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_NOTIFICATIONService_GetNotification_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_GetNotification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
+	return nil
+}
+
 // RegisterMAINTENANCEPERIODServiceHandlerServer registers the http handlers for service MAINTENANCEPERIODService to "mux".
 // UnaryRPC     :call MAINTENANCEPERIODServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -1061,7 +1267,7 @@ func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classification"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1081,7 +1287,7 @@ func RegisterCLASSIFICATIONServiceHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classification"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1730,6 +1936,127 @@ var (
 	forward_SUBMISSIONService_UpdateSubmissionStatus_0 = runtime.ForwardResponseMessage
 )
 
+// RegisterNOTIFICATIONServiceHandlerFromEndpoint is same as RegisterNOTIFICATIONServiceHandler but
+// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
+func RegisterNOTIFICATIONServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+	conn, err := grpc.NewClient(endpoint, opts...)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+			return
+		}
+		go func() {
+			<-ctx.Done()
+			if cerr := conn.Close(); cerr != nil {
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+			}
+		}()
+	}()
+	return RegisterNOTIFICATIONServiceHandler(ctx, mux, conn)
+}
+
+// RegisterNOTIFICATIONServiceHandler registers the http handlers for service NOTIFICATIONService to "mux".
+// The handlers forward requests to the grpc endpoint over "conn".
+func RegisterNOTIFICATIONServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterNOTIFICATIONServiceHandlerClient(ctx, mux, NewNOTIFICATIONServiceClient(conn))
+}
+
+// RegisterNOTIFICATIONServiceHandlerClient registers the http handlers for service NOTIFICATIONService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "NOTIFICATIONServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "NOTIFICATIONServiceClient"
+// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
+// "NOTIFICATIONServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterNOTIFICATIONServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NOTIFICATIONServiceClient) error {
+	mux.Handle(http.MethodPost, pattern_NOTIFICATIONService_InsertNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.NOTIFICATIONService/InsertNotification", runtime.WithHTTPPathPattern("/api/notifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_NOTIFICATIONService_InsertNotification_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_InsertNotification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_NOTIFICATIONService_InsertNotificationsForAllAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.NOTIFICATIONService/InsertNotificationsForAllAssets", runtime.WithHTTPPathPattern("/api/notifications/all"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_NOTIFICATIONService_InsertNotificationsForAllAssets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_InsertNotificationsForAllAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_NOTIFICATIONService_GetListNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.NOTIFICATIONService/GetListNotification", runtime.WithHTTPPathPattern("/api/notifications"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_NOTIFICATIONService_GetListNotification_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_GetListNotification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_NOTIFICATIONService_GetNotification_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.NOTIFICATIONService/GetNotification", runtime.WithHTTPPathPattern("/api/notification/{id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_NOTIFICATIONService_GetNotification_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_NOTIFICATIONService_GetNotification_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	return nil
+}
+
+var (
+	pattern_NOTIFICATIONService_InsertNotification_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "notifications"}, ""))
+	pattern_NOTIFICATIONService_InsertNotificationsForAllAssets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "notifications", "all"}, ""))
+	pattern_NOTIFICATIONService_GetListNotification_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "notifications"}, ""))
+	pattern_NOTIFICATIONService_GetNotification_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "notification", "id"}, ""))
+)
+
+var (
+	forward_NOTIFICATIONService_InsertNotification_0              = runtime.ForwardResponseMessage
+	forward_NOTIFICATIONService_InsertNotificationsForAllAssets_0 = runtime.ForwardResponseMessage
+	forward_NOTIFICATIONService_GetListNotification_0             = runtime.ForwardResponseMessage
+	forward_NOTIFICATIONService_GetNotification_0                 = runtime.ForwardResponseMessage
+)
+
 // RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint is same as RegisterMAINTENANCEPERIODServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterMAINTENANCEPERIODServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
@@ -1853,7 +2180,7 @@ func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/ListClassification", runtime.WithHTTPPathPattern("/api/classification"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1870,7 +2197,7 @@ func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classifications"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.CLASSIFICATIONService/CreateClassification", runtime.WithHTTPPathPattern("/api/classification"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1904,8 +2231,8 @@ func RegisterCLASSIFICATIONServiceHandlerClient(ctx context.Context, mux *runtim
 }
 
 var (
-	pattern_CLASSIFICATIONService_ListClassification_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
-	pattern_CLASSIFICATIONService_CreateClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classifications"}, ""))
+	pattern_CLASSIFICATIONService_ListClassification_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classification"}, ""))
+	pattern_CLASSIFICATIONService_CreateClassification_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "classification"}, ""))
 	pattern_CLASSIFICATIONService_GetClassification_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "classifications", "id"}, ""))
 )
 

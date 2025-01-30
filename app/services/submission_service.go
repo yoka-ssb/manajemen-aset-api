@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/smtp"
 	"time"
 
 	"google.golang.org/grpc"
@@ -36,6 +37,8 @@ type Submission struct {
 	Attachment            string `json:"attachment,omitempty"`
 	SubmissionPrName      string `json:"submission_pr_name,omitempty"`
 	SubmissionRoleName    string `json:"submission_role_name,omitempty"`
+	OutletId              int32  `json:"outlet_id,omitempty"`
+	AreaId                int32  `json:"area_id,omitempty"`
 }
 
 func NewSubmissionService(db *gorm.DB) *SubmissionService {
@@ -48,10 +51,30 @@ func (s *SubmissionService) Register(server interface{}) {
 	assetpb.RegisterSUBMISSIONServiceServer(grpcServer, s)
 }
 
+func sendEmail(toEmail, subject, body string) error {
+	// Setup SMTP server
+	smtpHost := "smtp.gmail.com"
+	smtpPort := "587"
+	senderEmail := "deswintasusanto@gmail.com"
+	senderPassword := "uthbqmgdzyhlsdtd" // app Password
+
+	msg := fmt.Sprintf(
+		"From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
+		senderEmail, toEmail, subject, body,
+	)
+
+	auth := smtp.PlainAuth("", senderEmail, senderPassword, smtpHost)
+
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, senderEmail, []string{toEmail}, []byte(msg))
+	if err != nil {
+		return fmt.Errorf("failed to send email: %v", err)
+	}
+	return nil
+}
+
 func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.CreateSubmissionRequest) (*assetpb.CreateSubmissionResponse, error) {
 	log.Println("Creating submission")
 
-	// Validate asset
 	asset, err := GetAssetById(req.AssetId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -60,7 +83,6 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		return nil, status.Error(codes.Internal, "Failed to get asset")
 	}
 
-	// Validate asset status and other fields
 	if asset.AssetStatus != "Baik" || asset.AssetName != req.SubmissionAssetName ||
 		(req.SubmissionOutlet != "" && asset.OutletName != req.SubmissionOutlet) ||
 		(req.SubmissionArea != "" && asset.AreaName != req.SubmissionArea) ||
@@ -68,7 +90,6 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		return nil, status.Error(codes.NotFound, "Asset or related details do not match")
 	}
 
-	// Get the last Submission ID
 	var lastSubmission Submission
 	last := db.Model(&assetpb.Submission{}).Last(&lastSubmission)
 	if last.Error != nil {
@@ -86,6 +107,8 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		SubmissionId:          lastID + 1,
 		SubmissionName:        req.SubmissionName,
 		SubmissionOutlet:      req.SubmissionOutlet,
+		OutletId:              req.OutletId,
+		AreaId:                req.AreaId,
 		SubmissionArea:        req.SubmissionArea,
 		SubmissionDate:        submissionDate,
 		SubmissionCategory:    req.SubmissionCategory,
@@ -100,12 +123,13 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		Attachment:            req.Attachment,
 	}
 
+	// Save submission
 	result := db.Create(&submission)
 	if result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to create submission: "+result.Error.Error())
 	}
 
-	// Log submission
+	// Create submission log
 	submissionLog := assetpb.SubmissionLog{
 		SubmissionId: submission.SubmissionId,
 		Status:       "Diajukan",
@@ -127,6 +151,29 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		AssetStatus: req.SubmissionCategory,
 	}); result.Error != nil {
 		return nil, status.Error(codes.Internal, "Failed to create asset update: "+result.Error.Error())
+	}
+
+	// Cari user yang memiliki role_id 1, 3, 4, 2, atau 7
+	var users []User
+	err = db.Where("role_id IN (?) AND role_id NOT IN (?)", []int{1, 3, 4, 2, 7}, []int{5, 6}).Find(&users).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to find users: "+err.Error())
+	}
+
+	// Siapkan konten email
+	subject := "Pemberitahuan Pengajuan Maintenance Asset"
+	body := fmt.Sprintf("Halo,\n\nPengajuan maintenance asset telah berhasil diajukan.\n\nDetail Pengajuan:\nAsset: %s\nKategori: %s\nStatus: %s\nTanggal Pengajuan: %s\n\nTerima kasih.",
+		req.SubmissionAssetName, req.SubmissionCategory, req.SubmissionStatus, submissionDate)
+
+	// Kirim email ke semua user yang memenuhi syarat
+	for _, user := range users {
+		if user.UserEmail != "" {
+			if err := sendEmail(user.UserEmail, subject, body); err != nil {
+				log.Println("Failed to send email to", user.UserEmail, err)
+			} else {
+				log.Println("Email sent to", user.UserEmail)
+			}
+		}
 	}
 
 	return &assetpb.CreateSubmissionResponse{
@@ -216,7 +263,7 @@ func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.Li
 
 func GetSubmissions(offset, limit int32, q string) ([]*assetpb.Submission, error) {
 	var submissions []*assetpb.Submission
-	query := db.Select("submissions.*, users.nip AS nip, assets.asset_id AS asset_id").
+	query := db.Select("submissions.*, users.nip AS nip, assets.asset_id AS asset_id, assets.outlet_id, assets.area_id").
 		Limit(int(limit)).
 		Offset(int(offset))
 
@@ -237,37 +284,36 @@ func GetSubmissions(offset, limit int32, q string) ([]*assetpb.Submission, error
 }
 
 func GetSubmissionById(id int32) (*assetpb.Submission, error) {
-    var submission assetpb.Submission
-    log.Println("Fetching submission with ID:", id)
-    
-    query := db.Select("submissions.*, users.nip AS nip, assets.asset_id AS asset_id").
-        Joins("LEFT JOIN users ON users.nip = users.nip").
-        Joins("LEFT JOIN assets ON assets.asset_id = assets.asset_id").
-        Where("submissions.submission_id = ?", id)
+	var submission assetpb.Submission
+	log.Println("Fetching submission with ID:", id)
 
-    result := query.First(&submission)
-    if result.Error != nil {
-        log.Println("Error fetching submission:", result.Error)
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            return nil, status.Error(codes.NotFound, "Submission not found")
-        } else {
-            return nil, status.Error(codes.Internal, "Failed to get submission")
-        }
-    }
-    return &submission, nil
+	query := db.Select("submissions.*, users.nip AS nip, assets.asset_id AS asset_id, assets.outlet_id, assets.area_id").
+		Joins("LEFT JOIN users ON users.nip = users.nip").
+		Joins("LEFT JOIN assets ON assets.asset_id = submissions.asset_id").
+		Where("submissions.submission_id = ?", id)
+
+	result := query.First(&submission)
+	if result.Error != nil {
+		log.Println("Error fetching submission:", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Submission not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get submission")
+		}
+	}
+	return &submission, nil
 }
 
 func (s *SubmissionService) GetSubmissionById(ctx context.Context, req *assetpb.GetSubmissionByIdRequest) (*assetpb.GetSubmissionByIdResponse, error) {
-    log.Println("Fetching submission with ID:", req.Id)
+	log.Println("Fetching submission with ID:", req.Id)
 
-    // Panggil fungsi helper untuk mendapatkan submission dari DB.
-    submission, err := GetSubmissionById(req.Id)
-    if err != nil {
-        log.Println("Error fetching submission:", err)
-        return nil, err
-    }
+	submission, err := GetSubmissionById(req.Id)
+	if err != nil {
+		log.Println("Error fetching submission:", err)
+		return nil, err
+	}
 
-    return &assetpb.GetSubmissionByIdResponse{
-        Submission: submission,
-    }, nil
+	return &assetpb.GetSubmissionByIdResponse{
+		Submission: submission,
+	}, nil
 }
