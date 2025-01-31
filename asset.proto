@@ -524,6 +524,7 @@ message Submission {
     string submission_role_name = 18;
     int32 outlet_id = 19;
     int32 area_id = 20;
+    string submission_pr_name = 21;
 }
 
 message CreateSubmissionRequest {
@@ -602,7 +603,7 @@ service SUBMISSIONService {
 
      rpc ListSubmissions(ListSubmissionsRequest) returns (ListSubmissionsResponse) {
         option (google.api.http) = {
-            get: "/api/submission"
+            get: "/api/submissions"
         };
     };
 
