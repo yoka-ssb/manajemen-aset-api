@@ -212,6 +212,7 @@ message ListAssetsRequest {
     int32 user_role_id = 4;
     google.protobuf.Int32Value user_outlet_id = 5;
     google.protobuf.Int32Value user_area_id = 6;
+    string classification = 7;
 }
 
 message ListAssetsResponse {
