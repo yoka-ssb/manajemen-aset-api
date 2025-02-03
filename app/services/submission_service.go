@@ -115,6 +115,7 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		SubmissionStatus:      req.SubmissionStatus,
 		SubmissionPurpose:     req.SubmissionPurpose,
 		SubmissionAssetName:   req.SubmissionAssetName,
+		SubmissionQuantity:    req.SubmissionQuantity,
 		SubmissionDescription: req.SubmissionDescription,
 		Nip:                   req.Nip,
 		AssetId:               req.AssetId,

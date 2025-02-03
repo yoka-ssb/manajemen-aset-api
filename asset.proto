@@ -549,6 +549,7 @@ message CreateSubmissionRequest {
     string submission_role_name = 13;
     int32 outlet_id = 14;
     int32 area_id = 15;
+    int32 submission_quantity = 16;
 }
 
 message CreateSubmissionResponse {
