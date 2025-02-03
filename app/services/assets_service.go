@@ -42,6 +42,7 @@ type Asset struct {
 	DeprecationValue               int32   `json:"deprecation_value,omitempty"`
 	OutletId                       int32   `json:"outlet_id,omitempty"`
 	AreaId                         int32   `json:"area_id,omitempty"`
+	SubmissionQuantity                         int32   `json:"area_id,omitempty"`
 }
 
 func NewAssetService(db *gorm.DB) *AssetService {

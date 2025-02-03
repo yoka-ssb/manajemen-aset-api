@@ -1057,7 +1057,7 @@ func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissions", runtime.WithHTTPPathPattern("/api/submission"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissions", runtime.WithHTTPPathPattern("/api/submissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1872,7 +1872,7 @@ func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissions", runtime.WithHTTPPathPattern("/api/submission"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissions", runtime.WithHTTPPathPattern("/api/submissions"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1924,7 +1924,7 @@ func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.Se
 
 var (
 	pattern_SUBMISSIONService_CreateSubmission_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submissions"}, ""))
-	pattern_SUBMISSIONService_ListSubmissions_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submission"}, ""))
+	pattern_SUBMISSIONService_ListSubmissions_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submissions"}, ""))
 	pattern_SUBMISSIONService_GetSubmissionById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "submissions", "id"}, ""))
 	pattern_SUBMISSIONService_UpdateSubmissionStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "submissions", "id", "status"}, ""))
 )

@@ -112,8 +112,9 @@ message Asset {
     int32 asset_age = 25;
     string asset_maintenance_date = 26;
     string maintenance_period_name = 27;
+    int32 asset_quantity = 28;
+    int32 asset_quantity_standar = 29;
 }
-
 message CreateAssetRequest {
     string asset_name = 1;
     string asset_brand = 2;
@@ -128,6 +129,8 @@ message CreateAssetRequest {
     string asset_image = 11;
     string personal_responsible = 12;
     int32 area_id = 13;
+    int32 asset_quantity = 14;
+    int32 asset_quantity_standar = 15;
 }
 
 message CreateAssetResponse {
@@ -171,6 +174,8 @@ message UpdateAssetRequest {
     string asset_image = 12;
     string personal_responsible = 13;
     int32 area_id = 14;
+    int32 asset_quantity = 15;
+    int32 asset_quantity_standar = 16;
 }
 
 message UpdateAssetResponse {
