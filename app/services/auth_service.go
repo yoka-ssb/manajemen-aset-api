@@ -6,8 +6,10 @@ import (
 	"asset-management-api/assetpb"
 	"context"
 	"log"
+	"net/http"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
 
@@ -65,21 +67,13 @@ func (s *AuthService) Login(ctx context.Context, req *assetpb.LoginRequest) (*as
 	var user assetpb.User
 	err := db.Where("nip = ?", req.GetNip()).First(&user).Error
 	if err != nil {
-		return &assetpb.LoginResponse{
-			Message: err.Error(),
-			Code: "400",
-			Success: false,
-		}, err
+		return nil, status.Errorf(http.StatusNotFound, "User not found")
 	}
 
 	// Verify password
 	err = utils.VerifyPassword(user.GetUserPassword(), req.GetUserPassword())
 	if err != nil {
-		return &assetpb.LoginResponse{
-			Message: err.Error(),
-			Code: "400",
-			Success: false,
-		}, err
+		return nil, status.Errorf(http.StatusBadRequest, "Invalid password")
 	}
 
 	// Generate token
@@ -88,11 +82,7 @@ func (s *AuthService) Login(ctx context.Context, req *assetpb.LoginRequest) (*as
 	// Save token to database
 	err = s.tokenStore(*token)
 	if err != nil {
-		return &assetpb.LoginResponse{
-			Message: err.Error(),
-			Code: "400",
-			Success: false,
-		}, err
+		return nil, status.Errorf(http.StatusInternalServerError, "Failed to save token")
 	}
 
 	return &assetpb.LoginResponse{
