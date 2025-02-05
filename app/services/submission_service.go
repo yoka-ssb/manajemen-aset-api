@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/smtp"
+	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -52,11 +54,13 @@ func (s *SubmissionService) Register(server interface{}) {
 }
 
 func sendEmail(toEmail, subject, body string) error {
+	godotenv.Load(".env")
+	
 	// Setup SMTP server
-	smtpHost := "smtp.gmail.com"
-	smtpPort := "587"
-	senderEmail := "deswintasusanto@gmail.com"
-	senderPassword := "uthbqmgdzyhlsdtd" // app Password
+	smtpHost := os.Getenv("SMTP_HOST")
+	smtpPort := os.Getenv("SMTP_PORT")
+	senderEmail := os.Getenv("SENDER_EMAIL")
+	senderPassword := os.Getenv("SENDER_PASSWORD") // app Password
 
 	msg := fmt.Sprintf(
 		"From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
