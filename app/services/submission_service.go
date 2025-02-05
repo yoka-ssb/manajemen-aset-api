@@ -39,6 +39,7 @@ type Submission struct {
 	SubmissionRoleName    string `json:"submission_role_name,omitempty"`
 	OutletId              int32  `json:"outlet_id,omitempty"`
 	AreaId                int32  `json:"area_id,omitempty"`
+	SubmissionPrice       int32  `json:"submission_price,omitempty"`
 }
 
 func NewSubmissionService(db *gorm.DB) *SubmissionService {
@@ -55,8 +56,8 @@ func sendEmail(toEmail, subject, body string) error {
 	// Setup SMTP server
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
-	senderEmail := "deswintasusanto@gmail.com"
-	senderPassword := "uthbqmgdzyhlsdtd" // app Password
+	senderEmail := "it.spesialsotoboyolali@gmail.com"
+	senderPassword := "zhocnopshphnounp" // app Password
 
 	msg := fmt.Sprintf(
 		"From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
