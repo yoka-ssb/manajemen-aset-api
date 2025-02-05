@@ -531,6 +531,7 @@ message Submission {
     int32 outlet_id = 19;
     int32 area_id = 20;
     string submission_pr_name = 21;
+    int32 submission_price = 22;
 }
 
 message CreateSubmissionRequest {
@@ -550,6 +551,7 @@ message CreateSubmissionRequest {
     int32 outlet_id = 14;
     int32 area_id = 15;
     int32 submission_quantity = 16;
+    int32 submission_price = 17;
 }
 
 message CreateSubmissionResponse {
