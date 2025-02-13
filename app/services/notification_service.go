@@ -147,7 +147,7 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 		var notificationStatus string
 		if daysUntilMaintenance < 0 {
 			notificationStatus = "late"
-		} else if daysUntilMaintenance <= 2 {
+		} else if daysUntilMaintenance <= 7 {
 			notificationStatus = "waiting"
 		} else {
 			notificationStatus = "normal" // Status baru untuk maintenance date yang masih jauh

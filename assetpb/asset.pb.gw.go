@@ -763,7 +763,7 @@ func local_request_USERService_ResetPassword_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-func request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ASSETService_CreateAssets_0(ctx context.Context, marshaler runtime.Marshaler, client ASSETServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateAssetRequest
 		metadata runtime.ServerMetadata
@@ -771,11 +771,11 @@ func request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.M
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := client.CreateAsset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CreateAssets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_ASSETService_CreateAsset_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ASSETService_CreateAssets_0(ctx context.Context, marshaler runtime.Marshaler, server ASSETServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq CreateAssetRequest
 		metadata runtime.ServerMetadata
@@ -783,7 +783,7 @@ func local_request_ASSETService_CreateAsset_0(ctx context.Context, marshaler run
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.CreateAsset(ctx, &protoReq)
+	msg, err := server.CreateAssets(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -1641,25 +1641,25 @@ func RegisterUSERServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterASSETServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterASSETServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ASSETServiceServer) error {
-	mux.Handle(http.MethodPost, pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ASSETService_CreateAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.ASSETService/CreateAssets", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ASSETService_CreateAsset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ASSETService_CreateAssets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ASSETService_CreateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_CreateAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodGet, pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -2750,22 +2750,22 @@ func RegisterASSETServiceHandler(ctx context.Context, mux *runtime.ServeMux, con
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ASSETServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ASSETServiceClient) error {
-	mux.Handle(http.MethodPost, pattern_ASSETService_CreateAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ASSETService_CreateAssets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/CreateAsset", runtime.WithHTTPPathPattern("/api/assets"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.ASSETService/CreateAssets", runtime.WithHTTPPathPattern("/api/assets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ASSETService_CreateAsset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ASSETService_CreateAssets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ASSETService_CreateAsset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ASSETService_CreateAssets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodGet, pattern_ASSETService_GetAsset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -2873,7 +2873,7 @@ func RegisterASSETServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_ASSETService_CreateAsset_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
+	pattern_ASSETService_CreateAssets_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "assets"}, ""))
 	pattern_ASSETService_GetAsset_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
 	pattern_ASSETService_GetAssetByHash_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "assets", "hash"}, ""))
 	pattern_ASSETService_UpdateAsset_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "assets", "id"}, ""))
@@ -2883,7 +2883,7 @@ var (
 )
 
 var (
-	forward_ASSETService_CreateAsset_0       = runtime.ForwardResponseMessage
+	forward_ASSETService_CreateAssets_0      = runtime.ForwardResponseMessage
 	forward_ASSETService_GetAsset_0          = runtime.ForwardResponseMessage
 	forward_ASSETService_GetAssetByHash_0    = runtime.ForwardResponseMessage
 	forward_ASSETService_UpdateAsset_0       = runtime.ForwardResponseMessage

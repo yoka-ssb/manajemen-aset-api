@@ -1,3 +1,4 @@
+
 syntax = "proto3";
 
 package asset;
@@ -113,24 +114,11 @@ message Asset {
     string asset_maintenance_date = 26;
     string maintenance_period_name = 27;
     int32 asset_quantity = 28;
-    int32 asset_quantity_standar = 29;
+    int32 asset_quantity_standard = 29;
+    
 }
 message CreateAssetRequest {
-    string asset_name = 1;
-    string asset_brand = 2;
-    string asset_specification = 3;
-    int32 asset_classification = 4;
-    string asset_condition = 5;
-    int32 asset_pic = 6;
-    string asset_purchase_date = 7;
-    string asset_status = 8;
-    int32 classification_acquisition_value = 9;
-    int32 outlet_id = 10;
-    string asset_image = 11;
-    string personal_responsible = 12;
-    int32 area_id = 13;
-    int32 asset_quantity = 14;
-    int32 asset_quantity_standar = 15;
+  repeated Asset assets = 1;
 }
 
 message CreateAssetResponse {
@@ -531,7 +519,6 @@ message Submission {
     int32 outlet_id = 19;
     int32 area_id = 20;
     string submission_pr_name = 21;
-    int32 submission_price = 22;
 }
 
 message CreateSubmissionRequest {
@@ -785,7 +772,7 @@ service USERService {
 }
 
 service ASSETService {
-    rpc CreateAsset(CreateAssetRequest) returns (CreateAssetResponse) {
+    rpc CreateAssets(CreateAssetRequest) returns (CreateAssetResponse) {
         option (google.api.http) = {
             post: "/api/assets"
             body: "*"
