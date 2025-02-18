@@ -147,7 +147,6 @@ func (s *UserService) UpdateUser(ctx context.Context, req *assetpb.UpdateUserReq
 	}, nil
 }
 
-
 func (s *UserService) DeleteUser(ctx context.Context, req *assetpb.DeleteUserRequest) (*assetpb.DeleteUserResponse, error) {
 	log.Default().Println("Deleting user")
 	err := db.Delete(&assetpb.User{}, req.GetNip()).Error
@@ -241,12 +240,12 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 		Code:    "200",
 		Success: true}, nil
 }
-
 func getUsers(offset, limit int32, q string) ([]*assetpb.User, error) {
 	// Query the database to get the users
 	var users []*assetpb.User
 	query := db.Select("users.*, roles.role_name AS role_name").
-		Limit(int(limit)).Offset(int(offset))
+		Limit(int(limit)).Offset(int(offset)).
+		Order("users.nip ASC") // Order by user_full_name in ascending order
 
 	if q != "" {
 		query = query.Where("users.user_full_name LIKE ?", "%"+q+"%")

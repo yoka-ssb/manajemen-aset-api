@@ -519,6 +519,7 @@ message Submission {
     int32 outlet_id = 19;
     int32 area_id = 20;
     string submission_pr_name = 21;
+    int32 submission_parent_id = 22;
 }
 
 message CreateSubmissionRequest {
@@ -539,12 +540,14 @@ message CreateSubmissionRequest {
     int32 area_id = 15;
     int32 submission_quantity = 16;
     int32 submission_price = 17;
+    int32 role_id = 18;
 }
 
 message CreateSubmissionResponse {
     string message = 1;
     string code = 2;
     bool success = 3;
+    int32 asset_id = 4;
 }
 
 message UpdateSubmissionStatusRequest {
@@ -578,6 +581,9 @@ message ListSubmissionsRequest {
     int32 page_number = 1;
     int32 page_size = 2;
     string q = 3;
+    int32 role_id = 4;
+    int32 area_id = 5;
+    int32 outlet_id = 6;
 }
 
 message ListSubmissionsResponse {
@@ -586,6 +592,10 @@ message ListSubmissionsResponse {
     int32 page_number = 3;
     int32 page_size = 4;
     string next_page_token = 5;
+    int32 total_pengabaian_kondisi_aset = 6;
+    int32 total_laporan_barang_hilang = 7;
+    int32 total_pengajuan_service = 8;
+    int32 total_pengajuan_ganti = 9;
 }
 
 // All Services

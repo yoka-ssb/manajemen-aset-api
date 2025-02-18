@@ -289,7 +289,7 @@ func (s *NotificationService) GetListNotification(ctx context.Context, req *asse
 		pageNumber = 1
 	}
 	if pageSize <= 0 {
-		pageSize = 1000
+		pageSize = 10
 	}
 
 	offset := (pageNumber - 1) * pageSize

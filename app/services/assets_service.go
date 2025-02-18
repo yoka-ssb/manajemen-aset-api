@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,6 +32,7 @@ type AreaOutlet struct {
 }
 
 type Asset struct {
+	AssetIdHash                    string  `json:"asset_id_hash,omitempty"`
 	AssetId                        int32   `json:"asset_id,omitempty"`
 	AssetName                      string  `json:"asset_name,omitempty"`
 	AssetBrand                     string  `json:"asset_brand,omitempty"`
@@ -49,8 +51,8 @@ type Asset struct {
 	OutletId                       int32   `json:"outlet_id,omitempty"`
 	AreaId                         int32   `json:"area_id,omitempty"`
 	// IdAssetNaming                  int32   `json:"id_asset_naming,omitempty"`
-	AssetQuantity				  int32   `json:"asset_quantity,omitempty"`
-	AssetQuantityStandard 		int32   `json:"asset_quantity_standard,omitempty"`
+	AssetQuantity         int32 `json:"asset_quantity,omitempty"`
+	AssetQuantityStandard int32 `json:"asset_quantity_standard,omitempty"`
 }
 
 func NewAssetService(db *gorm.DB) *AssetService {
@@ -62,7 +64,6 @@ func (s *AssetService) Register(server interface{}) {
 	grpcServer := server.(grpc.ServiceRegistrar)
 	assetpb.RegisterASSETServiceServer(grpcServer, s)
 }
-
 func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAssetRequest) (*assetpb.CreateAssetResponse, error) {
 	var createdAssets []Asset
 	var errorsList []string
@@ -132,8 +133,19 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 			DeprecationValue:               deprecationValue,
 			OutletId:                       assetReq.GetOutletId(),
 			AreaId:                         areaOutlet.AreaId,
-			// IdAssetNaming:                  assetReq.GetIdAssetNaming(),
+			AssetImage:                     assetReq.GetAssetImage(),
+			AssetQuantityStandard:          assetReq.GetAssetQuantityStandard(),
+			AssetQuantity:                  assetReq.GetAssetQuantity(),
 		}
+
+		// Generate hash for AssetId
+		assetIdStr := fmt.Sprintf("%d", newAsset.AssetId)
+		hash, err := bcrypt.GenerateFromPassword([]byte(assetIdStr), bcrypt.DefaultCost)
+		if err != nil {
+			errorsList = append(errorsList, fmt.Sprintf("Failed to generate hash for asset: %s", newAsset.AssetName))
+			continue
+		}
+		newAsset.AssetIdHash = string(hash)
 
 		if err := db.Create(&newAsset).Error; err != nil {
 			errorsList = append(errorsList, fmt.Sprintf("Failed to create asset: %s", newAsset.AssetName))
@@ -160,59 +172,17 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 	}, nil
 }
 
+func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAssetRequest) (*assetpb.DeleteAssetResponse, error) {
+	log.Default().Println("deleting item with ID: ", req.GetId())
 
-func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetRequest) (*assetpb.GetAssetResponse, error) {
-	log.Default().Println("getting asset with ID: ", req.GetId())
-	var asset assetpb.Asset
-
-	query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
-		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
-		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
-		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
-		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
-		Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
-		Where("assets.asset_id = ?", req.GetId())
-
-	result := query.First(&asset)
+	result := db.Delete(&assetpb.Asset{}, req.GetId())
 	if result.Error != nil {
-		log.Println("Error:", result.Error)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "Asset not found")
-		} else {
-			return nil, status.Error(codes.Internal, "Failed to get asset")
-		}
+		return nil, status.Error(codes.Internal, "Failed to delete asset: "+result.Error.Error())
 	}
-
-	return &assetpb.GetAssetResponse{
-		Data:    &asset,
+	return &assetpb.DeleteAssetResponse{
+		Message: "Successfully deleting asset",
 		Code:    "200",
-		Message: "Successfully getting asset by ID"}, nil
-}
-
-func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAssetByHashRequest) (*assetpb.GetAssetByHashResponse, error) {
-	log.Default().Println("getting asset by hash ID: ", req.GetHashId())
-	var asset assetpb.Asset
-
-	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
-		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
-		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
-		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
-		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
-		Where("assets.asset_id_hash = ?", req.GetHashId())
-
-	result := query.First(&asset)
-	if result.Error != nil {
-		log.Println("Error:", result.Error)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "Asset not found")
-		} else {
-			return nil, status.Error(codes.Internal, "Failed to get asset")
-		}
-	}
-	return &assetpb.GetAssetByHashResponse{
-		Data:    &asset,
-		Code:    "200",
-		Message: "Successfully getting asset by hash ID"}, nil
+		Success: true}, nil
 }
 
 func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAssetRequest) (*assetpb.UpdateAssetResponse, error) {
@@ -308,19 +278,6 @@ func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.Updat
 
 }
 
-func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAssetRequest) (*assetpb.DeleteAssetResponse, error) {
-	log.Default().Println("deleting item with ID: ", req.GetId())
-
-	result := db.Delete(&assetpb.Asset{}, req.GetId())
-	if result.Error != nil {
-		return nil, status.Error(codes.Internal, "Failed to delete asset: "+result.Error.Error())
-	}
-	return &assetpb.DeleteAssetResponse{
-		Message: "Successfully deleting asset",
-		Code:    "200",
-		Success: true}, nil
-}
-
 func (s *AssetService) ListAssetsHandler(c *gin.Context) {
 	// Get query parameters
 	pageNumberParam := c.DefaultQuery("page_number", "1")
@@ -391,10 +348,9 @@ func (s *AssetService) ListAssetsHandler(c *gin.Context) {
 	// Return the response
 	c.JSON(http.StatusOK, resp)
 }
-
 func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRequest) (*assetpb.ListAssetsResponse, error) {
 	log.Default().Println("Listing assets")
-	// Get the page number and page size from the request
+
 	pageNumber := req.GetPageNumber()
 	pageSize := req.GetPageSize()
 	q := req.GetQ()
@@ -403,26 +359,22 @@ func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRe
 	userAreaID := req.GetUserAreaId()
 	classification := req.GetClassification()
 
-	// Calculate the offset and limit for the query
 	offset := (pageNumber - 1) * pageSize
 	limit := pageSize
 
-	// Get the assets from the database
 	assets, err := getAssets(int(offset), int(limit), q, userRoleID, userOutletID, userAreaID, classification)
 	if err != nil {
 		log.Default().Println("Error fetching assets:", err)
 		return nil, err
 	}
 
-	// Get the total count of assets
 	assetTotal, err := getAssets(0, 0, q, userRoleID, userOutletID, userAreaID, classification)
 	if err != nil {
-		log.Default().Println("Error fetching assets:", err)
+		log.Default().Println("Error fetching total count of assets:", err)
 		return nil, err
 	}
 	totalCount := int32(len(assetTotal))
 
-	// Create a response
 	resp := &assetpb.ListAssetsResponse{
 		Data:       assets,
 		TotalCount: totalCount,
@@ -430,7 +382,6 @@ func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRe
 		PageSize:   pageSize,
 	}
 
-	// Calculate the next page token
 	if totalCount > offset+limit {
 		resp.NextPageToken = fmt.Sprintf("page_token_%d", pageNumber+1)
 	}
@@ -442,41 +393,40 @@ func getAssets(offset, limit int, q string, userRoleID int32, userOutletID, area
 	var assets []*assetpb.Asset
 	var query *gorm.DB
 
+	// For counting, no pagination, only filters applied
 	if offset == 0 && limit == 0 {
 		query = db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
 			Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
 			Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
 			Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
 			Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
-			Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id")
+			Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
+			Order("assets.asset_name ASC") // Order by asset_name in ascending order
 	} else {
+		// For fetching paginated results
 		query = db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
 			Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
 			Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
 			Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
 			Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
 			Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
-			Offset(offset).Limit(limit)
+			Offset(offset).Limit(limit).
+			Order("assets.asset_name ASC") // Order by asset_name in ascending order
 	}
-
 	if q != "" {
 		query = query.Where("assets.asset_name LIKE ?", "%"+q+"%")
 	}
-
 	if userRoleID == 6 && userOutletID != nil {
 		query = query.Where("assets.outlet_id = ?", userOutletID.GetValue())
 	}
-
 	if userRoleID == 5 && areaID != nil {
 		query = query.Where("assets.area_id = ?", areaID.GetValue())
 	}
-
 	if classification == "perkap" {
 		query = query.Where("assets.asset_classification = 9")
 	} else {
 		query = query.Where("assets.asset_classification <> 9")
 	}
-
 	result := query.Find(&assets)
 	if result.Error != nil {
 		return nil, result.Error
@@ -505,4 +455,58 @@ func GetAssetById(id int32) (*assetpb.Asset, error) {
 		}
 	}
 	return &asset, nil
+}
+
+func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetRequest) (*assetpb.GetAssetResponse, error) {
+	log.Default().Println("getting asset with ID: ", req.GetId())
+	var asset assetpb.Asset
+
+	query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
+		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
+		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
+		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
+		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
+		Joins("LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id").
+		Where("assets.asset_id = ?", req.GetId())
+
+	result := query.First(&asset)
+	if result.Error != nil {
+		log.Println("Error:", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Asset not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get asset")
+		}
+	}
+
+	return &assetpb.GetAssetResponse{
+		Data:    &asset,
+		Code:    "200",
+		Message: "Successfully getting asset by ID"}, nil
+}
+
+func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAssetByHashRequest) (*assetpb.GetAssetByHashResponse, error) {
+	log.Default().Println("getting asset by hash ID: ", req.GetHashId())
+	var asset assetpb.Asset
+
+	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
+		Joins("LEFT JOIN areas ON assets.area_id = areas.area_id").
+		Joins("LEFT JOIN outlets ON assets.outlet_id = outlets.outlet_id").
+		Joins("LEFT JOIN roles ON assets.asset_pic = roles.role_id").
+		Joins("LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id").
+		Where("assets.asset_id_hash = ?", req.GetHashId())
+
+	result := query.First(&asset)
+	if result.Error != nil {
+		log.Println("Error:", result.Error)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Asset not found")
+		} else {
+			return nil, status.Error(codes.Internal, "Failed to get asset")
+		}
+	}
+	return &assetpb.GetAssetByHashResponse{
+		Data:    &asset,
+		Code:    "200",
+		Message: "Successfully getting asset by hash ID"}, nil
 }

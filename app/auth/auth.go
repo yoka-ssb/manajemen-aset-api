@@ -15,7 +15,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 var db = database.DBConn()
@@ -68,9 +70,9 @@ func JWTAuthMiddleware(jwtSecret string, excludeMethods []string) grpc.UnaryServ
             return []byte(jwtSecret), nil
         })
         if err != nil || !token.Valid || findToken == nil {
-            return nil, fmt.Errorf("Unauthorized: invalid token")
+            return nil, status.Error(codes.Unauthenticated, "invalid token")
         }
-
+        
         // Token is valid, proceed with the handler
         return handler(ctx, req)
     }
