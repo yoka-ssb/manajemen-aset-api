@@ -5,15 +5,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+
+	// "log"
 	"net/http"
-	"net/smtp"
-	"os"
+
+	// "net/smtp"
+	// "os"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -46,13 +49,17 @@ type Submission struct {
 	OutletId              int32  `json:"outlet_id,omitempty"`
 	AreaId                int32  `json:"area_id,omitempty"`
 	SubmissionPrice       int32  `json:"submission_price,omitempty"`
-	SubmissionParentId    int32  `json:"submission_parent_id,omitempty"`
+	SubmissionParentId    *int32 `json:"submission_parent_id,omitempty"`
 }
 
 type SubmissionParents struct {
-	SubmissionParentId uint   `json:"submission_parent_id"`
-	Nip                string `json:"nip"`
-	SubmissionCategory string `json:"submission_category"`
+    SubmissionParentId int32  `json:"submission_parent_id,omitempty"`
+    Nip                string `json:"nip,omitempty"`
+    CreatedAt          string `json:"created_at,omitempty"`
+    OutletId           int32  `json:"outlet_id,omitempty"`
+    AreaId             int32  `json:"area_id,omitempty"`
+    OutletName         string `json:"outlet_name,omitempty"`
+    AreaName           string `json:"area_name,omitempty"`
 }
 
 func NewSubmissionService(db *gorm.DB) *SubmissionService {
@@ -65,31 +72,31 @@ func (s *SubmissionService) Register(server interface{}) {
 	assetpb.RegisterSUBMISSIONServiceServer(grpcServer, s)
 }
 
-func sendEmail(toEmail, subject, body string) error {
-	godotenv.Load(".env")
+// func sendEmail(toEmail, subject, body string) error {
+// 	godotenv.Load(".env")
 
-	// Setup SMTP server
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-	senderEmail := os.Getenv("SENDER_EMAIL")
-	senderPassword := os.Getenv("SENDER_PASSWORD")
+// 	// Setup SMTP server
+// 	smtpHost := os.Getenv("SMTP_HOST")
+// 	smtpPort := os.Getenv("SMTP_PORT")
+// 	senderEmail := os.Getenv("SENDER_EMAIL")
+// 	senderPassword := os.Getenv("SENDER_PASSWORD")
 
-	msg := fmt.Sprintf(
-		"From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
-		senderEmail, toEmail, subject, body,
-	)
+// 	msg := fmt.Sprintf(
+// 		"From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
+// 		senderEmail, toEmail, subject, body,
+// 	)
 
-	auth := smtp.PlainAuth("", senderEmail, senderPassword, smtpHost)
+// 	auth := smtp.PlainAuth("", senderEmail, senderPassword, smtpHost)
 
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, senderEmail, []string{toEmail}, []byte(msg))
-	if err != nil {
-		return fmt.Errorf("failed to send email: %v", err)
-	}
-	return nil
-}
+// 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, senderEmail, []string{toEmail}, []byte(msg))
+// 	if err != nil {
+// 		return fmt.Errorf("failed to send email: %v", err)
+// 	}
+// 	return nil
+// }
 
 func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.CreateSubmissionRequest) (*assetpb.CreateSubmissionResponse, error) {
-	log.Println("Creating submission")
+	log.Info().Msg("Creating submission")
 
 	// Cek apakah asset ada
 	asset, err := GetAssetById(req.AssetId)
@@ -142,6 +149,7 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		SubmissionRoleName:    req.SubmissionRoleName,
 		Attachment:            req.Attachment,
 		SubmissionPrice:       req.SubmissionPrice,
+		// SubmissionParentId:    req.SubmissionParentId,
 	}
 
 	// Simpan submission ke database
@@ -180,21 +188,23 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 		return nil, status.Error(codes.Internal, "Failed to find users: "+err.Error())
 	}
 
-	// Persiapan email
-	subject := "Pemberitahuan Pengajuan Maintenance Asset"
-	body := fmt.Sprintf("Halo,\n\nPengajuan maintenance asset telah berhasil diajukan.\n\nDetail Pengajuan:\nAsset: %s\nKategori: %s\nStatus: %s\nTanggal Pengajuan: %s\n\nTerima kasih.",
-		req.SubmissionAssetName, req.SubmissionCategory, req.SubmissionStatus, submissionDate)
+	// // Persiapan email
+	// subject := "Pemberitahuan Pengajuan Maintenance Asset"
+	// body := fmt.Sprintf("Halo,\n\nPengajuan maintenance asset telah berhasil diajukan.\n\nDetail Pengajuan:\nAsset: %s\nKategori: %s\nStatus: %s\nTanggal Pengajuan: %s\n\nTerima kasih.",
+	// 	req.SubmissionAssetName, req.SubmissionCategory, req.SubmissionStatus, submissionDate)
 
-	// Kirim email ke user yang memenuhi syarat
-	for _, user := range users {
-		if user.UserEmail != "" {
-			if err := sendEmail(user.UserEmail, subject, body); err != nil {
-				log.Println("Failed to send email to", user.UserEmail, err)
-			} else {
-				log.Println("Email sent to", user.UserEmail)
-			}
-		}
-	}
+	// // Kirim email ke user yang memenuhi syarat
+	// for _, user := range users {
+	// 	if user.UserEmail != "" {
+	// 		if err := sendEmail(user.UserEmail, subject, body); err != nil {
+	// 			log.Println("Failed to send email to", user.UserEmail, err)
+	// 		} else {
+	// 			log.Println("Email sent to", user.UserEmail)
+	// 		}
+	// 	}
+	// }
+
+	log.Info().Msg("Submission created successfully")
 
 	return &assetpb.CreateSubmissionResponse{
 		Message: "Successfully created submission",
@@ -204,14 +214,16 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 }
 
 func (s *SubmissionService) UpdateSubmissionStatus(ctx context.Context, req *assetpb.UpdateSubmissionStatusRequest) (*assetpb.UpdateSubmissionStatusResponse, error) {
-	log.Println("Updating submission status for ID:", req.Id)
+	log.Info().Msgf("Updating submission status for ID: %d", req.Id)
 	result := db.Model(&assetpb.Submission{}).Where("submission_id = ?", req.Id).Update("submission_status", req.Status)
 	if result.Error != nil {
+		log.Error().Err(result.Error).Msg("Failed to update submission status")
 		return nil, status.Error(codes.Internal, "Failed to update submission status: "+result.Error.Error())
 	}
 
 	submission := Submission{}
 	if result := db.First(&submission, req.Id); result.Error != nil {
+		log.Error().Err(result.Error).Msg("Failed to get submission")
 		return nil, status.Error(codes.Internal, "Failed to get submission: "+result.Error.Error())
 	}
 
@@ -222,11 +234,13 @@ func (s *SubmissionService) UpdateSubmissionStatus(ctx context.Context, req *ass
 		PrName:       submission.SubmissionPrName,
 	}
 	if result := db.Create(&submissionLog); result.Error != nil {
+		log.Error().Err(result.Error).Msg("Failed to create submission log")
 		return nil, status.Error(codes.Internal, "Failed to create submission log: "+result.Error.Error())
 	}
 
 	// Update asset status
 	if result := db.Model(&assetpb.Asset{}).Where("asset_id = ?", submission.AssetId).Update("asset_status", req.Status); result.Error != nil {
+		log.Error().Err(result.Error).Msg("Failed to update asset status")
 		return nil, status.Error(codes.Internal, "Failed to update asset status: "+result.Error.Error())
 	}
 
@@ -235,8 +249,11 @@ func (s *SubmissionService) UpdateSubmissionStatus(ctx context.Context, req *ass
 		AssetId:     submission.AssetId,
 		AssetStatus: req.Status,
 	}); result.Error != nil {
+		log.Error().Err(result.Error).Msg("Failed to create asset update")
 		return nil, status.Error(codes.Internal, "Failed to create asset update: "+result.Error.Error())
 	}
+
+	log.Info().Msg("Successfully updated submission status")
 
 	return &assetpb.UpdateSubmissionStatusResponse{
 		Message: "Successfully updated submission status",
@@ -252,6 +269,8 @@ func (s *SubmissionService) ListSubmissionsHandler(c *gin.Context) {
 	nipParam := c.DefaultQuery("nip", "")
 	areaIDParam := c.DefaultQuery("area_id", "")
 	outletIDParam := c.DefaultQuery("outlet_id", "")
+	submissionParentIDParam := c.DefaultQuery("submission_parent_id", "")
+	parentIDParam := c.DefaultQuery("parent_id", "")
 
 	pageNumber, err := strconv.Atoi(pageNumberParam)
 	if err != nil {
@@ -268,6 +287,18 @@ func (s *SubmissionService) ListSubmissionsHandler(c *gin.Context) {
 	roleID, err := s.GetRoleIDByNIP(nipParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid NIP or user not found"})
+		return
+	}
+
+	submissionParentID, err := strconv.Atoi(submissionParentIDParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid submission_parent_id"})
+		return
+	}
+
+	parentID, err := strconv.ParseBool(parentIDParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid parent_id"})
 		return
 	}
 
@@ -292,10 +323,12 @@ func (s *SubmissionService) ListSubmissionsHandler(c *gin.Context) {
 	}
 
 	req := &assetpb.ListSubmissionsRequest{
-		PageNumber: int32(pageNumber),
-		PageSize:   int32(pageSize),
-		Q:          q,
-		RoleId:     int32(roleID),
+		PageNumber:         int32(pageNumber),
+		PageSize:           int32(pageSize),
+		Q:                  q,
+		RoleId:             int32(roleID),
+		SubmissionParentId: int32(submissionParentID),
+		ParentId:           parentID,
 	}
 
 	if areaID != nil {
@@ -304,6 +337,8 @@ func (s *SubmissionService) ListSubmissionsHandler(c *gin.Context) {
 	if outletID != nil {
 		req.OutletId = outletID.GetValue()
 	}
+
+	log.Info().Msgf("ListSubmissionsHandler called with parameters - pageNumber: %d, pageSize: %d, q: %s, roleID: %d, areaID: %d, outletID: %d, submissionParentID: %d", pageNumber, pageSize, q, roleID, areaID.GetValue(), outletID.GetValue(), submissionParentID)
 
 	resp, err := s.ListSubmissions(context.Background(), req)
 	if err != nil {
@@ -314,17 +349,8 @@ func (s *SubmissionService) ListSubmissionsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func (s *SubmissionService) GetRoleIDByNIP(nip string) (int32, error) {
-	var user User
-	err := db.Where("nip = ?", nip).First(&user).Error
-	if err != nil {
-		return 0, err
-	}
-	return user.RoleID, nil
-}
-
 func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.ListSubmissionsRequest) (*assetpb.ListSubmissionsResponse, error) {
-	log.Println("Listing submissions")
+	log.Info().Msg("Listing submissions")
 
 	pageNumber := req.GetPageNumber()
 	pageSize := req.GetPageSize()
@@ -332,39 +358,45 @@ func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.Li
 	roleID := req.GetRoleId()
 	areaID := req.GetAreaId()
 	outletID := req.GetOutletId()
+	submissionParentID := req.GetSubmissionParentId()
+	parentID := req.GetParentId()
 
 	offset := (pageNumber - 1) * pageSize
 	limit := pageSize
 
-	submissions, err := GetSubmissions(offset, limit, q, roleID, areaID, outletID)
+	submissions, err := GetSubmissions(offset, limit, q, roleID, areaID, outletID, submissionParentID, parentID)
 	if err != nil {
-		log.Println("Error fetching submissions:", err)
+		log.Error().Err(err).Msg("Error fetching submissions")
 		return nil, err
 	}
 
-	totalCount, err := GetTotalCount("submissions")
+	totalCount, err := GetSubmissionTotalCount(q, roleID, areaID, outletID, submissionParentID, parentID)
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching total count")
+		return nil, err
+	}
 
 	totalPengabaianKondisiAset, err := GetTotalCountByCategory("Pengabaian Kondisi Aset")
 	if err != nil {
-		log.Println("Error fetching total count for Pengabaian Kondisi Aset:", err)
+		log.Error().Err(err).Msg("Error fetching total count for Pengabaian Kondisi Aset")
 		return nil, err
 	}
 
 	totalLaporanBarangHilang, err := GetTotalCountByCategory("Laporan Barang Hilang")
 	if err != nil {
-		log.Println("Error fetching total count for Laporan Barang Hilang:", err)
+		log.Error().Err(err).Msg("Error fetching total count for Laporan Barang Hilang")
 		return nil, err
 	}
 
 	totalPengajuanService, err := GetTotalCountByCategory("Pengajuan Service")
 	if err != nil {
-		log.Println("Error fetching total count for Pengajuan Service:", err)
+		log.Error().Err(err).Msg("Error fetching total count for Pengajuan Service")
 		return nil, err
 	}
 
 	totalPengajuanGanti, err := GetTotalCountByCategory("Pengajuan Ganti")
 	if err != nil {
-		log.Println("Error fetching total count for Pengajuan Ganti:", err)
+		log.Error().Err(err).Msg("Error fetching total count for Pengajuan Ganti")
 		return nil, err
 	}
 
@@ -388,6 +420,35 @@ func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.Li
 	return resp, nil
 }
 
+func GetSubmissionTotalCount(q string, roleID int32, areaID int32, outletID int32, submissionParentID int32, parentID bool) (int32, error) {
+	var count int64
+	query := db.Model(&Submission{})
+
+	if q != "" {
+		query = query.Where("submission_name LIKE ?", "%"+q+"%")
+	}
+	if roleID == 5 && areaID != 0 {
+		query = query.Where("area_id = ?", areaID)
+	}
+	if roleID == 6 && outletID != 0 {
+		query = query.Where("outlet_id = ?", outletID)
+	}
+	if submissionParentID != 0 {
+		query = query.Where("submission_parent_id = ?", submissionParentID)
+	}
+	if parentID {
+		query = query.Where("submission_parent_id IS NOT NULL")
+	} else {
+		query = query.Where("submission_parent_id IS NULL")
+	}
+
+	err := query.Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return int32(count), nil
+}
+
 func GetTotalCountByCategory(category string) (int32, error) {
 	var count int64
 	err := db.Model(&Submission{}).Where("submission_category = ?", category).Count(&count).Error
@@ -397,7 +458,7 @@ func GetTotalCountByCategory(category string) (int32, error) {
 	return int32(count), nil
 }
 
-func GetSubmissions(offset, limit int32, q string, roleID int32, areaID int32, outletID int32) ([]*assetpb.Submission, error) {
+func GetSubmissions(offset, limit int32, q string, roleID int32, areaID int32, outletID int32, submissionParentID int32, parentID bool) ([]*assetpb.Submission, error) {
 	var submissions []*assetpb.Submission
 	query := db.Select("submissions.*, assets.asset_id AS asset_id").
 		Joins("LEFT JOIN assets ON assets.asset_id = submissions.asset_id").
@@ -414,19 +475,50 @@ func GetSubmissions(offset, limit int32, q string, roleID int32, areaID int32, o
 	if roleID == 6 && outletID != 0 {
 		query = query.Where("submissions.outlet_id = ?", outletID)
 	}
-	log.Printf("roleID: %d, areaID: %d, outletID: %d", roleID, areaID, outletID)
+	if submissionParentID != 0 {
+		query = query.Where("submissions.submission_parent_id = ?", submissionParentID)
+	}
+	if parentID {
+		query = query.Where("submissions.submission_parent_id IS NOT NULL")
+	} else {
+		query = query.Where("submissions.submission_parent_id IS NULL")
+	}
+
+	if roleID != 0 {
+		query = query.Where("submissions.role_id = ?", roleID)
+	}
+	if areaID != 0 {
+		query = query.Where("submissions.area_id = ?", areaID)
+	}
+	if outletID != 0 {
+		query = query.Where("submissions.outlet_id = ?", outletID)
+	}
+
+	log.Info().Msgf("Executing query with parameters - roleID: %d, areaID: %d, outletID: %d, parentID: %t, q: %s, offset: %d, limit: %d", roleID, areaID, outletID, parentID, q, offset, limit)
 
 	result := query.Find(&submissions)
 	if result.Error != nil {
+		log.Error().Err(result.Error).Msg("Error executing query")
 		return nil, result.Error
 	}
+
+	log.Info().Msgf("Query executed successfully, found %d submissions", len(submissions))
 
 	return submissions, nil
 }
 
+func (s *SubmissionService) GetRoleIDByNIP(nip string) (int32, error) {
+	var user User
+	err := db.Where("nip = ?", nip).First(&user).Error
+	if err != nil {
+		return 0, err
+	}
+	return user.RoleID, nil
+}
+
 func GetSubmissionById(id int32) (*assetpb.Submission, error) {
 	var submission assetpb.Submission
-	log.Println("Fetching submission with ID:", id)
+	log.Info().Msgf("Fetching submission with ID: %d", id)
 
 	query := db.Select("submissions.*, assets.asset_id AS asset_id, assets.outlet_id, assets.area_id").
 		Joins("LEFT JOIN assets ON assets.asset_id = submissions.asset_id").
@@ -434,7 +526,7 @@ func GetSubmissionById(id int32) (*assetpb.Submission, error) {
 
 	result := query.First(&submission)
 	if result.Error != nil {
-		log.Println("Error fetching submission:", result.Error)
+		log.Error().Err(result.Error).Msg("Error fetching submission")
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "Submission not found")
 		} else {
@@ -445,15 +537,226 @@ func GetSubmissionById(id int32) (*assetpb.Submission, error) {
 }
 
 func (s *SubmissionService) GetSubmissionById(ctx context.Context, req *assetpb.GetSubmissionByIdRequest) (*assetpb.GetSubmissionByIdResponse, error) {
-	log.Println("Fetching submission with ID:", req.Id)
+	log.Info().Msgf("Fetching submission with ID: %d", req.Id)
 
 	submission, err := GetSubmissionById(req.Id)
 	if err != nil {
-		log.Println("Error fetching submission:", err)
+		log.Error().Err(err).Msg("Failed to get submission")
 		return nil, err
 	}
 
 	return &assetpb.GetSubmissionByIdResponse{
 		Submission: submission,
 	}, nil
+}
+
+func (s *SubmissionService) CreateSubmissionParent(ctx context.Context, req *assetpb.CreateSubmissionParentRequest) (*assetpb.CreateSubmissionParentResponse, error) {
+	log.Info().Msg("Creating submission parent")
+
+	var lastSubmissionParent SubmissionParents
+	last := db.Model(&SubmissionParents{}).Last(&lastSubmissionParent)
+	if last.Error != nil {
+		if errors.Is(last.Error, gorm.ErrRecordNotFound) {
+			lastSubmissionParent.SubmissionParentId = 0
+		} else {
+			log.Error().Err(last.Error).Msg("Failed to get last submission parent")
+			return nil, status.Error(codes.Internal, "Failed to get last submission parent: "+last.Error.Error())
+		}
+	}
+	newSubmissionParentId := lastSubmissionParent.SubmissionParentId + 1
+
+	submissionParent := SubmissionParents{
+		SubmissionParentId: newSubmissionParentId,
+		Nip:                req.Nip,
+		CreatedAt:          time.Now().Format("2006-01-02 15:04:05"),
+		OutletId:           req.OutletId,
+		AreaId:             req.AreaId,
+	}
+
+	if result := db.Create(&submissionParent); result.Error != nil {
+		return nil, status.Error(codes.Internal, "Failed to create submission parent: "+result.Error.Error())
+	}
+
+	if err := s.updateSubmissionsWithParentID(newSubmissionParentId, req.SubmissionIds); err != nil {
+		return nil, status.Error(codes.Internal, "Failed to update submissions: "+err.Error())
+	}
+
+	return &assetpb.CreateSubmissionParentResponse{
+		Message:            "Successfully created submission parent",
+		Code:               "200",
+		Success:            true,
+		SubmissionParentId: newSubmissionParentId,
+	}, nil
+}
+
+func (s *SubmissionService) CreateSubmissionParentHandler(c *gin.Context) {
+	var req assetpb.CreateSubmissionParentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp, err := s.CreateSubmissionParent(context.Background(), &req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
+func (s *SubmissionService) updateSubmissionsWithParentID(submissionParentId int32, submissionIds []int32) error {
+	log.Info().Msgf("Updating submissions with submission_parent_id: %d", submissionParentId)
+
+	result := db.Model(&Submission{}).Where("submission_id IN (?)", submissionIds).Update("submission_parent_id", submissionParentId)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update submissions with new submission_parent_id: %v", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		log.Warn().Msg("No rows were updated. Check if submission IDs exist.")
+	}
+
+	return nil
+}
+func GetSubmissionParents(offset, limit int32, q string, nip string) ([]*SubmissionParents, error) {
+    var submissionParents []*SubmissionParents
+    query := db.Table("submission_parents").
+        Select("submission_parents.submission_parent_id, submission_parents.nip, submission_parents.created_at, outlets.outlet_name, areas.area_name").
+        Joins("LEFT JOIN outlets ON outlets.outlet_id = submission_parents.outlet_id").
+        Joins("LEFT JOIN areas ON areas.area_id = submission_parents.area_id").
+        Limit(int(limit)).
+        Offset(int(offset)).
+        Order("submission_parents.submission_parent_id ASC")
+
+    if q != "" {
+        query = query.Where("submission_parents.nip LIKE ?", "%"+q+"%")
+    }
+    if nip != "" {
+        query = query.Where("submission_parents.nip = ?", nip)
+    }
+
+    log.Info().Msgf("Executing query with parameters - q: %s, nip: %s, offset: %d, limit: %d", q, nip, offset, limit)
+
+    result := query.Find(&submissionParents)
+    if result.Error != nil {
+        log.Error().Err(result.Error).Msg("Error executing query")
+        return nil, result.Error
+    }
+
+    // Format created_at as string
+    for _, sp := range submissionParents {
+        createdAt, err := time.Parse("2006-01-02 15:04:05", sp.CreatedAt)
+        if err == nil {
+            sp.CreatedAt = createdAt.Format("2006-01-02 15:04:05")
+        }
+    }
+
+    log.Info().Msgf("Query executed successfully, found %d submission parents", len(submissionParents))
+
+    return submissionParents, nil
+}
+
+func (s *SubmissionService) ListSubmissionParents(ctx context.Context, req *assetpb.ListSubmissionParentsRequest) (*assetpb.ListSubmissionParentsResponse, error) {
+    log.Info().Msg("Listing submission parents")
+
+    pageNumber := req.GetPageNumber()
+    pageSize := req.GetPageSize()
+    q := req.GetQ()
+    nip := req.GetNip()
+
+    offset := (pageNumber - 1) * pageSize
+    limit := pageSize
+
+    submissionParents, err := GetSubmissionParents(offset, limit, q, nip)
+    if err != nil {
+        log.Error().Err(err).Msg("Error fetching submission parents")
+        return nil, err
+    }
+
+    totalCount, err := s.GetSubmissionParentsTotalCount(q, nip)
+    if err != nil {
+        log.Error().Err(err).Msg("Error fetching total count")
+        return nil, err
+    }
+
+    var submissionParentProtos []*assetpb.SubmissionParent
+    for _, sp := range submissionParents {
+        submissionParentProtos = append(submissionParentProtos, &assetpb.SubmissionParent{
+            SubmissionParentId: sp.SubmissionParentId,
+            Nip:                sp.Nip,
+            CreatedAt:          sp.CreatedAt,
+            OutletName:         sp.OutletName,
+            AreaName:           sp.AreaName,
+        })
+    }
+
+    resp := &assetpb.ListSubmissionParentsResponse{
+        Data:       submissionParentProtos,
+        TotalCount: totalCount,
+        PageNumber: pageNumber,
+        PageSize:   pageSize,
+    }
+
+    if totalCount > offset+limit {
+        resp.NextPageToken = fmt.Sprintf("%d", pageNumber+1)
+    } else {
+        resp.NextPageToken = ""
+    }
+
+    return resp, nil
+}
+
+func (s *SubmissionService) GetSubmissionParentsTotalCount(q string, nip string) (int32, error) {
+	var count int64
+	query := db.Model(&SubmissionParents{})
+
+	if q != "" {
+		query = query.Where("nip LIKE ?", "%"+q+"%")
+	}
+	if nip != "" {
+		query = query.Where("nip = ?", nip)
+	}
+
+	err := query.Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return int32(count), nil
+}
+
+func (s *SubmissionService) ListSubmissionParentsHandler(c *gin.Context) {
+	pageNumberParam := c.DefaultQuery("page_number", "1")
+	pageSizeParam := c.DefaultQuery("page_size", "10")
+	q := c.DefaultQuery("q", "")
+	nip := c.DefaultQuery("nip", "")
+
+	pageNumber, err := strconv.Atoi(pageNumberParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_number"})
+		return
+	}
+
+	pageSize, err := strconv.Atoi(pageSizeParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_size"})
+		return
+	}
+
+	req := &assetpb.ListSubmissionParentsRequest{
+		PageNumber: int32(pageNumber),
+		PageSize:   int32(pageSize),
+		Q:          q,
+		Nip:        nip,
+	}
+
+	log.Info().Msgf("ListSubmissionParentsHandler called with parameters - pageNumber: %d, pageSize: %d, q: %s, nip: %s", pageNumber, pageSize, q, nip)
+
+	resp, err := s.ListSubmissionParents(context.Background(), req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }

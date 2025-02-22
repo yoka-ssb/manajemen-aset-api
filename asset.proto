@@ -584,6 +584,8 @@ message ListSubmissionsRequest {
     int32 role_id = 4;
     int32 area_id = 5;
     int32 outlet_id = 6;
+    int32 submission_parent_id = 7;
+    bool parent_id = 8;
 }
 
 message ListSubmissionsResponse {
@@ -598,12 +600,62 @@ message ListSubmissionsResponse {
     int32 total_pengajuan_ganti = 9;
 }
 
+message CreateSubmissionParentRequest {
+    string nip = 1;
+    repeated int32 submission_ids = 2;
+    int32 outlet_id = 3;
+    int32 area_id = 4;
+}
+
+message CreateSubmissionParentResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+    int32 submission_parent_id = 4;
+}
+
+message SubmissionParent {
+    int32 submission_parent_id = 1;
+    string nip = 2;
+    string created_at = 3;
+    string outlet_name = 4;
+    string area_name = 5;
+}
+
+message ListSubmissionParentsResponse {
+    repeated SubmissionParent data = 1;
+    int32 total_count = 2;
+    int32 page_number = 3;
+    int32 page_size = 4;
+    string next_page_token = 5;
+}
+
+message ListSubmissionParentsRequest {
+    int32 page_number = 1;
+    int32 page_size = 2;
+    string q = 3;
+    string nip = 4;
+}
+
 // All Services
 service SUBMISSIONService {
     rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
         option (google.api.http) = {
             post: "/api/submissions"
             body: "*"
+        };
+    }
+
+    rpc CreateSubmissionParent(CreateSubmissionParentRequest) returns (CreateSubmissionParentResponse) {
+        option (google.api.http) = {
+            post: "/api/parents"
+            body: "*"
+        };
+    }
+
+    rpc ListSubmissionParents(ListSubmissionParentsRequest) returns (ListSubmissionParentsResponse) {
+         option (google.api.http) = {
+            get: "/api/parents"
         };
     }
 

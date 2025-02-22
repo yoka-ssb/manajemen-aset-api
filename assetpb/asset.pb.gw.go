@@ -59,6 +59,62 @@ func local_request_SUBMISSIONService_CreateSubmission_0(ctx context.Context, mar
 	return msg, metadata, err
 }
 
+func request_SUBMISSIONService_CreateSubmissionParent_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateSubmissionParentRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.CreateSubmissionParent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SUBMISSIONService_CreateSubmissionParent_0(ctx context.Context, marshaler runtime.Marshaler, server SUBMISSIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateSubmissionParentRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.CreateSubmissionParent(ctx, &protoReq)
+	return msg, metadata, err
+}
+
+var filter_SUBMISSIONService_ListSubmissionParents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_SUBMISSIONService_ListSubmissionParents_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListSubmissionParentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SUBMISSIONService_ListSubmissionParents_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := client.ListSubmissionParents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_SUBMISSIONService_ListSubmissionParents_0(ctx context.Context, marshaler runtime.Marshaler, server SUBMISSIONServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListSubmissionParentsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SUBMISSIONService_ListSubmissionParents_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListSubmissionParents(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 var filter_SUBMISSIONService_ListSubmissions_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_SUBMISSIONService_ListSubmissions_0(ctx context.Context, marshaler runtime.Marshaler, client SUBMISSIONServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -1051,6 +1107,46 @@ func RegisterSUBMISSIONServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		}
 		forward_SUBMISSIONService_CreateSubmission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_SUBMISSIONService_CreateSubmissionParent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/CreateSubmissionParent", runtime.WithHTTPPathPattern("/api/parents"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SUBMISSIONService_CreateSubmissionParent_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_CreateSubmissionParent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_ListSubmissionParents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissionParents", runtime.WithHTTPPathPattern("/api/parents"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_SUBMISSIONService_ListSubmissionParents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_ListSubmissionParents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_ListSubmissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1868,6 +1964,40 @@ func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 		forward_SUBMISSIONService_CreateSubmission_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_SUBMISSIONService_CreateSubmissionParent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/CreateSubmissionParent", runtime.WithHTTPPathPattern("/api/parents"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SUBMISSIONService_CreateSubmissionParent_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_CreateSubmissionParent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_ListSubmissionParents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/asset.SUBMISSIONService/ListSubmissionParents", runtime.WithHTTPPathPattern("/api/parents"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SUBMISSIONService_ListSubmissionParents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_SUBMISSIONService_ListSubmissionParents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_SUBMISSIONService_ListSubmissions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1924,6 +2054,8 @@ func RegisterSUBMISSIONServiceHandlerClient(ctx context.Context, mux *runtime.Se
 
 var (
 	pattern_SUBMISSIONService_CreateSubmission_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submissions"}, ""))
+	pattern_SUBMISSIONService_CreateSubmissionParent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "parents"}, ""))
+	pattern_SUBMISSIONService_ListSubmissionParents_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "parents"}, ""))
 	pattern_SUBMISSIONService_ListSubmissions_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "submissions"}, ""))
 	pattern_SUBMISSIONService_GetSubmissionById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "submissions", "id"}, ""))
 	pattern_SUBMISSIONService_UpdateSubmissionStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "submissions", "id", "status"}, ""))
@@ -1931,6 +2063,8 @@ var (
 
 var (
 	forward_SUBMISSIONService_CreateSubmission_0       = runtime.ForwardResponseMessage
+	forward_SUBMISSIONService_CreateSubmissionParent_0 = runtime.ForwardResponseMessage
+	forward_SUBMISSIONService_ListSubmissionParents_0  = runtime.ForwardResponseMessage
 	forward_SUBMISSIONService_ListSubmissions_0        = runtime.ForwardResponseMessage
 	forward_SUBMISSIONService_GetSubmissionById_0      = runtime.ForwardResponseMessage
 	forward_SUBMISSIONService_UpdateSubmissionStatus_0 = runtime.ForwardResponseMessage
