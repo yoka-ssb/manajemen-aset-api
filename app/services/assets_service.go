@@ -33,6 +33,7 @@ type MstAssetService struct {
 }
 
 type MstAsset struct {
+	IdAssetNaming    int32  `json:"id_asset_naming"`
 	AssetNaming      string `json:"asset_naming"`
 	ClassificationId int32  `json:"classification_id"`
 }
@@ -525,7 +526,7 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 func GetMstAssets(db *gorm.DB, offset, limit int32) ([]*MstAsset, error) {
 	var mstAssets []*MstAsset
 	query := db.Table("mst_assets").
-		Select("asset_naming, classification_id").
+		Select("id_asset_naming, asset_naming, classification_id").
 		Offset(int(offset)).
 		Order("asset_naming ASC")
 
@@ -556,6 +557,7 @@ func (s *AssetService) ListMstAssets(ctx context.Context, req *assetpb.ListMstAs
 	var mstAssetProtos []*assetpb.MstAsset
 	for _, asset := range mstAssets {
 		mstAssetProtos = append(mstAssetProtos, &assetpb.MstAsset{
+			IdAssetNaming:    asset.IdAssetNaming,
 			AssetNaming:      asset.AssetNaming,
 			ClassificationId: asset.ClassificationId,
 		})

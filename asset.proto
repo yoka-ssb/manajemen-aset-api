@@ -639,8 +639,9 @@ message ListSubmissionParentsRequest {
 }
 
 message MstAsset {
-    string asset_naming = 1;
-    int32 classification_id = 2;
+    int32 id_asset_naming = 1;
+    string asset_naming = 2;
+    int32 classification_id = 3;
 }
 
 message ListMstAssetsRequest {
