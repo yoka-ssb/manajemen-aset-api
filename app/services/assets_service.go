@@ -77,111 +77,119 @@ func (s *AssetService) Register(server interface{}) {
 	assetpb.RegisterASSETServiceServer(grpcServer, s)
 }
 func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAssetRequest) (*assetpb.CreateAssetResponse, error) {
-	var createdAssets []Asset
-	var errorsList []string
+    var createdAssets []Asset
+    var errorsList []string
 
-	// Cek apakah input kosong
-	if len(req.Assets) == 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "No asset data provided")
-	}
+    // Cek apakah input kosong
+    if len(req.Assets) == 0 {
+        return nil, status.Errorf(codes.InvalidArgument, "No asset data provided")
+    }
 
-	// Cek apakah input adalah single asset (jika ya, ubah ke array)
-	if len(req.Assets) == 1 && req.Assets[0].GetAssetName() == "" {
-		return nil, status.Errorf(codes.InvalidArgument, "Asset name cannot be empty")
-	}
+    // Cek apakah input adalah single asset (jika ya, ubah ke array)
+    if len(req.Assets) == 1 && req.Assets[0].GetAssetName() == "" {
+        return nil, status.Errorf(codes.InvalidArgument, "Asset name cannot be empty")
+    }
 
-	var lastAssetId int32
-	db.Model(&Asset{}).Select("COALESCE(MAX(asset_id), 0)").Scan(&lastAssetId)
+    var lastAssetId int32
+    db.Model(&Asset{}).Select("COALESCE(MAX(asset_id), 0)").Scan(&lastAssetId)
 
-	for _, assetReq := range req.Assets {
-		classification := getClassificationById(assetReq.GetAssetClassification())
-		if classification == nil {
-			errorsList = append(errorsList, fmt.Sprintf("Error: Classification not found for asset %s", assetReq.GetAssetName()))
-			continue
-		}
+    for _, assetReq := range req.Assets {
+        classification := getClassificationById(assetReq.GetAssetClassification())
+        if classification == nil {
+            errorsList = append(errorsList, fmt.Sprintf("Error: Classification not found for asset %s", assetReq.GetAssetName()))
+            continue
+        }
 
-		purchaseDate, err := time.Parse("02-01-2006", assetReq.AssetPurchaseDate)
-		if err != nil {
-			errorsList = append(errorsList, fmt.Sprintf("Invalid date format for asset: %s", assetReq.GetAssetName()))
-			continue
-		}
+        purchaseDate, err := time.Parse("02-01-2006", assetReq.AssetPurchaseDate)
+        if err != nil {
+            errorsList = append(errorsList, fmt.Sprintf("Invalid date format for asset: %s", assetReq.GetAssetName()))
+            continue
+        }
 
-		month := utils.CountMonths(purchaseDate, time.Now())
-		if classification.ClassificationEconomicValue == 0 {
-			errorsList = append(errorsList, fmt.Sprintf("Economic value cannot be zero for asset %s", assetReq.GetAssetName()))
-			continue
-		}
+        month := utils.CountMonths(purchaseDate, time.Now())
+        if classification.ClassificationEconomicValue == 0 {
+            errorsList = append(errorsList, fmt.Sprintf("Economic value cannot be zero for asset %s", assetReq.GetAssetName()))
+            continue
+        }
 
-		deprecationValue := assetReq.GetClassificationAcquisitionValue() / classification.ClassificationEconomicValue
-		lastBookValue := assetReq.GetClassificationAcquisitionValue() - (deprecationValue * int32(month))
+        deprecationValue := assetReq.GetClassificationAcquisitionValue() / classification.ClassificationEconomicValue
+        lastBookValue := assetReq.GetClassificationAcquisitionValue() - (deprecationValue * int32(month))
 
-		period := utils.ExtractMaintenancePeriod(classification.MaintenancePeriodId)
-		maintenanceDate := time.Now().AddDate(0, period, 0)
-		maintenanceDate = time.Date(maintenanceDate.Year(), maintenanceDate.Month(), 20, 0, 0, 0, 0, time.Local)
-		maintenanceDateStr := maintenanceDate.Format("2006-01-02")
+        period := utils.ExtractMaintenancePeriod(classification.MaintenancePeriodId)
+        maintenanceDate := time.Now().AddDate(0, period, 0)
+        maintenanceDate = time.Date(maintenanceDate.Year(), maintenanceDate.Month(), 20, 0, 0, 0, 0, time.Local)
+        maintenanceDateStr := maintenanceDate.Format("2006-01-02")
 
-		var areaOutlet AreaOutlet
-		if err := db.Where("outlet_id = ?", assetReq.GetOutletId()).First(&areaOutlet).Error; err != nil {
-			errorsList = append(errorsList, fmt.Sprintf("Failed to retrieve area_id for outlet %d", assetReq.GetOutletId()))
-			continue
-		}
+        var areaOutlet AreaOutlet
+        if err := db.Where("outlet_id = ?", assetReq.GetOutletId()).First(&areaOutlet).Error; err != nil {
+            errorsList = append(errorsList, fmt.Sprintf("Failed to retrieve area_id for outlet %d", assetReq.GetOutletId()))
+            continue
+        }
 
-		personalResponsible := assetReq.PersonalResponsible
+        // Check if id_asset_naming exists in the reference table
+        var mstAsset MstAsset
+		if err := db.Where("id_asset_naming = ?", assetReq.IdAssetNaming).First(&mstAsset).Error; err != nil {
+            errorsList = append(errorsList, fmt.Sprintf("Invalid id_asset_naming for asset %s", assetReq.GetAssetName()))
+            continue
+        }
 
-		newAsset := Asset{
-			AssetId:                        lastAssetId + 1,
-			AssetName:                      assetReq.GetAssetName(),
-			AssetBrand:                     assetReq.GetAssetBrand(),
-			AssetSpecification:             assetReq.GetAssetSpecification(),
-			AssetClassification:            assetReq.GetAssetClassification(),
-			AssetCondition:                 assetReq.GetAssetCondition(),
-			AssetPic:                       assetReq.GetAssetPic(),
-			AssetPurchaseDate:              assetReq.GetAssetPurchaseDate(),
-			AssetMaintenanceDate:           maintenanceDateStr,
-			AssetStatus:                    assetReq.GetAssetStatus(),
-			ClassificationAcquisitionValue: assetReq.GetClassificationAcquisitionValue(),
-			ClassificationLastBookValue:    lastBookValue,
-			PersonalResponsible:            &personalResponsible,
-			DeprecationValue:               deprecationValue,
-			OutletId:                       assetReq.GetOutletId(),
-			AreaId:                         areaOutlet.AreaId,
-			AssetImage:                     assetReq.GetAssetImage(),
-			AssetQuantityStandard:          assetReq.GetAssetQuantityStandard(),
-			AssetQuantity:                  assetReq.GetAssetQuantity(),
-		}
+        personalResponsible := assetReq.PersonalResponsible
 
-		// Generate hash for AssetId
-		assetIdStr := fmt.Sprintf("%d", newAsset.AssetId)
-		hash, err := bcrypt.GenerateFromPassword([]byte(assetIdStr), bcrypt.DefaultCost)
-		if err != nil {
-			errorsList = append(errorsList, fmt.Sprintf("Failed to generate hash for asset: %s", newAsset.AssetName))
-			continue
-		}
-		newAsset.AssetIdHash = string(hash)
+        newAsset := Asset{
+            AssetId:                        lastAssetId + 1,
+            AssetName:                      assetReq.GetAssetName(),
+            AssetBrand:                     assetReq.GetAssetBrand(),
+            AssetSpecification:             assetReq.GetAssetSpecification(),
+            AssetClassification:            assetReq.GetAssetClassification(),
+            AssetCondition:                 assetReq.GetAssetCondition(),
+            AssetPic:                       assetReq.GetAssetPic(),
+            AssetPurchaseDate:              assetReq.GetAssetPurchaseDate(),
+            AssetMaintenanceDate:           maintenanceDateStr,
+            AssetStatus:                    assetReq.GetAssetStatus(),
+            ClassificationAcquisitionValue: assetReq.GetClassificationAcquisitionValue(),
+            ClassificationLastBookValue:    lastBookValue,
+            PersonalResponsible:            &personalResponsible,
+            DeprecationValue:               deprecationValue,
+            OutletId:                       assetReq.GetOutletId(),
+            AreaId:                         areaOutlet.AreaId,
+			IdAssetNaming:                  assetReq.IdAssetNaming,
+            AssetImage:                     assetReq.GetAssetImage(),
+            AssetQuantityStandard:          assetReq.GetAssetQuantityStandard(),
+            AssetQuantity:                  assetReq.GetAssetQuantity(),
+        }
 
-		if err := db.Create(&newAsset).Error; err != nil {
-			errorsList = append(errorsList, fmt.Sprintf("Failed to create asset: %s", newAsset.AssetName))
-			continue
-		}
+        // Generate hash for AssetId
+        assetIdStr := fmt.Sprintf("%d", newAsset.AssetId)
+        hash, err := bcrypt.GenerateFromPassword([]byte(assetIdStr), bcrypt.DefaultCost)
+        if err != nil {
+            errorsList = append(errorsList, fmt.Sprintf("Failed to generate hash for asset: %s", newAsset.AssetName))
+            continue
+        }
+        newAsset.AssetIdHash = string(hash)
 
-		lastAssetId++
-		createdAssets = append(createdAssets, newAsset)
-	}
+        if err := db.Create(&newAsset).Error; err != nil {
+            errorsList = append(errorsList, fmt.Sprintf("Failed to create asset: %s", newAsset.AssetName))
+            continue
+        }
 
-	// Jika ada error, tampilkan pesan partial success
-	if len(errorsList) > 0 {
-		return &assetpb.CreateAssetResponse{
-			Message: fmt.Sprintf("Partial success: %d assets created, but errors occurred: %s", len(createdAssets), strings.Join(errorsList, "; ")),
-			Code:    "206", // HTTP 206: Partial Content
-			Success: len(createdAssets) > 0,
-		}, nil
-	}
+        lastAssetId++
+        createdAssets = append(createdAssets, newAsset)
+    }
 
-	return &assetpb.CreateAssetResponse{
-		Message: fmt.Sprintf("%d assets successfully created", len(createdAssets)),
-		Code:    "200",
-		Success: true,
-	}, nil
+    // Jika ada error, tampilkan pesan partial success
+    if len(errorsList) > 0 {
+        return &assetpb.CreateAssetResponse{
+            Message: fmt.Sprintf("Partial success: %d assets created, but errors occurred: %s", len(createdAssets), strings.Join(errorsList, "; ")),
+            Code:    "206", // HTTP 206: Partial Content
+            Success: len(createdAssets) > 0,
+        }, nil
+    }
+
+    return &assetpb.CreateAssetResponse{
+        Message: fmt.Sprintf("%d assets successfully created", len(createdAssets)),
+        Code:    "200",
+        Success: true,
+    }, nil
 }
 
 func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAssetRequest) (*assetpb.DeleteAssetResponse, error) {

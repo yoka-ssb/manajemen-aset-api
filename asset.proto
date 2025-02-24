@@ -115,7 +115,7 @@ message Asset {
     string maintenance_period_name = 27;
     int32 asset_quantity = 28;
     int32 asset_quantity_standard = 29;
-    int32 asset_naming_id = 30;
+    int32 id_asset_naming = 30;
     
 }
 message CreateAssetRequest {
