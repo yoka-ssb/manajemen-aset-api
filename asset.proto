@@ -115,6 +115,7 @@ message Asset {
     string maintenance_period_name = 27;
     int32 asset_quantity = 28;
     int32 asset_quantity_standard = 29;
+    int32 asset_naming_id = 30;
     
 }
 message CreateAssetRequest {
@@ -637,6 +638,21 @@ message ListSubmissionParentsRequest {
     string nip = 4;
 }
 
+message MstAsset {
+    string asset_naming = 1;
+    int32 classification_id = 2;
+}
+
+message ListMstAssetsRequest {
+    int32 offset = 1;
+    int32 limit = 2;
+}
+
+message ListMstAssetsResponse {
+    repeated MstAsset data = 1;
+    int32 total_count = 2;
+}
+
 // All Services
 service SUBMISSIONService {
     rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
@@ -840,6 +856,11 @@ service ASSETService {
             body: "*"
         };
     };
+    rpc ListMstAssets(ListMstAssetsRequest) returns (ListMstAssetsResponse) {
+        option (google.api.http) = {
+            get: "/api/mstAssets";
+        };
+    }
     rpc GetAsset(GetAssetRequest) returns (GetAssetResponse){
         option (google.api.http) = {
             get: "/api/assets/{id}"

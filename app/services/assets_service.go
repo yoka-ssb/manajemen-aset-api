@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +26,15 @@ import (
 type AssetService struct {
 	MasterService
 	assetpb.UnimplementedASSETServiceServer
+}
+
+type MstAssetService struct {
+	DB *gorm.DB
+}
+
+type MstAsset struct {
+	AssetNaming      string `json:"asset_naming"`
+	ClassificationId int32  `json:"classification_id"`
 }
 
 type AreaOutlet struct {
@@ -50,9 +61,9 @@ type Asset struct {
 	DeprecationValue               int32   `json:"deprecation_value,omitempty"`
 	OutletId                       int32   `json:"outlet_id,omitempty"`
 	AreaId                         int32   `json:"area_id,omitempty"`
-	// IdAssetNaming                  int32   `json:"id_asset_naming,omitempty"`
-	AssetQuantity         int32 `json:"asset_quantity,omitempty"`
-	AssetQuantityStandard int32 `json:"asset_quantity_standard,omitempty"`
+	IdAssetNaming                  int32   `json:"id_asset_naming,omitempty"`
+	AssetQuantity                  int32   `json:"asset_quantity,omitempty"`
+	AssetQuantityStandard          int32   `json:"asset_quantity_standard,omitempty"`
 }
 
 func NewAssetService(db *gorm.DB) *AssetService {
@@ -173,7 +184,7 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 }
 
 func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAssetRequest) (*assetpb.DeleteAssetResponse, error) {
-	log.Default().Println("deleting item with ID: ", req.GetId())
+	log.Info().Msgf("deleting item with ID: %d", req.GetId())
 
 	result := db.Delete(&assetpb.Asset{}, req.GetId())
 	if result.Error != nil {
@@ -186,7 +197,7 @@ func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAsset
 }
 
 func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAssetRequest) (*assetpb.UpdateAssetResponse, error) {
-	log.Default().Println("updating item")
+	log.Info().Msg("updating item")
 
 	updates := map[string]interface{}{
 		"AssetName":                      req.GetAssetName(),
@@ -221,7 +232,7 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAsset
 }
 
 func (s *AssetService) UpdateAssetStatus(ctx context.Context, req *assetpb.UpdateAssetStatusRequest) (*assetpb.UpdateAssetStatusResponse, error) {
-	log.Default().Println("updating item")
+	log.Info().Msg("updating item")
 
 	// Get asset by id
 	asset, err := s.GetAsset(ctx, &assetpb.GetAssetRequest{Id: req.GetId()})
@@ -349,7 +360,7 @@ func (s *AssetService) ListAssetsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRequest) (*assetpb.ListAssetsResponse, error) {
-	log.Default().Println("Listing assets")
+	log.Info().Msg("Listing assets")
 
 	pageNumber := req.GetPageNumber()
 	pageSize := req.GetPageSize()
@@ -364,13 +375,13 @@ func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRe
 
 	assets, err := getAssets(int(offset), int(limit), q, userRoleID, userOutletID, userAreaID, classification)
 	if err != nil {
-		log.Default().Println("Error fetching assets:", err)
+		log.Info().Err(err).Msg("Error fetching assets")
 		return nil, err
 	}
 
 	assetTotal, err := getAssets(0, 0, q, userRoleID, userOutletID, userAreaID, classification)
 	if err != nil {
-		log.Default().Println("Error fetching total count of assets:", err)
+		log.Error().Msg("Error fetching total count of assets: " + err.Error())
 		return nil, err
 	}
 	totalCount := int32(len(assetTotal))
@@ -447,7 +458,7 @@ func GetAssetById(id int32) (*assetpb.Asset, error) {
 
 	result := query.First(&asset)
 	if result.Error != nil {
-		log.Println("Error:", result.Error)
+		log.Error().Msg("Error: " + result.Error.Error())
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "Asset not found")
 		} else {
@@ -458,7 +469,7 @@ func GetAssetById(id int32) (*assetpb.Asset, error) {
 }
 
 func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetRequest) (*assetpb.GetAssetResponse, error) {
-	log.Default().Println("getting asset with ID: ", req.GetId())
+	log.Info().Msgf("getting asset with ID: %d", req.GetId())
 	var asset assetpb.Asset
 
 	query := db.Select("assets.*, maintenance_periods.period_name AS maintenance_period_name, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
@@ -471,7 +482,7 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 
 	result := query.First(&asset)
 	if result.Error != nil {
-		log.Println("Error:", result.Error)
+		log.Error().Msg("Error: " + result.Error.Error())
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "Asset not found")
 		} else {
@@ -486,7 +497,7 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 }
 
 func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAssetByHashRequest) (*assetpb.GetAssetByHashResponse, error) {
-	log.Default().Println("getting asset by hash ID: ", req.GetHashId())
+	log.Info().Msg("getting asset by hash ID: " + req.GetHashId())
 	var asset assetpb.Asset
 
 	query := db.Select("assets.*, areas.area_name AS area_name, outlets.outlet_name AS outlet_name, roles.role_name AS asset_pic_name, classifications.classification_name AS asset_classification_name, EXTRACT(MONTH FROM AGE(CURRENT_DATE, assets.asset_purchase_date)) AS asset_age").
@@ -498,7 +509,7 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 
 	result := query.First(&asset)
 	if result.Error != nil {
-		log.Println("Error:", result.Error)
+		log.Error().Msg("Error: " + result.Error.Error())
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "Asset not found")
 		} else {
@@ -509,4 +520,84 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 		Data:    &asset,
 		Code:    "200",
 		Message: "Successfully getting asset by hash ID"}, nil
+}
+
+func GetMstAssets(db *gorm.DB, offset, limit int32) ([]*MstAsset, error) {
+	var mstAssets []*MstAsset
+	query := db.Table("mst_assets").
+		Select("asset_naming, classification_id").
+		Offset(int(offset)).
+		Order("asset_naming ASC")
+
+	if limit > 0 {
+		query = query.Limit(int(limit))
+	}
+
+	log.Info().Msgf("Executing query with offset: %d, limit: %d", offset, limit)
+
+	result := query.Find(&mstAssets)
+	if result.Error != nil {
+		log.Error().Err(result.Error).Msg("Error executing query")
+		return nil, result.Error
+	}
+
+	log.Info().Msgf("Query executed successfully, found %d assets", len(mstAssets))
+
+	return mstAssets, nil
+}
+
+func (s *AssetService) ListMstAssets(ctx context.Context, req *assetpb.ListMstAssetsRequest) (*assetpb.ListMstAssetsResponse, error) {
+	mstAssets, err := GetMstAssets(s.DB, req.Offset, req.Limit)
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching assets")
+		return nil, err
+	}
+
+	var mstAssetProtos []*assetpb.MstAsset
+	for _, asset := range mstAssets {
+		mstAssetProtos = append(mstAssetProtos, &assetpb.MstAsset{
+			AssetNaming:      asset.AssetNaming,
+			ClassificationId: asset.ClassificationId,
+		})
+	}
+
+	resp := &assetpb.ListMstAssetsResponse{
+		Data:       mstAssetProtos,
+		TotalCount: int32(len(mstAssets)),
+	}
+
+	return resp, nil
+}
+
+func (s *AssetService) ListMstAssetsHandler(c *gin.Context) {
+	offsetParam := c.DefaultQuery("offset", "0")
+	limitParam := c.DefaultQuery("limit", "0")
+
+	offset, err := strconv.Atoi(offsetParam)
+	if err != nil {
+		log.Error().Err(err).Msg("Invalid offset")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+		return
+	}
+
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		log.Error().Err(err).Msg("Invalid limit")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+
+	req := &assetpb.ListMstAssetsRequest{
+		Offset: int32(offset),
+		Limit:  int32(limit),
+	}
+
+	resp, err := s.ListMstAssets(context.Background(), req)
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching assets")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
