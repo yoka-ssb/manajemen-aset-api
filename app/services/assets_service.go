@@ -62,7 +62,7 @@ type Asset struct {
 	DeprecationValue               int32   `json:"deprecation_value,omitempty"`
 	OutletId                       int32   `json:"outlet_id,omitempty"`
 	AreaId                         int32   `json:"area_id,omitempty"`
-	IdAssetNaming                  int32   `json:"id_asset_naming,omitempty"`
+	IdAssetNaming                  *int32   `json:"id_asset_naming,omitempty"`
 	AssetQuantity                  int32   `json:"asset_quantity,omitempty"`
 	AssetQuantityStandard          int32   `json:"asset_quantity_standard,omitempty"`
 }
@@ -76,6 +76,7 @@ func (s *AssetService) Register(server interface{}) {
 	grpcServer := server.(grpc.ServiceRegistrar)
 	assetpb.RegisterASSETServiceServer(grpcServer, s)
 }
+
 func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAssetRequest) (*assetpb.CreateAssetResponse, error) {
     var createdAssets []Asset
     var errorsList []string
@@ -126,11 +127,13 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
             continue
         }
 
-        // Check if id_asset_naming exists in the reference table
-        var mstAsset MstAsset
-		if err := db.Where("id_asset_naming = ?", assetReq.IdAssetNaming).First(&mstAsset).Error; err != nil {
-            errorsList = append(errorsList, fmt.Sprintf("Invalid id_asset_naming for asset %s", assetReq.GetAssetName()))
-            continue
+        // Check if id_asset_naming exists in the reference table if provided
+        if assetReq.IdAssetNaming != 0 {
+            var mstAsset MstAsset
+            if err := db.Where("id_asset_naming = ?", assetReq.GetIdAssetNaming()).First(&mstAsset).Error; err != nil {
+                errorsList = append(errorsList, fmt.Sprintf("Invalid id_asset_naming for asset %s", assetReq.GetAssetName()))
+                continue
+            }
         }
 
         personalResponsible := assetReq.PersonalResponsible
@@ -152,7 +155,7 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
             DeprecationValue:               deprecationValue,
             OutletId:                       assetReq.GetOutletId(),
             AreaId:                         areaOutlet.AreaId,
-			IdAssetNaming:                  assetReq.IdAssetNaming,
+			IdAssetNaming:                  &assetReq.IdAssetNaming, 
             AssetImage:                     assetReq.GetAssetImage(),
             AssetQuantityStandard:          assetReq.GetAssetQuantityStandard(),
             AssetQuantity:                  assetReq.GetAssetQuantity(),
@@ -190,19 +193,6 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
         Code:    "200",
         Success: true,
     }, nil
-}
-
-func (s *AssetService) DeleteAsset(ctx context.Context, req *assetpb.DeleteAssetRequest) (*assetpb.DeleteAssetResponse, error) {
-	log.Info().Msgf("deleting item with ID: %d", req.GetId())
-
-	result := db.Delete(&assetpb.Asset{}, req.GetId())
-	if result.Error != nil {
-		return nil, status.Error(codes.Internal, "Failed to delete asset: "+result.Error.Error())
-	}
-	return &assetpb.DeleteAssetResponse{
-		Message: "Successfully deleting asset",
-		Code:    "200",
-		Success: true}, nil
 }
 
 func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAssetRequest) (*assetpb.UpdateAssetResponse, error) {
