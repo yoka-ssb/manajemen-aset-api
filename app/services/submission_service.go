@@ -619,7 +619,7 @@ func (s *SubmissionService) updateSubmissionsWithParentID(submissionParentId int
 
 	return nil
 }
-func GetSubmissionParents(offset, limit int32, q string, nip string) ([]*SubmissionParents, error) {
+func GetSubmissionParents(offset, limit int32, q, nip string, roleID int, areaID, outletID int) ([]*SubmissionParents, error) {
     var submissionParents []*SubmissionParents
     query := db.Table("submission_parents").
         Select("submission_parents.submission_parent_id, submission_parents.nip, submission_parents.created_at, outlets.outlet_name, areas.area_name").
@@ -636,7 +636,15 @@ func GetSubmissionParents(offset, limit int32, q string, nip string) ([]*Submiss
         query = query.Where("submission_parents.nip = ?", nip)
     }
 
-    log.Info().Msgf("Executing query with parameters - q: %s, nip: %s, offset: %d, limit: %d", q, nip, offset, limit)
+    // Filter berdasarkan role_id
+    switch roleID {
+    case 5:
+        query = query.Where("submission_parents.area_id = ?", areaID)
+    case 6:
+        query = query.Where("submission_parents.outlet_id = ?", outletID)
+    }
+
+    log.Info().Msgf("Executing query with parameters - q: %s, nip: %s, roleID: %d, offset: %d, limit: %d", q, nip, roleID, offset, limit)
 
     result := query.Find(&submissionParents)
     if result.Error != nil {
@@ -644,7 +652,7 @@ func GetSubmissionParents(offset, limit int32, q string, nip string) ([]*Submiss
         return nil, result.Error
     }
 
-    // Format created_at as string
+    // Format created_at sebagai string
     for _, sp := range submissionParents {
         createdAt, err := time.Parse("2006-01-02 15:04:05", sp.CreatedAt)
         if err == nil {
@@ -658,6 +666,7 @@ func GetSubmissionParents(offset, limit int32, q string, nip string) ([]*Submiss
 }
 
 func (s *SubmissionService) ListSubmissionParents(ctx context.Context, req *assetpb.ListSubmissionParentsRequest) (*assetpb.ListSubmissionParentsResponse, error) {
+	roleID, areaID, outletID := 0, 0, 0 // Set default values or fetch from context if needed
     log.Info().Msg("Listing submission parents")
 
     pageNumber := req.GetPageNumber()
@@ -668,13 +677,13 @@ func (s *SubmissionService) ListSubmissionParents(ctx context.Context, req *asse
     offset := (pageNumber - 1) * pageSize
     limit := pageSize
 
-    submissionParents, err := GetSubmissionParents(offset, limit, q, nip)
+    submissionParents, err := GetSubmissionParents(offset, limit, q, nip, roleID, areaID, outletID)
     if err != nil {
         log.Error().Err(err).Msg("Error fetching submission parents")
         return nil, err
     }
 
-    totalCount, err := s.GetSubmissionParentsTotalCount(q, nip)
+    totalCount, err := s.GetSubmissionParentsTotalCount(q, nip, roleID, areaID, outletID)
     if err != nil {
         log.Error().Err(err).Msg("Error fetching total count")
         return nil, err
@@ -706,8 +715,7 @@ func (s *SubmissionService) ListSubmissionParents(ctx context.Context, req *asse
 
     return resp, nil
 }
-
-func (s *SubmissionService) GetSubmissionParentsTotalCount(q string, nip string) (int32, error) {
+func (s *SubmissionService) GetSubmissionParentsTotalCount(q string, nip string, roleID, areaID, outletID int) (int32, error) {
 	var count int64
 	query := db.Model(&SubmissionParents{})
 
@@ -717,6 +725,14 @@ func (s *SubmissionService) GetSubmissionParentsTotalCount(q string, nip string)
 	if nip != "" {
 		query = query.Where("nip = ?", nip)
 	}
+
+    // Filter berdasarkan role_id
+    switch roleID {
+    case 5:
+        query = query.Where("area_id = ?", areaID)
+    case 6:
+        query = query.Where("outlet_id = ?", outletID)
+    }
 
 	err := query.Count(&count).Error
 	if err != nil {
@@ -743,6 +759,11 @@ func (s *SubmissionService) ListSubmissionParentsHandler(c *gin.Context) {
 		return
 	}
 
+	// Ambil role_id, area_id, dan outlet_id dari user yang login (misal dari JWT atau session)
+	roleID, _ := strconv.Atoi(c.GetHeader("role_id"))
+	areaID, _ := strconv.Atoi(c.GetHeader("area_id"))
+	outletID, _ := strconv.Atoi(c.GetHeader("outlet_id"))
+
 	req := &assetpb.ListSubmissionParentsRequest{
 		PageNumber: int32(pageNumber),
 		PageSize:   int32(pageSize),
@@ -750,7 +771,7 @@ func (s *SubmissionService) ListSubmissionParentsHandler(c *gin.Context) {
 		Nip:        nip,
 	}
 
-	log.Info().Msgf("ListSubmissionParentsHandler called with parameters - pageNumber: %d, pageSize: %d, q: %s, nip: %s", pageNumber, pageSize, q, nip)
+	log.Info().Msgf("ListSubmissionParentsHandler called with parameters - pageNumber: %d, pageSize: %d, q: %s, nip: %s, roleID: %d, areaID: %d, outletID: %d", pageNumber, pageSize, q, nip, roleID, areaID, outletID)
 
 	resp, err := s.ListSubmissionParents(context.Background(), req)
 	if err != nil {

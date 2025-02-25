@@ -636,6 +636,7 @@ message ListSubmissionParentsRequest {
     int32 page_size = 2;
     string q = 3;
     string nip = 4;
+    int32 role_id = 5;
 }
 
 message MstAsset {
