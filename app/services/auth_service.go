@@ -5,7 +5,7 @@ import (
 	"asset-management-api/app/utils"
 	"asset-management-api/assetpb"
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 
@@ -77,7 +77,7 @@ func (s *AuthService) GetToken(tokenString string) *string {
 }
 
 func (s *AuthService) Login(ctx context.Context, req *assetpb.LoginRequest) (*assetpb.LoginResponse, error) {
-	log.Default().Println("Logging in")
+	log.Info().Msg("Logging in")
 
 	// Getting user by nip
 	var user assetpb.User
@@ -110,7 +110,7 @@ func (s *AuthService) Login(ctx context.Context, req *assetpb.LoginRequest) (*as
 }
 
 func (s *AuthService) Logout(ctx context.Context, req *assetpb.LogoutRequest) (*assetpb.LogoutResponse, error) {
-	log.Default().Println("Logging out")
+	log.Info().Msg("Logging Out")
 
 	// Delete token
 	err := s.deleteToken(req.Token)
@@ -136,8 +136,8 @@ func deleteExpiredTokens(db *gorm.DB) {
 	// Delete tokens older than the expiration time
 	result := db.Where("created_at < ?", expirationTime).Delete(&assetpb.TokenStore{})
 	if result.Error != nil {
-		log.Println("Error deleting expired tokens:", result.Error)
+		log.Error().Err(result.Error).Msg("Failed to update submission status")
 	} else {
-		log.Println("Deleted expired tokens:", result.RowsAffected)
+		log.Info().Int64("rowsAffected", result.RowsAffected).Msg("Deleted expired tokens")
 	}
 }

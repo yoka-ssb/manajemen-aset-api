@@ -3,7 +3,7 @@ package services
 import (
 	"asset-management-api/assetpb"
 	"context"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
@@ -25,7 +25,7 @@ func (s *MaintenancePeriodService) Register(server interface{}) {
 }
 
 func (s *MaintenancePeriodService) ListMaintenancePeriod(ctx context.Context, req *assetpb.ListMaintenancePeriodRequest) (*assetpb.ListMaintenancePeriodResponse, error) {
-	log.Default().Println("List maintenance period")
+	log.Info().Msg("List maintenance period")
 	var maintenancePeriods []*assetpb.MaintenancePeriod
 	result := db.Find(&maintenancePeriods)
 	if result.Error != nil {
@@ -43,7 +43,7 @@ func (s *MaintenancePeriodService) ListMaintenancePeriod(ctx context.Context, re
 }
 
 func (s *MaintenancePeriodService) CreateMaintenancePeriod(ctx context.Context, req *assetpb.CreateMaintenancePeriodRequest) (*assetpb.CreateMaintenancePeriodResponse, error) {
-	log.Default().Println("Create maintenance period")
+	log.Info().Msg("Create maintenance period")
 
 	maintenancePeriod := map[string]interface{}{
 		"PeriodName": req.GetPeriodName(),
