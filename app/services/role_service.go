@@ -1,44 +1,60 @@
 package services
 
 import (
-	"asset-management-api/assetpb"
-	"context"
-	"log"
+    "asset-management-api/assetpb"
+    "context"
 
-	"google.golang.org/grpc"
-	"gorm.io/gorm"
+    "github.com/jackc/pgx/v5/pgxpool"
+    "github.com/rs/zerolog/log"
+    "google.golang.org/grpc"
 )
 
 type RoleService struct {
-	MasterService
-	assetpb.UnimplementedROLEServiceServer
+    MasterService
+    assetpb.UnimplementedROLEServiceServer
+    DB *pgxpool.Pool
 }
 
-func NewRoleService(db *gorm.DB) *RoleService {
-	return &RoleService{
-		MasterService: MasterService{DB: db}}
+func NewRoleService(db *pgxpool.Pool) *RoleService {
+    return &RoleService{
+        MasterService: MasterService{},
+        DB:            db,
+    }
 }
 
 func (s *RoleService) Register(server interface{}) {
-	grpcServer := server.(grpc.ServiceRegistrar)
-	assetpb.RegisterROLEServiceServer(grpcServer, s)
+    grpcServer := server.(grpc.ServiceRegistrar)
+    assetpb.RegisterROLEServiceServer(grpcServer, s)
 }
 
 func (s *RoleService) ListRole(ctx context.Context, req *assetpb.ListRoleRequest) (*assetpb.ListRoleResponse, error) {
-	log.Default().Println("List role")
-	
-	var roles []*assetpb.Role
-	result := db.Find(&roles)
-	if result.Error != nil {
-		return &assetpb.ListRoleResponse{
-			Data : nil,
-			Message: "Error fetching data",
-			Code: "500",
-			}, nil
-	}
-	return &assetpb.ListRoleResponse{
-		Data: roles,
-		Message: "Success",
-		Code: "200",
-		}, nil
+    log.Info().Msg("List role")
+    
+    query := "SELECT role_id, role_name FROM roles"
+    rows, err := s.DB.Query(ctx, query)
+    if err != nil {
+        log.Error().Err(err).Msg("Error fetching data")
+        return &assetpb.ListRoleResponse{
+            Data:    nil,
+            Message: "Error fetching data",
+            Code:    "500",
+        }, nil
+    }
+    defer rows.Close()
+
+    var roles []*assetpb.Role
+    for rows.Next() {
+        var role assetpb.Role
+        if err := rows.Scan(&role.RoleId, &role.RoleName); err != nil {
+            log.Error().Err(err).Msg("Error scanning row")
+            continue
+        }
+        roles = append(roles, &role)
+    }
+
+    return &assetpb.ListRoleResponse{
+        Data:    roles,
+        Message: "Success",
+        Code:    "200",
+    }, nil
 }

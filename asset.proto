@@ -17,6 +17,7 @@ message Notification {
     int32 area_id = 5;
     string maintenance_or_submitted = 6;
     string status = 7;
+    int32 submission_id = 8;
 }
 
 message InsertNotificationRequest {
@@ -115,6 +116,7 @@ message Asset {
     string maintenance_period_name = 27;
     int32 asset_quantity = 28;
     int32 asset_quantity_standard = 29;
+    int32 id_asset_naming = 30;
     
 }
 message CreateAssetRequest {
@@ -635,6 +637,23 @@ message ListSubmissionParentsRequest {
     int32 page_size = 2;
     string q = 3;
     string nip = 4;
+    int32 role_id = 5;
+}
+
+message MstAsset {
+    int32 id_asset_naming = 1;
+    string asset_naming = 2;
+    int32 classification_id = 3;
+}
+
+message ListMstAssetsRequest {
+    int32 offset = 1;
+    int32 limit = 2;
+}
+
+message ListMstAssetsResponse {
+    repeated MstAsset data = 1;
+    int32 total_count = 2;
 }
 
 // All Services
@@ -840,6 +859,11 @@ service ASSETService {
             body: "*"
         };
     };
+    rpc ListMstAssets(ListMstAssetsRequest) returns (ListMstAssetsResponse) {
+        option (google.api.http) = {
+            get: "/api/mstAssets";
+        };
+    }
     rpc GetAsset(GetAssetRequest) returns (GetAssetResponse){
         option (google.api.http) = {
             get: "/api/assets/{id}"

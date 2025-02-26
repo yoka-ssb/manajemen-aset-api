@@ -5,16 +5,19 @@ import (
 	"asset-management-api/app/utils"
 	"asset-management-api/assetpb"
 	"context"
+	"database/sql"
 	"fmt"
-	"log"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
-	"gorm.io/gorm"
 )
 
 type UserService struct {
 	MasterService
 	assetpb.UnimplementedUSERServiceServer
+	DB *pgxpool.Pool
 }
 
 type User struct {
@@ -27,9 +30,10 @@ type User struct {
 	OutletID     *int32 `json:"outlet_id"`
 }
 
-func NewUserService(db *gorm.DB) *UserService {
+func NewUserService(db *pgxpool.Pool) *UserService {
 	return &UserService{
-		MasterService: MasterService{DB: db}}
+		DB: db,
+	}
 }
 
 func (s *UserService) Register(server interface{}) {
@@ -38,14 +42,13 @@ func (s *UserService) Register(server interface{}) {
 }
 
 func (s *UserService) CreateUser(ctx context.Context, req *assetpb.CreateUserRequest) (*assetpb.CreateUserResponse, error) {
-
 	if req == nil {
 		return &assetpb.CreateUserResponse{
 			Message: "Missing request body",
 			Code:    "400",
 			Success: false}, nil
 	}
-	log.Default().Println("Creating new user")
+	log.Info().Msg("Creating new user")
 
 	hashedPassword, err := utils.HashPassword(req.GetUserPassword())
 	if err != nil {
@@ -65,17 +68,10 @@ func (s *UserService) CreateUser(ctx context.Context, req *assetpb.CreateUserReq
 		outletId = &req.OutletId
 	}
 
-	user := User{
-		Nip:          req.GetNip(),
-		UserFullName: req.GetUserFullName(),
-		UserEmail:    req.GetUserEmail(),
-		UserPassword: hashedPassword,
-		RoleID:       req.GetRoleId(),
-		AreaID:       areaId,
-		OutletID:     outletId,
-	}
+	query := `INSERT INTO users (nip, user_full_name, user_email, user_password, role_id, area_id, outlet_id) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-	err = db.Create(&user).Error
+	_, err = s.DB.Exec(ctx, query, req.GetNip(), req.GetUserFullName(), req.GetUserEmail(), hashedPassword, req.GetRoleId(), areaId, outletId)
 	if err != nil {
 		return &assetpb.CreateUserResponse{
 			Message: err.Error(),
@@ -83,56 +79,75 @@ func (s *UserService) CreateUser(ctx context.Context, req *assetpb.CreateUserReq
 			Success: false}, nil
 	}
 
-	fmt.Printf("New user ID: %d\n", user.Nip)
+	log.Info().Msgf("New user created with NIP: %d", req.GetNip())
 
 	return &assetpb.CreateUserResponse{
-		Message: "Suceccfully created user",
+		Message: "Successfully created user",
 		Code:    "200",
 		Success: true}, nil
 }
 
 func (s *UserService) GetUser(ctx context.Context, req *assetpb.GetUserRequest) (*assetpb.GetUserResponse, error) {
-	log.Default().Println("Getting user with nip: ", req.GetNip())
+	log.Info().Msgf("Getting user with nip: %d", req.GetNip())
 	var user assetpb.User
+	var areaID sql.NullInt32
+	var outletID sql.NullInt32
 
-	err := db.Select("users.*, roles.role_name AS role_name").
-		Joins("LEFT JOIN roles ON users.role_id = roles.role_id").
-		Where("nip = ?", req.GetNip()).First(&user).Error
+	query := `SELECT users.nip, users.user_full_name, users.user_email, users.role_id, users.area_id, users.outlet_id, roles.role_name 
+              FROM users 
+              LEFT JOIN roles ON users.role_id = roles.role_id 
+              WHERE users.nip = $1 LIMIT 1`
+	row := s.DB.QueryRow(ctx, query, req.GetNip())
+
+	err := row.Scan(&user.Nip, &user.UserFullName, &user.UserEmail, &user.RoleId, &areaID, &outletID, &user.RoleName)
 	if err != nil {
+		log.Error().Err(err).Msg("User not found")
 		return &assetpb.GetUserResponse{
 			Message: "User not found",
 			Code:    "400",
 			Success: false}, nil
 	}
 
+	// Convert NULL values to default values
+	if areaID.Valid {
+		user.AreaId = areaID.Int32
+	} else {
+		user.AreaId = 0
+	}
+
+	if outletID.Valid {
+		user.OutletId = outletID.Int32
+	} else {
+		user.OutletId = 0
+	}
+
 	return &assetpb.GetUserResponse{
-		Message: "Suceccfully created user",
+		Message: "Successfully fetched user",
 		Code:    "200",
 		Data:    &user,
 		Success: true,
 	}, nil
 }
-
 func (s *UserService) UpdateUser(ctx context.Context, req *assetpb.UpdateUserRequest) (*assetpb.UpdateUserResponse, error) {
-	updates := map[string]interface{}{
-		"user_full_name": req.GetUserFullName(),
-		"user_email":     req.GetUserEmail(),
-		"role_id":        req.GetRoleId(),
-	}
+	log.Info().Msgf("Updating user with nip: %d", req.GetNip())
 
-	// Tambahkan area_id hanya jika nilainya > 0
+	query := `UPDATE users SET user_full_name = $1, user_email = $2, role_id = $3`
+	params := []interface{}{req.GetUserFullName(), req.GetUserEmail(), req.GetRoleId()}
+
 	if req.GetAreaId() > 0 {
-		updates["area_id"] = req.GetAreaId()
+		query += ", area_id = $4"
+		params = append(params, req.GetAreaId())
 	}
-
-	// Tambahkan outlet_id hanya jika nilainya > 0
 	if req.GetOutletId() > 0 {
-		updates["outlet_id"] = req.GetOutletId()
+		query += ", outlet_id = $5"
+		params = append(params, req.GetOutletId())
 	}
+	query += " WHERE nip = $6"
+	params = append(params, req.GetNip())
 
-	// Lakukan pembaruan
-	err := s.DB.Model(&User{}).Where("nip = ?", req.GetNip()).Updates(updates).Error
+	_, err := s.DB.Exec(ctx, query, params...)
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to update user")
 		return &assetpb.UpdateUserResponse{
 			Message: "Failed to update user: " + err.Error(),
 			Code:    "400",
@@ -148,40 +163,89 @@ func (s *UserService) UpdateUser(ctx context.Context, req *assetpb.UpdateUserReq
 }
 
 func (s *UserService) DeleteUser(ctx context.Context, req *assetpb.DeleteUserRequest) (*assetpb.DeleteUserResponse, error) {
-	log.Default().Println("Deleting user")
-	err := db.Delete(&assetpb.User{}, req.GetNip()).Error
+	log.Info().Msg("Deleting user")
+	query := "DELETE FROM users WHERE nip = $1"
+	result, err := s.DB.Exec(ctx, query, req.GetNip())
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to delete user")
 		return &assetpb.DeleteUserResponse{Success: false}, nil
 	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		log.Warn().Msg("No user found to delete")
+		return &assetpb.DeleteUserResponse{Success: false}, nil
+	}
+
 	return &assetpb.DeleteUserResponse{Success: true}, nil
 }
 
 func (s *UserService) ListUsers(ctx context.Context, req *assetpb.ListUsersRequest) (*assetpb.ListUsersResponse, error) {
-	log.Default().Println("Listing users")
-	// Get the page number and page size from the request
+	log.Info().Msg("Listing users")
 	pageNumber := req.GetPageNumber()
 	pageSize := req.GetPageSize()
 	q := req.GetQ()
-
-	// Calculate the offset and limit for the query
 	offset := (pageNumber - 1) * pageSize
-	limit := pageSize
 
-	// Get the users from the database
-	users, err := getUsers(offset, limit, q)
+	query := `SELECT nip, user_full_name, user_email, role_id, area_id, outlet_id FROM users`
+	var params []interface{}
+
+	if q != "" {
+		query += " WHERE user_full_name LIKE $1 OR user_email LIKE $2"
+		params = append(params, "%"+q+"%", "%"+q+"%")
+	}
+
+	query += " ORDER BY nip ASC LIMIT $3 OFFSET $4"
+	params = append(params, pageSize, offset)
+
+	if q == "" {
+		query = `SELECT nip, user_full_name, user_email, role_id, area_id, outlet_id FROM users ORDER BY nip ASC LIMIT $1 OFFSET $2`
+		params = []interface{}{pageSize, offset}
+	}
+
+	rows, err := s.DB.Query(ctx, query, params...)
 	if err != nil {
-		log.Default().Println("Error fetching users:", err)
+		log.Error().Err(err).Msg("Error fetching users")
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*assetpb.User
+	for rows.Next() {
+		var user assetpb.User
+		var areaID sql.NullInt32
+		var outletID sql.NullInt32
+
+		err := rows.Scan(&user.Nip, &user.UserFullName, &user.UserEmail, &user.RoleId, &areaID, &outletID)
+
+		// Konversi nilai NULL ke default (misalnya 0)
+		if areaID.Valid {
+			user.AreaId = areaID.Int32
+		} else {
+			user.AreaId = 0 // Atur default value jika NULL
+		}
+
+		if outletID.Valid {
+			user.OutletId = outletID.Int32
+		} else {
+			user.OutletId = 0 // Atur default value jika NULL
+		}
+
+		if err != nil {
+			log.Error().Err(err).Msg("Error scanning user row")
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	var totalCount int32
+	countQuery := "SELECT COUNT(*) FROM users"
+	err = s.DB.QueryRow(ctx, countQuery).Scan(&totalCount)
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching total count")
 		return nil, err
 	}
 
-	// Get the total count of users
-	totalCount, err := GetTotalCount("users")
-	if err != nil {
-		log.Default().Println("Error fetching total count:", err)
-		return nil, err
-	}
-
-	// Create a response
 	resp := &assetpb.ListUsersResponse{
 		Data:       users,
 		TotalCount: totalCount,
@@ -189,8 +253,7 @@ func (s *UserService) ListUsers(ctx context.Context, req *assetpb.ListUsersReque
 		PageSize:   pageSize,
 	}
 
-	// Calculate the next page token
-	if totalCount > offset+limit {
+	if totalCount > offset+pageSize {
 		resp.NextPageToken = fmt.Sprintf("page_token_%d", pageNumber+1)
 	}
 
@@ -198,12 +261,15 @@ func (s *UserService) ListUsers(ctx context.Context, req *assetpb.ListUsersReque
 }
 
 func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPasswordRequest) (*assetpb.ResetPasswordResponse, error) {
-	log.Default().Println("Resetting password")
+	log.Info().Msg("Resetting password")
+
 	// Validate user
-	_, err := s.GetUser(ctx, &assetpb.GetUserRequest{Nip: req.GetNip()})
-	if err != nil {
+	var userCount int
+	err := s.DB.QueryRow(ctx, "SELECT COUNT(*) FROM users WHERE nip = $1", req.GetNip()).Scan(&userCount)
+	if err != nil || userCount == 0 {
+		log.Error().Err(err).Msg("User not found")
 		return &assetpb.ResetPasswordResponse{
-			Message: "User not foundr",
+			Message: "User not found",
 			Code:    "404",
 			Success: false}, nil
 	}
@@ -211,6 +277,7 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 	// Validate token
 	token := auth.ValidateToken(req.GetResetToken())
 	if token == nil {
+		log.Error().Msg("Invalid reset token")
 		return &assetpb.ResetPasswordResponse{
 			Message: "Invalid reset token",
 			Code:    "400",
@@ -220,6 +287,7 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 	// Hash password
 	hashedPassword, err := utils.HashPassword(req.GetUserPassword())
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to hash password")
 		return &assetpb.ResetPasswordResponse{
 			Message: "Failed to hash password",
 			Code:    "400",
@@ -227,8 +295,9 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 	}
 
 	// Reset password: update user password
-	err = db.Model(&assetpb.User{}).Where("nip = ?", req.GetNip()).Update("user_password", hashedPassword).Error
+	_, err = s.DB.Exec(ctx, "UPDATE users SET user_password = $1 WHERE nip = $2", hashedPassword, req.GetNip())
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to reset password")
 		return &assetpb.ResetPasswordResponse{
 			Message: "Failed to reset password",
 			Code:    "400",
@@ -240,25 +309,55 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 		Code:    "200",
 		Success: true}, nil
 }
-func getUsers(offset, limit int32, q string) ([]*assetpb.User, error) {
-	// Query the database to get the users
+
+func getUsers(db *pgxpool.Pool, offset, limit int32, q string) ([]*assetpb.User, error) {
 	var users []*assetpb.User
-	query := db.Select("users.*, roles.role_name AS role_name").
-		Limit(int(limit)).Offset(int(offset)).
-		Order("users.nip ASC") // Order by user_full_name in ascending order
+	var rows pgx.Rows
+	var err error
+
+	query := "SELECT users.nip, users.user_full_name, users.user_email, users.user_password, users.role_id, users.area_id, users.outlet_id, roles.role_name FROM users LEFT JOIN roles ON users.role_id = roles.role_id"
+	params := []interface{}{}
 
 	if q != "" {
-		query = query.Where("users.user_full_name LIKE ?", "%"+q+"%")
+		query += " WHERE users.user_full_name LIKE $1"
+		params = append(params, "%"+q+"%")
 	}
 
-	query = query.
-		Joins("LEFT JOIN roles ON users.role_id = roles.role_id")
+	query += " ORDER BY users.nip ASC LIMIT $2 OFFSET $3"
+	params = append(params, limit, offset)
 
-	err := query.Find(&users).Error
+	rows, err = db.Query(context.Background(), query, params...)
 	if err != nil {
-		log.Default().Println("Error fetching users:", err)
+		log.Error().Err(err).Msg("Error fetching users")
 		return nil, err
 	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var user assetpb.User
+		var areaID sql.NullInt32
+		var outletID sql.NullInt32
+
+		err := rows.Scan(&user.Nip, &user.UserFullName, &user.UserEmail, &user.UserPassword, &user.RoleId, &areaID, &outletID, &user.RoleName)
+		if err != nil {
+			log.Error().Err(err).Msg("Error scanning user row")
+			return nil, err
+		}
+
+		// Convert NULL values to default values
+		if areaID.Valid {
+			user.AreaId = areaID.Int32
+		} else {
+			user.AreaId = 0
+		}
+
+		if outletID.Valid {
+			user.OutletId = outletID.Int32
+		} else {
+			user.OutletId = 0
+		}
+
+		users = append(users, &user)
+	}
 	return users, nil
 }

@@ -3,21 +3,26 @@ package services
 import (
 	"asset-management-api/app/database"
 	"asset-management-api/assetpb"
-	"log"
+	"context"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
-	"gorm.io/gorm"
 )
 
-var db = database.DBConn()
+var db *pgxpool.Pool
+
+func init() {
+	db = database.DBConn()
+}
 
 // MasterService contains shared methods and attributes for all services.
 type MasterService struct {
-	DB *gorm.DB
+	DB *pgxpool.Pool
 	assetpb.ASSETServiceServer
 }
 
-func NewService(db *gorm.DB) *MasterService {
+func NewService(db *pgxpool.Pool) *MasterService {
 	return &MasterService{
 		DB: db,
 	}
@@ -34,11 +39,11 @@ type InterfaceService interface {
 }
 
 func GetTotalCount(table string) (int32, error) {
-	// Query the database to get the total count of users
 	var count int32
-	err := db.Raw("SELECT COUNT(*) FROM " + table + "").Scan(&count).Error
+	query := "SELECT COUNT(*) FROM " + table
+	err := db.QueryRow(context.Background(), query).Scan(&count)
 	if err != nil {
-		log.Default().Println("Error fetching total count:", err)
+		log.Error().Err(err).Msg("Error fetching total count")
 		return 0, err
 	}
 
