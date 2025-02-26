@@ -1,206 +1,141 @@
 package auth
 
 import (
-	"asset-management-api/app/database"
-	"asset-management-api/assetpb"
-	"context"
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"strings"
-	"time"
+    "asset-management-api/app/database"
+    "asset-management-api/assetpb"
+    "context"
+    "net/http"
+    "os"
+    "strings"
+    "time"
 
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
+    "github.com/dgrijalva/jwt-go"
+    "github.com/gin-gonic/gin"
+    "github.com/jackc/pgx/v5/pgxpool"
+    "github.com/rs/zerolog/log"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/codes"
+    "google.golang.org/grpc/metadata"
+    "google.golang.org/grpc/status"
 )
 
-var db = database.DBConn()
+var db *pgxpool.Pool
+
+func init() {
+    db = database.DBConn()
+}
 
 func ValidateToken(tokenString string) *string {
-	// Get token from database
-	var tokenStore assetpb.TokenStore
-	result := db.Where("token = ?", tokenString).First(&tokenStore)
-	if result.Error != nil {
-		return nil
-	}
-	
-	return &tokenStore.Token
+    var token string
+    query := "SELECT token FROM token_stores WHERE token = $1" // PostgreSQL uses $1
+    err := db.QueryRow(context.Background(), query, tokenString).Scan(&token)
+    if err != nil {
+        log.Error().Err(err).Msg("Failed to validate token")
+        return nil
+    }
+    return &token
 }
 
 func JWTAuthMiddleware(jwtSecret string, excludeMethods []string) grpc.UnaryServerInterceptor {
-
-    // Get the JWT secret from environment
     if jwtSecret == "" {
-        log.Fatal("JWT_SECRET is not set")
+        log.Fatal().Msg("JWT_SECRET is not set")
     }
 
-    // Return the actual middleware function
     return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-        // Check if the current method should be excluded
         for _, excludedMethod := range excludeMethods {
             if info.FullMethod == excludedMethod {
                 return handler(ctx, req)
             }
         }
-        
-        // Extract metadata from the incoming context
+
         md, ok := metadata.FromIncomingContext(ctx)
         if !ok {
-            return nil, fmt.Errorf("failed to extract metadata from incoming context")
+            log.Error().Msg("Failed to extract metadata from incoming context")
+            return nil, status.Error(codes.Unauthenticated, "Failed to extract metadata")
         }
 
-        // Get the token from the Authorization header
         tokenMeta := md.Get("authorization")
+        if len(tokenMeta) == 0 {
+            log.Warn().Msg("Unauthorized: token is missing")
+            return nil, status.Error(codes.Unauthenticated, "Unauthorized: token is missing")
+        }
+
         tokenString := strings.Replace(tokenMeta[0], "Bearer ", "", 1)
         if len(tokenString) == 0 {
-            return nil, fmt.Errorf("Unauthorized: token is missing")
+            log.Warn().Msg("Unauthorized: token is missing")
+            return nil, status.Error(codes.Unauthenticated, "Unauthorized: token is missing")
         }
 
-        // Find token from database
         findToken := ValidateToken(tokenString)
+        if findToken == nil {
+            log.Error().Msg("Token not found in database")
+            return nil, status.Error(codes.Unauthenticated, "Invalid token")
+        }
 
-        // Parse the token
         token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
             return []byte(jwtSecret), nil
         })
-        if err != nil || !token.Valid || findToken == nil {
-            return nil, status.Error(codes.Unauthenticated, "invalid token")
+        if err != nil || !token.Valid {
+            log.Error().Msg("Invalid token")
+            return nil, status.Error(codes.Unauthenticated, "Invalid token")
         }
-        
-        // Token is valid, proceed with the handler
+
         return handler(ctx, req)
     }
 }
 
 func GenerateJWTToken(nip int32) *string {
-    godotenv.Load(".env")
-    // Set the JWT secret key
     jwtSecret := os.Getenv("JWT_SECRET")
-
-    // Get user by NIP
-    var user assetpb.User
-    err := db.Where("nip = ?", nip).First(&user).Error
-    if err != nil {
-        fmt.Println(err)
+    if jwtSecret == "" {
+        log.Error().Msg("JWT_SECRET is not set")
         return nil
     }
 
-    // Set the token claims
-    claims := jwt.MapClaims{
-        "sub": nip,
-        "name": user.UserFullName,
-        "role_id": user.RoleId,
-        "outlet_id": user.OutletId,
-		"area_id" : user.AreaId,
-        "exp": time.Now().Add(time.Hour * 72).Unix(),
+    var user assetpb.User
+    query := "SELECT user_full_name, role_id, outlet_id, area_id FROM users WHERE nip = $1"
+    err := db.QueryRow(context.Background(), query, nip).Scan(&user.UserFullName, &user.RoleId, &user.OutletId, &user.AreaId)
+    if err != nil {
+        log.Error().Err(err).Msg("Failed to fetch user data")
+        return nil
     }
 
-    // Generate the token
+    claims := jwt.MapClaims{
+        "sub":       nip,
+        "name":      user.UserFullName,
+        "role_id":   user.RoleId,
+        "outlet_id": user.OutletId,
+        "area_id":   user.AreaId,
+        "exp":       time.Now().Add(time.Hour * 72).Unix(),
+    }
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
     tokenString, err := token.SignedString([]byte(jwtSecret))
     if err != nil {
-        fmt.Println(err)
+        log.Error().Err(err).Msg("Failed to generate JWT token")
         return nil
     }
 
-    fmt.Println("generated token:", tokenString)
-
+    log.Info().Str("token", tokenString).Msg("Generated JWT token")
     return &tokenString
 }
 
-// APIKeyMiddleware is a middleware that checks for the presence of a valid API key
 func APIKeyMiddleware(apiKeys map[string]bool) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		apiKey := c.GetHeader("X-API-KEY")
-		if apiKey == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing API key"})
-			c.Abort()
-			return
-		}
+    return func(c *gin.Context) {
+        apiKey := c.GetHeader("X-API-KEY")
+        if apiKey == "" {
+            log.Warn().Msg("Missing API key")
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing API key"})
+            c.Abort()
+            return
+        }
 
-		if !apiKeys[apiKey] {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
-			c.Abort()
-			return
-		}
+        if !apiKeys[apiKey] {
+            log.Warn().Str("api_key", apiKey).Msg("Invalid API key")
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+            c.Abort()
+            return
+        }
 
-		c.Next()
-	}
+        log.Info().Str("api_key", apiKey).Msg("API key validated successfully")
+        c.Next()
+    }
 }
-
-// func ValidateAuth(request *dto.AuthRequestDto, refreshTokenString string) (*dto.AuthResponseDto, error) {
-// 	var user *models.User
-// 	var err error
-
-// 	if request != nil {
-// 		s.logger.Info("Getting user data")
-// 		user, err = s.userService.GetOneByUsername(request.Username)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		s.logger.Info("Validating user password")
-// 		if !utils.CheckPasswordHash(user.Password, request.Password) {
-// 			return nil, httperror.NewHttpError("invalid email or password", "", http.StatusBadRequest)
-// 		}
-// 	} else {
-
-// 		s.logger.Info("Validating refresh token")
-// 		authIdentity, err := s.Authorize(refreshTokenString, constants.TypeRefreshToken)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		err = s.tokenStoreService.ValidateToken(refreshTokenString)
-// 		if err != nil {
-// 			return nil, httperror.NewHttpError("invalid refresh token", "", http.StatusUnauthorized)
-// 		}
-
-// 		// Delete old token
-// 		err = s.tokenStoreService.DeleteToken(refreshTokenString)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		s.logger.Info("Getting user data")
-// 		userId, _ := strconv.Atoi(authIdentity.UserID)
-// 		user, err = s.userService.GetOneUser(userId)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
-
-// 	s.logger.Debug("User data: ", user)
-
-// 	s.logger.Info("Generating auth token")
-// 	token, err := s.CreateToken(user, constants.TypeAuthToken)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	s.logger.Info("Generating refresh token")
-// 	refreshToken, err := s.CreateToken(user, constants.TypeRefreshToken)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// store new refresh token
-// 	var tokenStore = models.TokenStore{
-// 		Token: refreshToken,
-// 	}
-// 	err = s.tokenStoreService.CreateToken(tokenStore)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &dto.AuthResponseDto{
-// 		Token:        token,
-// 		RefreshToken: refreshToken,
-// 	}, nil
-// }
