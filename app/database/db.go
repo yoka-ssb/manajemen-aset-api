@@ -36,6 +36,8 @@ func DBConn() *pgxpool.Pool {
 		log.Fatal().Err(err).Msg("Unable to parse database configuration")
 	}
 
+	config.MaxConns = 100
+
 	// Create connection pool
 	dbpool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
