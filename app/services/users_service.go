@@ -86,6 +86,7 @@ func (s *UserService) CreateUser(ctx context.Context, req *assetpb.CreateUserReq
 		Code:    "200",
 		Success: true}, nil
 }
+
 func (s *UserService) GetUser(ctx context.Context, req *assetpb.GetUserRequest) (*assetpb.GetUserResponse, error) {
 	log.Info().Msgf("Getting user with nip: %d", req.GetNip())
 	var user assetpb.User
@@ -308,6 +309,7 @@ func (s *UserService) ResetPassword(ctx context.Context, req *assetpb.ResetPassw
 		Code:    "200",
 		Success: true}, nil
 }
+
 func getUsers(db *pgxpool.Pool, offset, limit int32, q string) ([]*assetpb.User, error) {
 	var users []*assetpb.User
 	var rows pgx.Rows

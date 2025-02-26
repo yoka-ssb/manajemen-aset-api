@@ -1,156 +1,168 @@
 package services
 
 import (
-    "asset-management-api/app/auth"
-    "asset-management-api/app/utils"
-    "asset-management-api/assetpb"
-    "context"
-    "github.com/rs/zerolog/log"
-    "net/http"
-    "time"
+	"asset-management-api/app/auth"
+	"asset-management-api/app/utils"
+	"asset-management-api/assetpb"
+	"context"
+	"database/sql"
+	"errors"
+	"net/http"
+	"strconv"
+	"time"
 
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/status"
-    "gorm.io/gorm"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 )
 
-type TokenStore struct {
-    Token     string    `gorm:"primaryKey"`
-    CreatedAt time.Time `gorm:"autoCreateTime"`
-    ExpToken  time.Time `gorm:"index"`
-}
-
 type AuthService struct {
-    MasterService
-    assetpb.UnimplementedAUTHServiceServer
+	db *pgxpool.Pool
+	assetpb.UnimplementedAUTHServiceServer
 }
 
-func NewAuthService(db *gorm.DB) *AuthService {
-    authService := &AuthService{
-        MasterService: MasterService{DB: db},
-    }
-
-    // Start the background job to delete expired tokens
-    go func() {
-        for {
-            deleteExpiredTokens(db)
-            time.Sleep(24 * time.Hour) // Run the job every 24 hours
-        }
-    }()
-
-    return authService
+func NewAuthService(db *pgxpool.Pool) *AuthService {
+	return &AuthService{db: db}
 }
 
 func (s *AuthService) Register(server interface{}) {
-    grpcServer := server.(grpc.ServiceRegistrar)
-    assetpb.RegisterAUTHServiceServer(grpcServer, s)
+	grpcServer := server.(grpc.ServiceRegistrar)
+	assetpb.RegisterAUTHServiceServer(grpcServer, s)
 }
 
 func (s *AuthService) tokenStore(tokenString string) error {
-    var tokenStore TokenStore
-    // Save token to database
-    tokenStore.Token = tokenString
-    tokenStore.CreatedAt = time.Now()
-    tokenStore.ExpToken = tokenStore.CreatedAt.Add(72 * time.Hour) // Set expiration time to 3 days after creation
-    log.Info().Msgf("Storing token with ExpToken: %s", tokenStore.ExpToken)
-    err := s.DB.Create(&tokenStore).Error
-    if err != nil {
-        return err
-    }
-    return nil
+	if tokenString == "" {
+		return errors.New("invalid token: empty string")
+	}
+
+	expirationTime := time.Now().Add(72 * time.Hour) // Token expires in 3 days
+	query := `INSERT INTO token_stores (token, created_at, exp_token) VALUES ($1, NOW(), $2)`
+
+	_, err := s.db.Exec(context.Background(), query, tokenString, expirationTime)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to store token")
+		return err
+	}
+
+	log.Info().Msgf("Token stored successfully with ExpToken: %s", expirationTime)
+	return nil
 }
 
 func (s *AuthService) deleteToken(tokenString string) error {
-    // Delete token from database
-    err := s.DB.Where("token = ?", tokenString).Delete(&TokenStore{}).Error
-    if err != nil {
-        return err
-    }
-    return nil
+	query := `DELETE FROM token_stores WHERE token = $1`
+	result, err := s.db.Exec(context.Background(), query, tokenString)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to delete token")
+		return err
+	}
+
+	rowsAffected := result.RowsAffected()
+	log.Info().Msgf("Token deleted, affected rows: %d", rowsAffected)
+	return nil
 }
 
 func (s *AuthService) GetToken(tokenString string) *string {
-    // Get token from database
-    var tokenStore TokenStore
-    result := s.DB.Where("token = ?", tokenString).First(&tokenStore)
-    if result.Error != nil {
-        return nil
-    }
-    return &tokenStore.Token
+	query := `SELECT token FROM token_stores WHERE token = $1 LIMIT 1`
+	var token string
+
+	err := s.db.QueryRow(context.Background(), query, tokenString).Scan(&token)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Warn().Msg("Token not found")
+			return nil
+		}
+		log.Error().Err(err).Msg("Error retrieving token")
+		return nil
+	}
+
+	return &token
 }
 
 func (s *AuthService) Login(ctx context.Context, req *assetpb.LoginRequest) (*assetpb.LoginResponse, error) {
-    log.Info().Msg("Logging in")
+	log.Info().Msgf("Logging in user with NIP: %s", req.GetNip())
 
-    // Getting user by nip
-    var user assetpb.User
-    err := s.DB.Where("nip = ?", req.GetNip()).First(&user).Error
-    if err != nil {
-        return nil, status.Errorf(http.StatusNotFound, "User not found")
-    }
+	// Get user by NIP
+	query := `SELECT nip, user_password FROM users WHERE nip = $1 LIMIT 1`
+	var storedNIP, storedPassword string
 
-    // Verify password
-    err = utils.VerifyPassword(user.GetUserPassword(), req.GetUserPassword())
-    if err != nil {
-        return nil, status.Errorf(http.StatusBadRequest, "Invalid password")
-    }
+	err := s.db.QueryRow(context.Background(), query, req.GetNip()).Scan(&storedNIP, &storedPassword)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Warn().Msg("User not found")
+			return nil, status.Errorf(http.StatusNotFound, "User not found")
+		}
+		log.Error().Err(err).Msg("Error retrieving user")
+		return nil, status.Errorf(http.StatusInternalServerError, "Error retrieving user")
+	}
 
-    // Generate token
-    token := auth.GenerateJWTToken(user.GetNip())
+	// Verify password
+	err = utils.VerifyPassword(storedPassword, req.GetUserPassword())
+	if err != nil {
+		log.Warn().Msg("Invalid password attempt")
+		return nil, status.Errorf(http.StatusBadRequest, "Invalid password")
+	}
 
-    // Save token to database
-    err = s.tokenStore(*token)
-    if err != nil {
-        return nil, status.Errorf(http.StatusInternalServerError, "Failed to save token")
-    }
+	// Generate token
+	nipInt, err := strconv.Atoi(storedNIP)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to convert NIP to int")
+		return nil, status.Errorf(http.StatusInternalServerError, "Failed to convert NIP to int")
+	}
+	token := auth.GenerateJWTToken(int32(nipInt))
 
-    return &assetpb.LoginResponse{
-        Message: "Successfully logged in",
-        Code:    "200",
-        Token:   *token,
-        Success: true,
-    }, nil
+	if token == nil {
+		log.Error().Msg("Token generation failed")
+		return nil, status.Errorf(http.StatusInternalServerError, "Failed to generate token")
+	}
+
+	// Save token to database
+	err = s.tokenStore(*token)
+	if err != nil {
+		return nil, status.Errorf(http.StatusInternalServerError, "Failed to save token")
+	}
+
+	return &assetpb.LoginResponse{
+		Message: "Successfully logged in",
+		Code:    "200",
+		Token:   *token,
+		Success: true,
+	}, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, req *assetpb.LogoutRequest) (*assetpb.LogoutResponse, error) {
-    log.Info().Msg("Logging Out")
+	log.Info().Msgf("Logging out user with token: %s", req.Token)
 
-    // Delete token
-    err := s.deleteToken(req.Token)
-    if err != nil {
-        return &assetpb.LogoutResponse{
-            Message: "Failed to logout",
-            Code:    "400",
-            Success: false,
-        }, nil
-    }
+	// Delete token
+	err := s.deleteToken(req.Token)
+	if err != nil {
+		return &assetpb.LogoutResponse{
+			Message: "Failed to logout",
+			Code:    "400",
+			Success: false,
+		}, nil
+	}
 
-    return &assetpb.LogoutResponse{
-        Message: "Successfully logged out",
-        Code:    "200",
-        Success: true,
-    }, nil
+	return &assetpb.LogoutResponse{
+		Message: "Successfully logged out",
+		Code:    "200",
+		Success: true,
+	}, nil
 }
 
-func deleteExpiredTokens(db *gorm.DB) {
-    // Calculate the current time
-    currentTime := time.Now()
-    log.Info().Msgf("Running deleteExpiredTokens at: %s", currentTime)
+func (s *AuthService) deleteExpiredTokens() {
+	currentTime := time.Now()
+	log.Info().Msgf("Running deleteExpiredTokens at: %s", currentTime)
 
-    // Delete tokens older than the current time
-    var expiredTokens []TokenStore
-    result := db.Where("exp_token < ?", currentTime).Find(&expiredTokens)
-    if result.Error != nil {
-        log.Error().Err(result.Error).Msg("Failed to find expired tokens")
-    } else {
-        log.Info().Int64("expiredTokensCount", result.RowsAffected).Msg("Found expired tokens")
-    }
+	// Delete expired tokens
+	query := `DELETE FROM token_stores WHERE exp_token < $1`
+	result, err := s.db.Exec(context.Background(), query, currentTime)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to delete expired tokens")
+		return
+	}
 
-    // Delete the expired tokens
-    result = db.Where("exp_token < ?", currentTime).Delete(&TokenStore{})
-    if result.Error != nil {
-        log.Error().Err(result.Error).Msg("Failed to delete expired tokens")
-    } else {
-        log.Info().Int64("rowsAffected", result.RowsAffected).Msg("Deleted expired tokens")
-    }
+	rowsAffected := result.RowsAffected()
+
+	log.Info().Msgf("Deleted expired tokens, affected rows: %d", rowsAffected)
 }
