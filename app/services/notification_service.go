@@ -45,7 +45,7 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 	var assets []struct {
 		AssetId              int32
 		AssetName            string
-		AssetMaintenanceDate string
+		AssetMaintenanceDate time.Time
 		OutletId             int32
 		AreaId               int32
 	}
@@ -54,7 +54,7 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 		var asset struct {
 			AssetId              int32
 			AssetName            string
-			AssetMaintenanceDate string
+			AssetMaintenanceDate time.Time
 			OutletId             int32
 			AreaId               int32
 		}
@@ -69,15 +69,9 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 
 	// Step 2: Process assets
 	for _, asset := range assets {
-		log.Info().Msgf("Processing asset ID: %d, Name: %s, Maintenance Date: %s", asset.AssetId, asset.AssetName, asset.AssetMaintenanceDate)
+		log.Info().Msgf("Processing asset ID: %d, Name: %s, Maintenance Date: %s", asset.AssetId, asset.AssetName, asset.AssetMaintenanceDate.Format("2006-01-02"))
 
-		maintenanceDate, err := time.Parse(time.RFC3339, asset.AssetMaintenanceDate)
-		if err != nil {
-			log.Error().Err(err).Msgf("Failed to parse maintenance date for asset ID %d", asset.AssetId)
-			continue
-		}
-
-		daysUntilMaintenance := int(time.Until(maintenanceDate).Hours() / 24)
+		daysUntilMaintenance := int(time.Until(asset.AssetMaintenanceDate).Hours() / 24)
 		notificationStatus := "normal"
 		if daysUntilMaintenance < 0 {
 			notificationStatus = "late"
@@ -92,8 +86,8 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 		if errors.Is(err, sql.ErrNoRows) {
 			if notificationStatus != "normal" {
 				log.Info().Msgf("Creating notification for asset ID %d", asset.AssetId)
-				_, err := s.DB.Exec(ctx, `INSERT INTO notifications (asset_id, asset_name, outlet_id, area_id, maintenance_or_submitted, status) VALUES (?, ?, ?, ?, ?, ?)`,
-					asset.AssetId, asset.AssetName, asset.OutletId, asset.AreaId, maintenanceDate.Format("2006-01-02"), notificationStatus)
+				_, err := s.DB.Exec(ctx, `INSERT INTO notifications (asset_id, asset_name, outlet_id, area_id, maintenance_or_submitted, status) VALUES ($1, $2, $3, $4, $5, $6)`,
+					asset.AssetId, asset.AssetName, asset.OutletId, asset.AreaId, asset.AssetMaintenanceDate.Format("2006-01-02"), notificationStatus)
 				if err != nil {
 					log.Error().Err(err).Msgf("Failed to insert notification for asset ID %d", asset.AssetId)
 				}
@@ -103,14 +97,14 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 		} else {
 			if notificationStatus == "normal" {
 				log.Info().Msgf("Deleting notification for asset ID %d", asset.AssetId)
-				_, err := s.DB.Exec(ctx, `DELETE FROM notifications WHERE asset_id = ?`, asset.AssetId)
+				_, err := s.DB.Exec(ctx, `DELETE FROM notifications WHERE asset_id = $1`, asset.AssetId)
 				if err != nil {
 					log.Error().Err(err).Msgf("Failed to delete notification for asset ID %d", asset.AssetId)
 				}
 			} else {
 				log.Info().Msgf("Updating notification for asset ID %d", asset.AssetId)
-				_, err := s.DB.Exec(ctx, `UPDATE notifications SET maintenance_or_submitted = ?, status = ? WHERE asset_id = ?`,
-					maintenanceDate.Format("2006-01-02"), notificationStatus, asset.AssetId)
+				_, err := s.DB.Exec(ctx, `UPDATE notifications SET maintenance_or_submitted = $1, status = $2 WHERE asset_id = $3`,
+					asset.AssetMaintenanceDate.Format("2006-01-02"), notificationStatus, asset.AssetId)
 				if err != nil {
 					log.Error().Err(err).Msgf("Failed to update notification for asset ID %d", asset.AssetId)
 				}
@@ -128,7 +122,7 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 	defer rows.Close()
 
 	var submissions []struct {
-		SubmissionId        int32
+		SubmissionId        *int32
 		AssetId             int32
 		SubmissionAssetName string
 		OutletId            int32
@@ -137,7 +131,7 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 
 	for rows.Next() {
 		var submission struct {
-			SubmissionId        int32
+			SubmissionId        *int32
 			AssetId             int32
 			SubmissionAssetName string
 			OutletId            int32
@@ -157,11 +151,11 @@ func (s *NotificationService) InsertNotificationsForAllAssets(ctx context.Contex
 		log.Info().Msgf("Processing submission ID: %d, Asset ID: %d", submission.SubmissionId, submission.AssetId)
 
 		var existingNotificationId int
-		err = s.DB.QueryRow(ctx, `SELECT id_notification FROM notifications WHERE asset_id = ? AND status = 'submitted'`, submission.AssetId).Scan(&existingNotificationId)
+		err = s.DB.QueryRow(ctx, `SELECT id_notification FROM notifications WHERE asset_id = $1 AND status = 'submitted'`, submission.AssetId).Scan(&existingNotificationId)
 
 		if errors.Is(err, sql.ErrNoRows) {
 			log.Info().Msgf("Creating notification for submission ID %d", submission.SubmissionId)
-			_, err := s.DB.Exec(ctx, `INSERT INTO notifications (asset_id, submission_id, asset_name, outlet_id, area_id, maintenance_or_submitted, status) VALUES (?, ?, ?, ?, ?, ?, 'submitted')`,
+			_, err := s.DB.Exec(ctx, `INSERT INTO notifications (asset_id, submission_id, asset_name, outlet_id, area_id, maintenance_or_submitted, status) VALUES ($1, $2, $3, $4, $5, $6, 'submitted')`,
 				submission.AssetId, submission.SubmissionId, submission.SubmissionAssetName, submission.OutletId, submission.AreaId, time.Now().Format("2006-01-02"))
 			if err != nil {
 				log.Error().Err(err).Msgf("Failed to insert notification for submission ID %d", submission.SubmissionId)
@@ -202,7 +196,7 @@ func (s *NotificationService) GetNotification(ctx context.Context, req *assetpb.
                a.asset_name, a.outlet_id, a.area_id, a.asset_maintenance_date
         FROM notifications n
         LEFT JOIN assets a ON a.asset_id = n.asset_id
-        WHERE n.id_notification = ?
+        WHERE n.id_notification = $1
     `
 
 	var notification assetpb.Notification
@@ -256,27 +250,31 @@ func (s *NotificationService) GetListNotification(ctx context.Context, req *asse
 
 	// Query untuk mendapatkan daftar notifikasi dengan filter
 	query := `
-		SELECT id_notification, asset_id, submission_id, status, 
-			   asset_name, outlet_id, area_id, maintenance_or_submitted
-		FROM notifications
-		WHERE 1=1
-	`
+        SELECT id_notification, asset_id, submission_id, status, 
+               asset_name, outlet_id, area_id, maintenance_or_submitted
+        FROM notifications
+        WHERE 1=1
+    `
 	var params []interface{}
+	paramIndex := 1
 
 	if q != "" {
-		query += " AND asset_name LIKE ?"
+		query += fmt.Sprintf(" AND asset_name LIKE $%d", paramIndex)
 		params = append(params, "%"+q+"%")
+		paramIndex++
 	}
 
 	if roleId == 5 {
-		query += " AND area_id = ?"
+		query += fmt.Sprintf(" AND area_id = $%d", paramIndex)
 		params = append(params, areaId)
+		paramIndex++
 	} else if roleId == 6 {
-		query += " AND outlet_id = ?"
+		query += fmt.Sprintf(" AND outlet_id = $%d", paramIndex)
 		params = append(params, outletId)
+		paramIndex++
 	}
 
-	query += " LIMIT ? OFFSET ?"
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
 	params = append(params, pageSize, offset)
 
 	rows, err := s.DB.Query(ctx, query, params...)
@@ -289,27 +287,37 @@ func (s *NotificationService) GetListNotification(ctx context.Context, req *asse
 	var notifications []*assetpb.Notification
 	for rows.Next() {
 		var notif assetpb.Notification
+		var submissionId sql.NullInt32
+		var maintenanceOrSubmitted sql.NullTime
+
 		err := rows.Scan(
 			&notif.IdNotification,
 			&notif.AssetId,
-			&notif.SubmissionId,
+			&submissionId,
 			&notif.Status,
 			&notif.AssetName,
 			&notif.OutletId,
 			&notif.AreaId,
-			&notif.MaintenanceOrSubmitted,
+			&maintenanceOrSubmitted,
 		)
 		if err != nil {
 			log.Error().Err(err).Msg("Error scanning row")
 			return nil, err
 		}
+
+		if maintenanceOrSubmitted.Valid {
+			notif.MaintenanceOrSubmitted = maintenanceOrSubmitted.Time.Format("2006-01-02")
+		} else {
+			notif.MaintenanceOrSubmitted = ""
+		}
+
 		notifications = append(notifications, &notif)
 	}
 
 	// Query untuk mendapatkan total count berdasarkan status
-	totalWaiting, _ := s.GetTotalCountWithFilters("notifications", outletId, areaId, "waiting")
-	totalLate, _ := s.GetTotalCountWithFilters("notifications", outletId, areaId, "late")
-	totalSubmitted, _ := s.GetTotalCountWithFilters("notifications", outletId, areaId, "submitted")
+	totalWaiting, _ := s.GetTotalCountWithFilters("notifications", q, outletId, areaId, "waiting", roleId)
+	totalLate, _ := s.GetTotalCountWithFilters("notifications", q, outletId, areaId, "late", roleId)
+	totalSubmitted, _ := s.GetTotalCountWithFilters("notifications", q, outletId, areaId, "submitted", roleId)
 
 	totalCount := totalWaiting + totalLate + totalSubmitted
 
@@ -330,20 +338,25 @@ func (s *NotificationService) GetListNotification(ctx context.Context, req *asse
 
 	return resp, nil
 }
-
-// Fungsi untuk mendapatkan total count berdasarkan status
-func (s *NotificationService) GetTotalCountWithFilters(tableName string, outletId, areaId int32, status string) (int, error) {
-	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE status = ?", tableName)
+func (s *NotificationService) GetTotalCountWithFilters(tableName string, q string, outletId, areaId int32, status string, roleId int32) (int, error) {
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE status = $1", tableName)
 	var params []interface{}
 	params = append(params, status)
+	paramIndex := 2
 
-	if outletId != 0 {
-		query += " AND outlet_id = ?"
-		params = append(params, outletId)
+	if q != "" {
+		query += fmt.Sprintf(" AND asset_name LIKE $%d", paramIndex)
+		params = append(params, "%"+q+"%")
+		paramIndex++
 	}
-	if areaId != 0 {
-		query += " AND area_id = ?"
+	if roleId == 5 && areaId != 0 {
+		query += fmt.Sprintf(" AND area_id = $%d", paramIndex)
 		params = append(params, areaId)
+		paramIndex++
+	} else if roleId == 6 && outletId != 0 {
+		query += fmt.Sprintf(" AND outlet_id = $%d", paramIndex)
+		params = append(params, outletId)
+		paramIndex++
 	}
 
 	var count int
@@ -355,36 +368,39 @@ func (s *NotificationService) GetTotalCountWithFilters(tableName string, outletI
 
 	return count, nil
 }
-
 func (s *NotificationService) GetNotificationsFromDBWithFilters(offset, limit int, q string, outletId, areaId int32) ([]*assetpb.Notification, error) {
 	log.Info().Msg("Fetching notifications from database with filters")
 
 	query := `
-		SELECT n.id_notification, n.asset_id, n.submission_id, n.status, 
-			   n.asset_name, n.outlet_id, n.area_id, n.maintenance_or_submitted,
-			   a.asset_maintenance_date
-		FROM notifications n
-		LEFT JOIN assets a ON a.asset_id = n.asset_id
-		WHERE 1=1
-	`
+        SELECT n.id_notification, n.asset_id, n.submission_id, n.status, 
+               n.asset_name, n.outlet_id, n.area_id, n.maintenance_or_submitted,
+               a.asset_maintenance_date
+        FROM notifications n
+        LEFT JOIN assets a ON a.asset_id = n.asset_id
+        WHERE 1=1
+    `
 	var params []interface{}
+	paramIndex := 1
 
 	if q != "" {
-		query += " AND n.asset_name LIKE ?"
+		query += fmt.Sprintf(" AND n.asset_name LIKE $%d", paramIndex)
 		params = append(params, "%"+q+"%")
+		paramIndex++
 	}
 
 	if outletId != 0 {
-		query += " AND n.outlet_id = ?"
+		query += fmt.Sprintf(" AND n.outlet_id = $%d", paramIndex)
 		params = append(params, outletId)
+		paramIndex++
 	}
 
 	if areaId != 0 {
-		query += " AND n.area_id = ?"
+		query += fmt.Sprintf(" AND n.area_id = $%d", paramIndex)
 		params = append(params, areaId)
+		paramIndex++
 	}
 
-	query += " LIMIT ? OFFSET ?"
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
 	params = append(params, limit, offset)
 
 	log.Info().Msgf("Executing query: %s with params: %v", query, params)
@@ -419,17 +435,18 @@ func (s *NotificationService) GetNotificationsFromDBWithFilters(offset, limit in
 	log.Info().Msgf("Fetched %d notifications", len(notifications))
 	return notifications, nil
 }
+
 func (s *NotificationService) GetNotificationById(id int32) (*assetpb.Notification, error) {
 	log.Info().Msgf("Fetching notification with ID: %d", id)
 
 	query := `
-		SELECT n.id_notification, n.asset_id, n.submission_id, n.status, 
-			   n.asset_name, n.outlet_id, n.area_id, n.maintenance_or_submitted,
-			   a.asset_maintenance_date
-		FROM notifications n
-		LEFT JOIN assets a ON a.asset_id = n.asset_id
-		WHERE n.id_notification = ?
-	`
+        SELECT n.id_notification, n.asset_id, n.submission_id, n.status, 
+               n.asset_name, n.outlet_id, n.area_id, n.maintenance_or_submitted,
+               a.asset_maintenance_date
+        FROM notifications n
+        LEFT JOIN assets a ON a.asset_id = n.asset_id
+        WHERE n.id_notification = $1
+    `
 
 	log.Info().Msgf("Executing query: %s with param: %d", query, id)
 
