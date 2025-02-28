@@ -187,21 +187,22 @@ func (s *UserService) ListUsers(ctx context.Context, req *assetpb.ListUsersReque
 	q := req.GetQ()
 	offset := (pageNumber - 1) * pageSize
 
-	query := `SELECT nip, user_full_name, user_email, role_id, area_id, outlet_id FROM users`
+	query := `SELECT users.nip, users.user_full_name, users.user_email, 
+                     users.role_id, users.area_id, users.outlet_id, 
+                     COALESCE(roles.role_name, 'Unknown') 
+              FROM users 
+              LEFT JOIN roles ON users.role_id = roles.role_id`
 	var params []interface{}
+	paramIndex := 1
 
 	if q != "" {
-		query += " WHERE user_full_name LIKE $1 OR user_email LIKE $2"
+		query += fmt.Sprintf(" WHERE users.user_full_name LIKE $%d OR users.user_email LIKE $%d", paramIndex, paramIndex+1)
 		params = append(params, "%"+q+"%", "%"+q+"%")
+		paramIndex += 2
 	}
 
-	query += " ORDER BY nip ASC LIMIT $3 OFFSET $4"
+	query += fmt.Sprintf(" ORDER BY users.nip ASC LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
 	params = append(params, pageSize, offset)
-
-	if q == "" {
-		query = `SELECT nip, user_full_name, user_email, role_id, area_id, outlet_id FROM users ORDER BY nip ASC LIMIT $1 OFFSET $2`
-		params = []interface{}{pageSize, offset}
-	}
 
 	rows, err := s.DB.Query(ctx, query, params...)
 	if err != nil {
@@ -215,29 +216,39 @@ func (s *UserService) ListUsers(ctx context.Context, req *assetpb.ListUsersReque
 		var user assetpb.User
 		var areaID sql.NullInt32
 		var outletID sql.NullInt32
+		var roleName sql.NullString
 
-		err := rows.Scan(&user.Nip, &user.UserFullName, &user.UserEmail, &user.RoleId, &areaID, &outletID)
-
-		// Konversi nilai NULL ke default (misalnya 0)
-		if areaID.Valid {
-			user.AreaId = areaID.Int32
-		} else {
-			user.AreaId = 0 // Atur default value jika NULL
-		}
-
-		if outletID.Valid {
-			user.OutletId = outletID.Int32
-		} else {
-			user.OutletId = 0 // Atur default value jika NULL
-		}
+		err := rows.Scan(&user.Nip, &user.UserFullName, &user.UserEmail,
+			&user.RoleId, &areaID, &outletID, &roleName)
 
 		if err != nil {
 			log.Error().Err(err).Msg("Error scanning user row")
 			return nil, err
 		}
+
+		// Convert NULL values to default values
+		if areaID.Valid {
+			user.AreaId = areaID.Int32
+		} else {
+			user.AreaId = 0
+		}
+
+		if outletID.Valid {
+			user.OutletId = outletID.Int32
+		} else {
+			user.OutletId = 0
+		}
+
+		if roleName.Valid {
+			user.RoleName = roleName.String
+		} else {
+			user.RoleName = ""
+		}
+
 		users = append(users, &user)
 	}
 
+	// Hitung total data
 	var totalCount int32
 	countQuery := "SELECT COUNT(*) FROM users"
 	err = s.DB.QueryRow(ctx, countQuery).Scan(&totalCount)
@@ -315,7 +326,11 @@ func getUsers(db *pgxpool.Pool, offset, limit int32, q string) ([]*assetpb.User,
 	var rows pgx.Rows
 	var err error
 
-	query := "SELECT users.nip, users.user_full_name, users.user_email, users.user_password, users.role_id, users.area_id, users.outlet_id, roles.role_name FROM users LEFT JOIN roles ON users.role_id = roles.role_id"
+	query := `SELECT users.nip, users.user_full_name, users.user_email, users.role_id, users.area_id, users.outlet_id, roles.role_name 
+              FROM users 
+              LEFT JOIN roles ON users.role_id = roles.role_id 
+              WHERE users.nip = $1 LIMIT 1`
+
 	params := []interface{}{}
 
 	if q != "" {
@@ -338,7 +353,9 @@ func getUsers(db *pgxpool.Pool, offset, limit int32, q string) ([]*assetpb.User,
 		var areaID sql.NullInt32
 		var outletID sql.NullInt32
 
-		err := rows.Scan(&user.Nip, &user.UserFullName, &user.UserEmail, &user.UserPassword, &user.RoleId, &areaID, &outletID, &user.RoleName)
+		err := rows.Scan(&user.Nip, &user.UserFullName, &user.RoleName, &user.UserEmail, &user.UserPassword,
+			&user.RoleId, &areaID, &outletID, &user.RoleName)
+
 		if err != nil {
 			log.Error().Err(err).Msg("Error scanning user row")
 			return nil, err

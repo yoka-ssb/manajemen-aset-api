@@ -1040,17 +1040,24 @@ func (s *AssetService) ListMstAssets(ctx context.Context, req *assetpb.ListMstAs
 
 	// Raw SQL Query
 	query := `
-		SELECT id_asset_naming, asset_naming, classification_id
-		FROM mst_assets
-		ORDER BY asset_naming ASC
-		OFFSET $1
-		LIMIT $2;
-	`
+        SELECT id_asset_naming, asset_naming, classification_id
+        FROM mst_assets
+        ORDER BY asset_naming ASC
+        OFFSET $1
+    `
+	var params []interface{}
+	params = append(params, req.Offset)
+
+	// Add LIMIT clause if limit is provided and not -1
+	if req.Limit > 0 {
+		query += " LIMIT $2"
+		params = append(params, req.Limit)
+	}
 
 	logger.Debug().Str("query", query).Msg("Executing SQL query")
 
 	// Execute Query
-	rows, err := s.DB.Query(ctx, query, req.Offset, req.Limit)
+	rows, err := s.DB.Query(ctx, query, params...)
 	if err != nil {
 		logger.Error().Err(err).Msg("Error executing query")
 		return nil, err
@@ -1082,13 +1089,12 @@ func (s *AssetService) ListMstAssets(ctx context.Context, req *assetpb.ListMstAs
 	logger.Info().Int("total_assets", len(mstAssetProtos)).Msg("Successfully fetched master assets")
 	return resp, nil
 }
-
 func (s *AssetService) ListMstAssetsHandler(c *gin.Context) {
 	logger := log.With().Str("handler", "ListMstAssetsHandler").Logger()
 
 	// Ambil query parameter
 	offsetParam := c.DefaultQuery("offset", "0")
-	limitParam := c.DefaultQuery("limit", "0")
+	limitParam := c.DefaultQuery("limit", "-1") // Set default limit to -1 (no limit)
 
 	// Konversi ke integer
 	offset, err := strconv.Atoi(offsetParam)
@@ -1109,17 +1115,24 @@ func (s *AssetService) ListMstAssetsHandler(c *gin.Context) {
 
 	// Raw SQL Query
 	query := `
-		SELECT id_asset_naming, asset_naming, classification_id
-		FROM mst_assets
-		ORDER BY asset_naming ASC
-		OFFSET $1
-		LIMIT $2;
-	`
+        SELECT id_asset_naming, asset_naming, classification_id
+        FROM mst_assets
+        ORDER BY asset_naming ASC
+        OFFSET $1
+    `
+	var params []interface{}
+	params = append(params, offset)
+
+	// Add LIMIT clause if limit is provided and not -1
+	if limit > 0 {
+		query += " LIMIT $2"
+		params = append(params, limit)
+	}
 
 	logger.Debug().Str("query", query).Msg("Executing SQL query")
 
 	// Eksekusi Query
-	rows, err := s.DB.Query(context.Background(), query, offset, limit)
+	rows, err := s.DB.Query(context.Background(), query, params...)
 	if err != nil {
 		logger.Error().Err(err).Msg("Failed to fetch assets from database")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch assets"})
