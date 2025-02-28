@@ -338,6 +338,7 @@ func (s *NotificationService) GetListNotification(ctx context.Context, req *asse
 
 	return resp, nil
 }
+
 func (s *NotificationService) GetTotalCountWithFilters(tableName string, q string, outletId, areaId int32, status string, roleId int32) (int, error) {
 	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE status = $1", tableName)
 	var params []interface{}
@@ -349,11 +350,11 @@ func (s *NotificationService) GetTotalCountWithFilters(tableName string, q strin
 		params = append(params, "%"+q+"%")
 		paramIndex++
 	}
-	if roleId == 5 && areaId != 0 {
+	if roleId == RoleArea && areaId != 0 {
 		query += fmt.Sprintf(" AND area_id = $%d", paramIndex)
 		params = append(params, areaId)
 		paramIndex++
-	} else if roleId == 6 && outletId != 0 {
+	} else if roleId == RoleOutlet && outletId != 0 {
 		query += fmt.Sprintf(" AND outlet_id = $%d", paramIndex)
 		params = append(params, outletId)
 		paramIndex++

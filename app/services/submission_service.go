@@ -413,6 +413,11 @@ func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.Li
 	return resp, nil
 }
 
+const (
+	RoleArea   int32 = 5
+	RoleOutlet int32 = 6
+)
+
 func GetSubmissionTotalCount(db *pgxpool.Pool, q string, roleID int32, areaID int32, outletID int32, submissionParentID int32, parentID bool) (int32, error) {
 	query := "SELECT COUNT(*) FROM submissions WHERE 1=1"
 	var args []interface{}
@@ -423,12 +428,12 @@ func GetSubmissionTotalCount(db *pgxpool.Pool, q string, roleID int32, areaID in
 		args = append(args, "%"+q+"%")
 		argIndex++
 	}
-	if roleID == 5 && areaID != 0 {
+	if roleID == RoleArea && areaID != 0 {
 		query += fmt.Sprintf(" AND area_id = $%d", argIndex)
 		args = append(args, areaID)
 		argIndex++
 	}
-	if roleID == 6 && outletID != 0 {
+	if roleID == RoleOutlet && outletID != 0 {
 		query += fmt.Sprintf(" AND outlet_id = $%d", argIndex)
 		args = append(args, outletID)
 		argIndex++
@@ -470,7 +475,7 @@ func GetSubmissions(db *pgxpool.Pool, offset, limit int32, q string, roleID int3
 		query += " AND submissions.submission_name LIKE $1"
 		args = append(args, "%"+q+"%")
 	}
-	if roleID == 5 && areaID != 0 {
+	if roleID == RoleArea && areaID != 0 {
 		query += " AND submissions.area_id = $2"
 		args = append(args, areaID)
 	}
@@ -478,7 +483,7 @@ func GetSubmissions(db *pgxpool.Pool, offset, limit int32, q string, roleID int3
 		query += " AND submissions.outlet_id = $3"
 		args = append(args, outletID)
 	}
-	if submissionParentID != 0 {
+	if roleID == RoleOutlet && outletID != 0 {
 		query += " AND submissions.submission_parent_id = $4"
 		args = append(args, submissionParentID)
 	}
@@ -679,12 +684,12 @@ func GetSubmissionParents(db *pgxpool.Pool, offset, limit int32, q, nip string, 
 		argIndex++
 	}
 
-	switch roleID {
-	case 5:
+	switch int32(roleID) {
+	case RoleArea:
 		query += fmt.Sprintf(" AND sp.area_id = $%d", argIndex)
 		args = append(args, areaID)
 		argIndex++
-	case 6:
+	case RoleOutlet:
 		query += fmt.Sprintf(" AND sp.outlet_id = $%d", argIndex)
 		args = append(args, outletID)
 		argIndex++
@@ -815,13 +820,13 @@ func (s *SubmissionService) GetSubmissionParentsTotalCount(q string, nip string,
 		argIndex++
 	}
 
-	switch roleID {
-	case 5:
-		query += fmt.Sprintf(" AND area_id = $%d", argIndex)
+	switch int32(roleID) {
+	case RoleArea:
+		query += fmt.Sprintf(" AND sp.area_id = $%d", argIndex)
 		args = append(args, areaID)
 		argIndex++
-	case 6:
-		query += fmt.Sprintf(" AND outlet_id = $%d", argIndex)
+	case RoleOutlet:
+		query += fmt.Sprintf(" AND sp.outlet_id = $%d", argIndex)
 		args = append(args, outletID)
 		argIndex++
 	}
