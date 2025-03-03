@@ -3,12 +3,13 @@ package services
 import (
 	"asset-management-api/assetpb"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -26,26 +27,26 @@ type SubmissionService struct {
 }
 
 type Submission struct {
-	SubmissionId          int32  `json:"submission_id,omitempty"`
-	SubmissionName        string `json:"submission_name,omitempty"`
-	SubmissionOutlet      string `json:"submission_outlet,omitempty"`
-	SubmissionArea        string `json:"submission_area,omitempty"`
-	SubmissionDate        string `json:"submission_date,omitempty"`
-	SubmissionCategory    string `json:"submission_category,omitempty"`
-	SubmissionStatus      string `json:"submission_status,omitempty"`
-	SubmissionPurpose     string `json:"submission_purpose,omitempty"`
-	SubmissionQuantity    int32  `json:"submission_quantity,omitempty"`
-	SubmissionAssetName   string `json:"submission_asset_name,omitempty"`
-	SubmissionDescription string `json:"submission_description,omitempty"`
-	Nip                   int32  `json:"nip,omitempty"`
-	AssetId               int32  `json:"asset_id,omitempty"`
-	Attachment            string `json:"attachment,omitempty"`
-	SubmissionPrName      string `json:"submission_pr_name,omitempty"`
-	SubmissionRoleName    string `json:"submission_role_name,omitempty"`
-	OutletId              int32  `json:"outlet_id,omitempty"`
-	AreaId                int32  `json:"area_id,omitempty"`
-	SubmissionPrice       int32  `json:"submission_price,omitempty"`
-	SubmissionParentId    *int32 `json:"submission_parent_id,omitempty"`
+	SubmissionId          int32     `json:"submission_id,omitempty"`
+	SubmissionName        string    `json:"submission_name,omitempty"`
+	SubmissionOutlet      string    `json:"submission_outlet,omitempty"`
+	SubmissionArea        string    `json:"submission_area,omitempty"`
+	SubmissionDate        time.Time `json:"submission_date,omitempty"`
+	SubmissionCategory    string    `json:"submission_category,omitempty"`
+	SubmissionStatus      string    `json:"submission_status,omitempty"`
+	SubmissionPurpose     string    `json:"submission_purpose,omitempty"`
+	SubmissionQuantity    int32     `json:"submission_quantity,omitempty"`
+	SubmissionAssetName   string    `json:"submission_asset_name,omitempty"`
+	SubmissionDescription string    `json:"submission_description,omitempty"`
+	Nip                   int32     `json:"nip,omitempty"`
+	AssetId               int32     `json:"asset_id,omitempty"`
+	Attachment            string    `json:"attachment,omitempty"`
+	SubmissionPrName      string    `json:"submission_pr_name,omitempty"`
+	SubmissionRoleName    string    `json:"submission_role_name,omitempty"`
+	OutletId              int32     `json:"outlet_id,omitempty"`
+	AreaId                int32     `json:"area_id,omitempty"`
+	SubmissionPrice       int32     `json:"submission_price,omitempty"`
+	SubmissionParentId    *int32    `json:"submission_parent_id,omitempty"`
 }
 
 type SubmissionParents struct {
@@ -73,20 +74,21 @@ func (s *SubmissionService) Register(server interface{}) {
 func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.CreateSubmissionRequest) (*assetpb.CreateSubmissionResponse, error) {
 	log.Info().Msg("Creating submission")
 
-	query := "SELECT asset_status, asset_name, outlet_name, area_name, asset_pic_name FROM assets WHERE asset_id = $1"
+	// Correct the query to match the actual columns in the assets table
+	query := "SELECT asset_status, asset_name, personal_responsible FROM assets WHERE asset_id = $1"
 	var asset Submission
-	err := s.DB.QueryRow(ctx, query, req.AssetId).Scan(&asset.SubmissionStatus, &asset.SubmissionAssetName, &asset.SubmissionOutlet, &asset.SubmissionArea, &asset.SubmissionRoleName)
+	log.Info().Msgf("Executing query: %s with AssetId: %d", query, req.AssetId)
+	err := s.DB.QueryRow(ctx, query, req.AssetId).Scan(&asset.SubmissionStatus, &asset.SubmissionAssetName, &asset.SubmissionOutlet)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
+			log.Error().Msgf("Asset with ID %d not found", req.AssetId)
 			return nil, status.Error(codes.NotFound, "Asset not found")
 		}
+		log.Error().Err(err).Msg("Failed to get asset")
 		return nil, status.Error(codes.Internal, "Failed to get asset")
 	}
 
-	if asset.SubmissionStatus != "Baik" || asset.SubmissionAssetName != req.SubmissionAssetName ||
-		(req.SubmissionOutlet != "" && asset.SubmissionOutlet != req.SubmissionOutlet) ||
-		(req.SubmissionArea != "" && asset.SubmissionArea != req.SubmissionArea) ||
-		asset.SubmissionRoleName != req.SubmissionRoleName {
+	if asset.SubmissionStatus != "Baik" || asset.SubmissionAssetName != req.SubmissionAssetName {
 		return nil, status.Error(codes.NotFound, "Asset or related details do not match")
 	}
 
@@ -99,8 +101,10 @@ func (s *SubmissionService) CreateSubmission(ctx context.Context, req *assetpb.C
 
 	insertQuery := `INSERT INTO submissions (submission_id, submission_name, submission_outlet, outlet_id, area_id, submission_area, submission_date, submission_category, submission_status, submission_purpose, submission_asset_name, submission_quantity, submission_description, nip, asset_id, submission_pr_name, submission_role_name, attachment, submission_price) 
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`
+	log.Info().Msgf("Executing insert query: %s", insertQuery)
 	_, err = s.DB.Exec(ctx, insertQuery, lastID+1, req.SubmissionName, req.SubmissionOutlet, req.OutletId, req.AreaId, req.SubmissionArea, submissionDate, req.SubmissionCategory, req.SubmissionStatus, req.SubmissionPurpose, req.SubmissionAssetName, req.SubmissionQuantity, req.SubmissionDescription, req.Nip, req.AssetId, req.SubmissionPrName, req.SubmissionRoleName, req.Attachment, req.SubmissionPrice)
 	if err != nil {
+		log.Error().Err(err).Msg("Failed to create submission")
 		return nil, status.Error(codes.Internal, "Failed to create submission: "+err.Error())
 	}
 
@@ -200,7 +204,6 @@ func (s *SubmissionService) UpdateSubmissionStatus(ctx context.Context, req *ass
 		Success: true,
 	}, nil
 }
-
 func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.ListSubmissionsRequest) (*assetpb.ListSubmissionsResponse, error) {
 	log.Info().Msg("Listing submissions")
 
@@ -216,42 +219,191 @@ func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.Li
 	offset := (pageNumber - 1) * pageSize
 	limit := pageSize
 
-	submissionQuery := `SELECT id, name, status, created_at FROM submissions 
-		WHERE name LIKE ? AND role_id = ? AND area_id = ? AND outlet_id = ? AND submission_parent_id = ? AND parent_id = ? 
-		LIMIT ? OFFSET ?`
+	// Query with all required fields
+	query := `
+	SELECT 
+		submission_id, submission_name, submission_outlet, submission_area, created_at, 
+		submission_category, submission_status, submission_purpose, submission_quantity, 
+		submission_asset_name, submission_description, nip, asset_id, attachment, 
+		validator_id, validator_type, submission_price, submission_role_name, 
+		outlet_id, area_id, submission_pr_name, submission_parent_id
+	FROM submissions WHERE 1=1`
 
-	rows, err := s.DB.Query(ctx, submissionQuery, "%"+q+"%", roleID, areaID, outletID, submissionParentID, parentID, limit, offset)
+	var params []interface{}
+	paramIndex := 1
+
+	// Apply filters
+	if q != "" {
+		query += fmt.Sprintf(" AND submission_name ILIKE $%d", paramIndex)
+		params = append(params, "%"+q+"%")
+		paramIndex++
+	}
+	if roleID != 0 {
+		query += fmt.Sprintf(" AND role_id = $%d", paramIndex)
+		params = append(params, roleID)
+		paramIndex++
+	}
+	if areaID != 0 {
+		query += fmt.Sprintf(" AND area_id = $%d", paramIndex)
+		params = append(params, areaID)
+		paramIndex++
+	}
+	if outletID != 0 {
+		query += fmt.Sprintf(" AND outlet_id = $%d", paramIndex)
+		params = append(params, outletID)
+		paramIndex++
+	}
+	if submissionParentID != 0 {
+		query += fmt.Sprintf(" AND submission_parent_id = $%d", paramIndex)
+		params = append(params, submissionParentID)
+		paramIndex++
+	}
+	if parentID {
+		query += " AND submission_parent_id IS NOT NULL"
+	} else {
+		query += " AND submission_parent_id IS NULL"
+	}
+
+	// Order, Limit, Offset
+	query += fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", paramIndex, paramIndex+1)
+	params = append(params, limit, offset)
+
+	// Execute query
+	rows, err := s.DB.Query(ctx, query, params...)
 	if err != nil {
 		log.Error().Err(err).Msg("Error fetching submissions")
 		return nil, err
 	}
 	defer rows.Close()
 
+	// Parse query results
 	var submissions []*assetpb.Submission
 	for rows.Next() {
 		var submission assetpb.Submission
-		if err := rows.Scan(&submission.SubmissionId, &submission.SubmissionName, &submission.SubmissionDate); err != nil {
+		var createdAt time.Time
+
+		// Nullable integer fields
+		var nip sql.NullInt32
+		var assetID sql.NullInt32
+		var validatorID sql.NullInt32
+		var submissionPrice sql.NullInt32
+		var outletID sql.NullInt32
+		var areaID sql.NullInt32
+		var submissionParentID sql.NullInt32
+
+		// Nullable string fields
+		var submissionOutlet sql.NullString
+		var submissionArea sql.NullString
+		var submissionCategory sql.NullString
+		var submissionPurpose sql.NullString
+		var submissionAssetName sql.NullString
+		var submissionDescription sql.NullString
+		var attachment sql.NullString
+		var validatorType sql.NullString
+		var submissionRoleName sql.NullString
+		var submissionPrName sql.NullString
+
+		if err := rows.Scan(
+			&submission.SubmissionId,
+			&submission.SubmissionName,
+			&submissionOutlet,
+			&submissionArea,
+			&createdAt,
+			&submissionCategory,
+			&submission.SubmissionStatus,
+			&submissionPurpose,
+			&submission.SubmissionQuantity,
+			&submissionAssetName,
+			&submissionDescription,
+			&nip,
+			&assetID,
+			&attachment,
+			&validatorID,
+			&validatorType,
+			&submissionPrice,
+			&submissionRoleName,
+			&outletID,
+			&areaID,
+			&submissionPrName,
+			&submissionParentID,
+		); err != nil {
 			log.Error().Err(err).Msg("Error scanning submission row")
 			return nil, err
 		}
+
+		// Convert nullable SQL values to standard Go values
+		submission.SubmissionOutlet = submissionOutlet.String
+		submission.SubmissionArea = submissionArea.String
+		submission.SubmissionCategory = submissionCategory.String
+		submission.SubmissionPurpose = submissionPurpose.String
+		submission.SubmissionAssetName = submissionAssetName.String
+		submission.SubmissionDescription = submissionDescription.String
+		submission.Attachment = attachment.String
+		submission.ValidatorType = validatorType.String
+		submission.SubmissionRoleName = submissionRoleName.String
+		submission.SubmissionPrName = submissionPrName.String
+
+		submission.Nip = nip.Int32
+		submission.AssetId = assetID.Int32
+		submission.ValidatorId = validatorID.Int32
+		submission.SubmissionPrice = submissionPrice.Int32
+		submission.OutletId = outletID.Int32
+		submission.AreaId = areaID.Int32
+		submission.SubmissionParentId = submissionParentID.Int32
+
+		submission.SubmissionDate = createdAt.Format(time.RFC3339)
 		submissions = append(submissions, &submission)
 	}
 
-	totalCountQuery := `SELECT COUNT(*) FROM submissions WHERE name LIKE ? AND role_id = ? AND area_id = ? AND outlet_id = ? AND submission_parent_id = ? AND parent_id = ?`
+	totalCountQuery := `SELECT COUNT(*) FROM submissions WHERE 1=1`
+	var totalCountParams []interface{}
+
 	var totalCount int32
-	err = s.DB.QueryRow(ctx, totalCountQuery, "%"+q+"%", roleID, areaID, outletID, submissionParentID, parentID).Scan(&totalCount)
+	err = s.DB.QueryRow(ctx, totalCountQuery, totalCountParams...).Scan(&totalCount)
+
 	if err != nil {
 		log.Error().Err(err).Msg("Error fetching total count")
 		return nil, err
 	}
 
-	resp := &assetpb.ListSubmissionsResponse{
-		Data:       submissions,
-		TotalCount: totalCount,
-		PageNumber: pageNumber,
-		PageSize:   pageSize,
+	// Additional counts
+	totalPengabaianKondisiAset, err := GetTotalCountByCategory(s.DB, "Pengabaian Kondisi Aset")
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching total_pengabaian_kondisi_aset")
+		return nil, err
 	}
 
+	totalLaporanBarangHilang, err := GetTotalCountByCategory(s.DB, "Laporan Barang Hilang")
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching total_laporan_barang_hilang")
+		return nil, err
+	}
+
+	totalPengajuanService, err := GetTotalCountByCategory(s.DB, "Pengajuan Service")
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching total_pengajuan_service")
+		return nil, err
+	}
+
+	totalPengajuanGanti, err := GetTotalCountByCategory(s.DB, "Pengajuan Ganti")
+	if err != nil {
+		log.Error().Err(err).Msg("Error fetching total_pengajuan_ganti")
+		return nil, err
+	}
+
+	// Format response
+	resp := &assetpb.ListSubmissionsResponse{
+		Data:                       submissions,
+		TotalCount:                 totalCount,
+		PageNumber:                 pageNumber,
+		PageSize:                   pageSize,
+		TotalPengabaianKondisiAset: totalPengabaianKondisiAset,
+		TotalLaporanBarangHilang:   totalLaporanBarangHilang,
+		TotalPengajuanService:      totalPengajuanService,
+		TotalPengajuanGanti:        totalPengajuanGanti,
+	}
+
+	// Pagination handling
 	if totalCount > offset+limit {
 		resp.NextPageToken = fmt.Sprintf("%d", pageNumber+1)
 	} else {
@@ -261,25 +413,35 @@ func (s *SubmissionService) ListSubmissions(ctx context.Context, req *assetpb.Li
 	return resp, nil
 }
 
+const (
+	RoleArea   int32 = 5
+	RoleOutlet int32 = 6
+)
+
 func GetSubmissionTotalCount(db *pgxpool.Pool, q string, roleID int32, areaID int32, outletID int32, submissionParentID int32, parentID bool) (int32, error) {
 	query := "SELECT COUNT(*) FROM submissions WHERE 1=1"
 	var args []interface{}
+	argIndex := 1
 
 	if q != "" {
-		query += " AND submission_name LIKE $1"
+		query += fmt.Sprintf(" AND submission_name ILIKE $%d", argIndex)
 		args = append(args, "%"+q+"%")
+		argIndex++
 	}
-	if roleID == 5 && areaID != 0 {
-		query += " AND area_id = $2"
+	if roleID == RoleArea && areaID != 0 {
+		query += fmt.Sprintf(" AND area_id = $%d", argIndex)
 		args = append(args, areaID)
+		argIndex++
 	}
-	if roleID == 6 && outletID != 0 {
-		query += " AND outlet_id = $3"
+	if roleID == RoleOutlet && outletID != 0 {
+		query += fmt.Sprintf(" AND outlet_id = $%d", argIndex)
 		args = append(args, outletID)
+		argIndex++
 	}
 	if submissionParentID != 0 {
-		query += " AND submission_parent_id = $4"
+		query += fmt.Sprintf(" AND submission_parent_id = $%d", argIndex)
 		args = append(args, submissionParentID)
+		argIndex++
 	}
 	if parentID {
 		query += " AND submission_parent_id IS NOT NULL"
@@ -313,7 +475,7 @@ func GetSubmissions(db *pgxpool.Pool, offset, limit int32, q string, roleID int3
 		query += " AND submissions.submission_name LIKE $1"
 		args = append(args, "%"+q+"%")
 	}
-	if roleID == 5 && areaID != 0 {
+	if roleID == RoleArea && areaID != 0 {
 		query += " AND submissions.area_id = $2"
 		args = append(args, areaID)
 	}
@@ -321,7 +483,7 @@ func GetSubmissions(db *pgxpool.Pool, offset, limit int32, q string, roleID int3
 		query += " AND submissions.outlet_id = $3"
 		args = append(args, outletID)
 	}
-	if submissionParentID != 0 {
+	if roleID == RoleOutlet && outletID != 0 {
 		query += " AND submissions.submission_parent_id = $4"
 		args = append(args, submissionParentID)
 	}
@@ -365,12 +527,38 @@ func (s *SubmissionService) GetRoleIDByNIP(nip string) (int32, error) {
 	}
 	return roleID, nil
 }
-
 func GetSubmissionById(db *pgxpool.Pool, id int32) (*assetpb.Submission, error) {
-	query := "SELECT submissions.*, assets.asset_id, assets.outlet_id, assets.area_id FROM submissions LEFT JOIN assets ON assets.asset_id = submissions.asset_id WHERE submissions.submission_id = $1"
+	query := `SELECT 
+                submissions.submission_id, submissions.submission_name, submissions.submission_outlet, 
+                submissions.submission_area, submissions.submission_date, submissions.submission_category, 
+                submissions.submission_status, submissions.submission_purpose, submissions.submission_quantity, 
+                submissions.submission_asset_name, submissions.submission_description, submissions.nip, 
+                submissions.asset_id, submissions.attachment, submissions.submission_pr_name, 
+                submissions.submission_role_name, submissions.outlet_id, submissions.area_id, 
+                submissions.submission_price, submissions.submission_parent_id, 
+                assets.asset_id, assets.outlet_id, assets.area_id 
+              FROM submissions 
+              LEFT JOIN assets ON assets.asset_id = submissions.asset_id 
+              WHERE submissions.submission_id = $1`
+
 	var submission assetpb.Submission
+	var submissionParentID sql.NullInt32
+	var assetID sql.NullInt32
+	var outletID sql.NullInt32
+	var areaID sql.NullInt32
+	var submissionDate time.Time
+
 	log.Info().Msgf("Fetching submission with ID: %d", id)
-	err := db.QueryRow(context.Background(), query, id).Scan(&submission)
+	err := db.QueryRow(context.Background(), query, id).Scan(
+		&submission.SubmissionId, &submission.SubmissionName, &submission.SubmissionOutlet,
+		&submission.SubmissionArea, &submissionDate, &submission.SubmissionCategory,
+		&submission.SubmissionStatus, &submission.SubmissionPurpose, &submission.SubmissionQuantity,
+		&submission.SubmissionAssetName, &submission.SubmissionDescription, &submission.Nip,
+		&submission.AssetId, &submission.Attachment, &submission.SubmissionPrName,
+		&submission.SubmissionRoleName, &submission.OutletId, &submission.AreaId,
+		&submission.SubmissionPrice, &submissionParentID,
+		&assetID, &outletID, &areaID)
+
 	if err != nil {
 		log.Error().Err(err).Msg("Error fetching submission")
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -379,9 +567,16 @@ func GetSubmissionById(db *pgxpool.Pool, id int32) (*assetpb.Submission, error) 
 			return nil, status.Error(codes.Internal, "Failed to get submission")
 		}
 	}
+
+	// Convert nullable SQL values to standard Go values
+	submission.SubmissionParentId = submissionParentID.Int32
+	submission.AssetId = assetID.Int32
+	submission.OutletId = outletID.Int32
+	submission.AreaId = areaID.Int32
+	submission.SubmissionDate = submissionDate.Format("2006-01-02")
+
 	return &submission, nil
 }
-
 func (s *SubmissionService) GetSubmissionById(ctx context.Context, req *assetpb.GetSubmissionByIdRequest) (*assetpb.GetSubmissionByIdResponse, error) {
 	log.Info().Msgf("Fetching submission with ID: %d", req.Id)
 
@@ -489,12 +684,12 @@ func GetSubmissionParents(db *pgxpool.Pool, offset, limit int32, q, nip string, 
 		argIndex++
 	}
 
-	switch roleID {
-	case 5:
+	switch int32(roleID) {
+	case RoleArea:
 		query += fmt.Sprintf(" AND sp.area_id = $%d", argIndex)
 		args = append(args, areaID)
 		argIndex++
-	case 6:
+	case RoleOutlet:
 		query += fmt.Sprintf(" AND sp.outlet_id = $%d", argIndex)
 		args = append(args, outletID)
 		argIndex++
@@ -513,16 +708,13 @@ func GetSubmissionParents(db *pgxpool.Pool, offset, limit int32, q, nip string, 
 	var submissionParents []*SubmissionParents
 	for rows.Next() {
 		var sp SubmissionParents
-		if err := rows.Scan(&sp.SubmissionParentId, &sp.Nip, &sp.CreatedAt, &sp.OutletName, &sp.AreaName); err != nil {
+		var createdAt time.Time
+		if err := rows.Scan(&sp.SubmissionParentId, &sp.Nip, &createdAt, &sp.OutletName, &sp.AreaName); err != nil {
 			log.Error().Err(err).Msg("Error scanning row")
 			return nil, err
 		}
 
-		createdAt, err := time.Parse("2006-01-02 15:04:05", sp.CreatedAt)
-		if err == nil {
-			sp.CreatedAt = createdAt.Format("2006-01-02 15:04:05")
-		}
-
+		sp.CreatedAt = createdAt.Format("2006-01-02 15:04:05")
 		submissionParents = append(submissionParents, &sp)
 	}
 
@@ -578,10 +770,12 @@ func (s *SubmissionService) ListSubmissionParents(ctx context.Context, req *asse
 	var submissionParents []*assetpb.SubmissionParent
 	for rows.Next() {
 		var sp assetpb.SubmissionParent
-		if err := rows.Scan(&sp.SubmissionParentId, &sp.Nip, &sp.CreatedAt, &sp.OutletName, &sp.AreaName); err != nil {
+		var createdAt time.Time
+		if err := rows.Scan(&sp.SubmissionParentId, &sp.Nip, &createdAt, &sp.OutletName, &sp.AreaName); err != nil {
 			log.Error().Err(err).Msg("Error scanning submission parent row")
 			return nil, err
 		}
+		sp.CreatedAt = createdAt.Format("2006-01-02 15:04:05")
 		submissionParents = append(submissionParents, &sp)
 	}
 
@@ -626,13 +820,13 @@ func (s *SubmissionService) GetSubmissionParentsTotalCount(q string, nip string,
 		argIndex++
 	}
 
-	switch roleID {
-	case 5:
-		query += fmt.Sprintf(" AND area_id = $%d", argIndex)
+	switch int32(roleID) {
+	case RoleArea:
+		query += fmt.Sprintf(" AND sp.area_id = $%d", argIndex)
 		args = append(args, areaID)
 		argIndex++
-	case 6:
-		query += fmt.Sprintf(" AND outlet_id = $%d", argIndex)
+	case RoleOutlet:
+		query += fmt.Sprintf(" AND sp.outlet_id = $%d", argIndex)
 		args = append(args, outletID)
 		argIndex++
 	}
