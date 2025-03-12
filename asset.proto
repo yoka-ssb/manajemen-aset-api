@@ -117,7 +117,8 @@ message Asset {
     int32 asset_quantity = 28;
     int32 asset_quantity_standard = 29;
     int32 id_asset_naming = 30;
-    string asset_location = 31;
+    int32 position_id = 31;
+    string position_name = 32;
     
 }
 message CreateAssetRequest {
@@ -167,7 +168,7 @@ message UpdateAssetRequest {
     int32 area_id = 14;
     int32 asset_quantity = 15;
     int32 asset_quantity_standar = 16;
-    string asset_location = 17;
+    int32 position_id = 17;
 }
 
 message UpdateAssetResponse {
@@ -658,7 +659,46 @@ message ListMstAssetsResponse {
     int32 total_count = 2;
 }
 
+message Position {
+    int32 id = 1;
+    string position_name = 2;
+}
+
+message ListPositionRequest {
+}
+
+message ListPositionResponse {
+    repeated Position data = 1;
+    string message = 2;
+    string code = 3;
+}
+
+message CreatePositionRequest {
+    string position_name = 1;
+}
+
+message CreatePositionResponse {
+    string message = 1;
+    string code = 2;
+    bool success = 3;
+}
+
 // All Services
+service POSITIONService {
+    rpc ListPosition(ListPositionRequest) returns (ListPositionResponse) {
+        option (google.api.http) = {
+            get: "/api/positions"
+        };
+    };
+
+    rpc CreatePosition(CreatePositionRequest) returns (CreatePositionResponse) {
+        option (google.api.http) = {
+            post: "/api/positions"
+            body: "*"
+        };
+    };
+}
+
 service SUBMISSIONService {
     rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
         option (google.api.http) = {

@@ -19,6 +19,150 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	POSITIONService_ListPosition_FullMethodName   = "/asset.POSITIONService/ListPosition"
+	POSITIONService_CreatePosition_FullMethodName = "/asset.POSITIONService/CreatePosition"
+)
+
+// POSITIONServiceClient is the client API for POSITIONService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// All Services
+type POSITIONServiceClient interface {
+	ListPosition(ctx context.Context, in *ListPositionRequest, opts ...grpc.CallOption) (*ListPositionResponse, error)
+	CreatePosition(ctx context.Context, in *CreatePositionRequest, opts ...grpc.CallOption) (*CreatePositionResponse, error)
+}
+
+type pOSITIONServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPOSITIONServiceClient(cc grpc.ClientConnInterface) POSITIONServiceClient {
+	return &pOSITIONServiceClient{cc}
+}
+
+func (c *pOSITIONServiceClient) ListPosition(ctx context.Context, in *ListPositionRequest, opts ...grpc.CallOption) (*ListPositionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPositionResponse)
+	err := c.cc.Invoke(ctx, POSITIONService_ListPosition_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pOSITIONServiceClient) CreatePosition(ctx context.Context, in *CreatePositionRequest, opts ...grpc.CallOption) (*CreatePositionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreatePositionResponse)
+	err := c.cc.Invoke(ctx, POSITIONService_CreatePosition_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// POSITIONServiceServer is the server API for POSITIONService service.
+// All implementations must embed UnimplementedPOSITIONServiceServer
+// for forward compatibility.
+//
+// All Services
+type POSITIONServiceServer interface {
+	ListPosition(context.Context, *ListPositionRequest) (*ListPositionResponse, error)
+	CreatePosition(context.Context, *CreatePositionRequest) (*CreatePositionResponse, error)
+	mustEmbedUnimplementedPOSITIONServiceServer()
+}
+
+// UnimplementedPOSITIONServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedPOSITIONServiceServer struct{}
+
+func (UnimplementedPOSITIONServiceServer) ListPosition(context.Context, *ListPositionRequest) (*ListPositionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPosition not implemented")
+}
+func (UnimplementedPOSITIONServiceServer) CreatePosition(context.Context, *CreatePositionRequest) (*CreatePositionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePosition not implemented")
+}
+func (UnimplementedPOSITIONServiceServer) mustEmbedUnimplementedPOSITIONServiceServer() {}
+func (UnimplementedPOSITIONServiceServer) testEmbeddedByValue()                         {}
+
+// UnsafePOSITIONServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to POSITIONServiceServer will
+// result in compilation errors.
+type UnsafePOSITIONServiceServer interface {
+	mustEmbedUnimplementedPOSITIONServiceServer()
+}
+
+func RegisterPOSITIONServiceServer(s grpc.ServiceRegistrar, srv POSITIONServiceServer) {
+	// If the following call pancis, it indicates UnimplementedPOSITIONServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&POSITIONService_ServiceDesc, srv)
+}
+
+func _POSITIONService_ListPosition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPositionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(POSITIONServiceServer).ListPosition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: POSITIONService_ListPosition_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(POSITIONServiceServer).ListPosition(ctx, req.(*ListPositionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _POSITIONService_CreatePosition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePositionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(POSITIONServiceServer).CreatePosition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: POSITIONService_CreatePosition_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(POSITIONServiceServer).CreatePosition(ctx, req.(*CreatePositionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// POSITIONService_ServiceDesc is the grpc.ServiceDesc for POSITIONService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var POSITIONService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "asset.POSITIONService",
+	HandlerType: (*POSITIONServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListPosition",
+			Handler:    _POSITIONService_ListPosition_Handler,
+		},
+		{
+			MethodName: "CreatePosition",
+			Handler:    _POSITIONService_CreatePosition_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "asset.proto",
+}
+
+const (
 	SUBMISSIONService_CreateSubmission_FullMethodName       = "/asset.SUBMISSIONService/CreateSubmission"
 	SUBMISSIONService_CreateSubmissionParent_FullMethodName = "/asset.SUBMISSIONService/CreateSubmissionParent"
 	SUBMISSIONService_ListSubmissionParents_FullMethodName  = "/asset.SUBMISSIONService/ListSubmissionParents"
@@ -30,8 +174,6 @@ const (
 // SUBMISSIONServiceClient is the client API for SUBMISSIONService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// All Services
 type SUBMISSIONServiceClient interface {
 	CreateSubmission(ctx context.Context, in *CreateSubmissionRequest, opts ...grpc.CallOption) (*CreateSubmissionResponse, error)
 	CreateSubmissionParent(ctx context.Context, in *CreateSubmissionParentRequest, opts ...grpc.CallOption) (*CreateSubmissionParentResponse, error)
@@ -112,8 +254,6 @@ func (c *sUBMISSIONServiceClient) UpdateSubmissionStatus(ctx context.Context, in
 // SUBMISSIONServiceServer is the server API for SUBMISSIONService service.
 // All implementations must embed UnimplementedSUBMISSIONServiceServer
 // for forward compatibility.
-//
-// All Services
 type SUBMISSIONServiceServer interface {
 	CreateSubmission(context.Context, *CreateSubmissionRequest) (*CreateSubmissionResponse, error)
 	CreateSubmissionParent(context.Context, *CreateSubmissionParentRequest) (*CreateSubmissionParentResponse, error)
