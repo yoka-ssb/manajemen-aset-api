@@ -117,6 +117,7 @@ message Asset {
     int32 asset_quantity = 28;
     int32 asset_quantity_standard = 29;
     int32 id_asset_naming = 30;
+    string asset_location = 31;
     
 }
 message CreateAssetRequest {

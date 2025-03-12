@@ -141,12 +141,12 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
                 asset_classification, asset_condition, asset_pic, asset_purchase_date, 
                 asset_maintenance_date, asset_status, classification_acquisition_value, 
                 classification_last_book_value, deprecation_value, outlet_id, area_id, 
-                id_asset_naming, asset_image, asset_quantity, asset_quantity_standard, personal_responsible
+                id_asset_naming, asset_image, asset_quantity, asset_quantity_standard, personal_responsible, asset_location
             ) VALUES (
                 $1, $2, $3, $4, $5, 
                 $6, $7, $8, $9, $10, 
                 $11, $12, $13, $14, $15, 
-                $16, $17, $18, $19, $20, $21
+                $16, $17, $18, $19, $20, $21, $22
             )`
 		_, err = s.DB.Exec(ctx, query,
 			assetId, string(hash), assetReq.GetAssetName(), assetReq.GetAssetBrand(), assetReq.GetAssetSpecification(),
@@ -154,7 +154,7 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 			maintenanceDateStr, assetReq.GetAssetStatus(), assetReq.GetClassificationAcquisitionValue(),
 			lastBookValue, deprecationValue, assetReq.GetOutletId(), areaId,
 			assetReq.GetIdAssetNaming(), assetReq.GetAssetImage(), assetReq.GetAssetQuantity(), assetReq.GetAssetQuantityStandard(),
-			assetReq.GetPersonalResponsible(),
+			assetReq.GetPersonalResponsible(), assetReq.GetAssetLocation(),
 		)
 
 		if err != nil {
