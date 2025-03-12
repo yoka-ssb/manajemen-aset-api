@@ -167,6 +167,7 @@ message UpdateAssetRequest {
     int32 area_id = 14;
     int32 asset_quantity = 15;
     int32 asset_quantity_standar = 16;
+    string asset_location = 17;
 }
 
 message UpdateAssetResponse {

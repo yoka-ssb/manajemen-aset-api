@@ -595,6 +595,7 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
             assets.asset_quantity, 
             assets.asset_quantity_standard, 
             assets.id_asset_naming, 
+			assets.asset_location,
             maintenance_periods.period_name AS maintenance_period_name, 
             areas.area_name AS area_name, 
             outlets.outlet_name AS outlet_name, 
@@ -627,7 +628,7 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 		&asset.AssetStatus, &asset.AssetCondition, &assetPurchaseDate, &asset.AssetPic, &asset.AssetImage, &asset.PersonalResponsible,
 		&asset.OutletId, &asset.AreaId, &assetMaintenanceDate, &asset.ClassificationAcquisitionValue, &asset.ClassificationLastBookValue,
 		&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming,
-		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
+		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge, &asset.AssetLocation,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -702,6 +703,7 @@ func getAssets(db *pgxpool.Pool, offset, limit int, q string, userRoleID int32, 
             assets.asset_quantity, 
             assets.asset_quantity_standard, 
             assets.id_asset_naming, 
+			assets.asset_location,
             maintenance_periods.period_name AS maintenance_period_name, 
             areas.area_name AS area_name, 
             outlets.outlet_name AS outlet_name, 
@@ -779,7 +781,7 @@ func getAssets(db *pgxpool.Pool, offset, limit int, q string, userRoleID int32, 
 			&asset.AssetStatus, &asset.AssetCondition, &assetPurchaseDate, &asset.AssetPic, &asset.AssetImage, &asset.PersonalResponsible,
 			&asset.OutletId, &asset.AreaId, &assetMaintenanceDate, &asset.ClassificationAcquisitionValue, &asset.ClassificationLastBookValue,
 			&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming,
-			&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
+			&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge, &asset.AssetLocation,
 		); err != nil {
 			logger.Error().Err(err).Msg("Error scanning row")
 			return nil, err
@@ -840,6 +842,7 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
             assets.asset_quantity, 
             assets.asset_quantity_standard, 
             assets.id_asset_naming, 
+			assets.asset_location,
             maintenance_periods.period_name AS maintenance_period_name, 
             areas.area_name AS area_name, 
             outlets.outlet_name AS outlet_name, 
@@ -872,7 +875,7 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 		&asset.AssetStatus, &asset.AssetCondition, &assetPurchaseDate, &asset.AssetPic, &asset.AssetImage, &asset.PersonalResponsible,
 		&asset.OutletId, &asset.AreaId, &assetMaintenanceDate, &asset.ClassificationAcquisitionValue, &asset.ClassificationLastBookValue,
 		&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming,
-		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
+		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge, &asset.AssetLocation,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -950,7 +953,7 @@ func GetAssetById(db *sql.DB, id int32) (*assetpb.Asset, error) {
 		&asset.AssetStatus, &assetConditionStr, &asset.AssetPurchaseDate, &asset.AssetPic,
 		&asset.AssetImage, &asset.PersonalResponsible, &asset.OutletId, &asset.AreaId,
 		&asset.AssetMaintenanceDate, &asset.ClassificationAcquisitionValue,
-		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
+		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge, &asset.AssetLocation,
 	)
 
 	if err != nil {
