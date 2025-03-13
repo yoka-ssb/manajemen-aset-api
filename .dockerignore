@@ -1,0 +1,5 @@
+# Ignore Go cache & dependencies
+*.log
+bin/
+vendor/
+.idea/

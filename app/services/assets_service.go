@@ -83,6 +83,16 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 			continue
 		}
 
+		// Validasi position_id
+		var positionId int32
+		err = s.DB.QueryRow(ctx, "SELECT id FROM positions WHERE id = $1", assetReq.GetPositionId()).Scan(&positionId)
+		if err != nil {
+			errorMsg := fmt.Sprintf("Position ID %d not found for asset %s", assetReq.GetPositionId(), assetReq.GetAssetName())
+			logger.Warn().Err(err).Str("asset", assetReq.GetAssetName()).Msg(errorMsg)
+			errorsList = append(errorsList, errorMsg)
+			continue
+		}
+
 		// Hitung depresiasi dan nilai buku terakhir
 		months := utils.CountMonths(purchaseDate, time.Now())
 		if classificationEconomicValue == 0 {
@@ -141,12 +151,14 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
                 asset_classification, asset_condition, asset_pic, asset_purchase_date, 
                 asset_maintenance_date, asset_status, classification_acquisition_value, 
                 classification_last_book_value, deprecation_value, outlet_id, area_id, 
-                id_asset_naming, asset_image, asset_quantity, asset_quantity_standard, personal_responsible
+                id_asset_naming, asset_image, asset_quantity, asset_quantity_standard, 
+                personal_responsible, position_id
             ) VALUES (
                 $1, $2, $3, $4, $5, 
                 $6, $7, $8, $9, $10, 
                 $11, $12, $13, $14, $15, 
-                $16, $17, $18, $19, $20, $21
+                $16, $17, $18, $19, $20, 
+                $21, $22
             )`
 		_, err = s.DB.Exec(ctx, query,
 			assetId, string(hash), assetReq.GetAssetName(), assetReq.GetAssetBrand(), assetReq.GetAssetSpecification(),
@@ -154,7 +166,7 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 			maintenanceDateStr, assetReq.GetAssetStatus(), assetReq.GetClassificationAcquisitionValue(),
 			lastBookValue, deprecationValue, assetReq.GetOutletId(), areaId,
 			assetReq.GetIdAssetNaming(), assetReq.GetAssetImage(), assetReq.GetAssetQuantity(), assetReq.GetAssetQuantityStandard(),
-			assetReq.GetPersonalResponsible(),
+			assetReq.GetPersonalResponsible(), positionId,
 		)
 
 		if err != nil {
@@ -171,15 +183,13 @@ func (s *AssetService) CreateAssets(ctx context.Context, req *assetpb.CreateAsse
 
 	// Jika ada error, tampilkan pesan partial success
 	if len(errorsList) > 0 {
-		logger.Warn().Msgf("Partial success: %d assets created, but errors occurred: %s", len(createdAssets), strings.Join(errorsList, "; "))
 		return &assetpb.CreateAssetResponse{
 			Message: fmt.Sprintf("Partial success: %d assets created, but errors occurred: %s", len(createdAssets), strings.Join(errorsList, "; ")),
-			Code:    "206", // HTTP 206: Partial Content
+			Code:    "206",
 			Success: len(createdAssets) > 0,
 		}, nil
 	}
 
-	logger.Info().Msgf("%d assets successfully created", len(createdAssets))
 	return &assetpb.CreateAssetResponse{
 		Message: fmt.Sprintf("%d assets successfully created", len(createdAssets)),
 		Code:    "200",
@@ -260,6 +270,11 @@ func (s *AssetService) UpdateAsset(ctx context.Context, req *assetpb.UpdateAsset
 	if req.GetAreaId() != 0 {
 		fields = append(fields, fmt.Sprintf("area_id = $%d", index))
 		values = append(values, req.GetAreaId())
+		index++
+	}
+	if req.GetPositionId() != 0 {
+		fields = append(fields, fmt.Sprintf("position_id = $%d", index))
+		values = append(values, req.GetPositionId())
 		index++
 	}
 
@@ -563,6 +578,7 @@ func (s *AssetService) ListAssets(ctx context.Context, req *assetpb.ListAssetsRe
 
 	return resp, nil
 }
+
 func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetRequest) (*assetpb.GetAssetResponse, error) {
 	logger := log.With().Str("method", "GetAsset").Int32("asset_id", req.GetId()).Logger()
 	logger.Info().Msg("Fetching asset by ID")
@@ -595,6 +611,8 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
             assets.asset_quantity, 
             assets.asset_quantity_standard, 
             assets.id_asset_naming, 
+			assets.position_id,
+			positions.position_name,
             maintenance_periods.period_name AS maintenance_period_name, 
             areas.area_name AS area_name, 
             outlets.outlet_name AS outlet_name, 
@@ -607,6 +625,7 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
         LEFT JOIN roles ON assets.asset_pic = roles.role_id
         LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id
         LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id
+		LEFT JOIN positions ON assets.position_id = positions.id
         WHERE assets.asset_id = $1
         LIMIT 1;
     `
@@ -617,9 +636,9 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 	row := s.DB.QueryRow(ctx, query, req.GetId())
 
 	// Scan result
-	var assetIdHash, maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName sql.NullString
+	var assetIdHash, maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName, positionName sql.NullString
 	var assetAge sql.NullInt64
-	var idAssetNaming sql.NullInt32
+	var idAssetNaming, positionId sql.NullInt32
 	var assetPurchaseDate, assetMaintenanceDate, createdAt, updatedAt time.Time
 
 	err := row.Scan(
@@ -627,7 +646,7 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 		&asset.AssetStatus, &asset.AssetCondition, &assetPurchaseDate, &asset.AssetPic, &asset.AssetImage, &asset.PersonalResponsible,
 		&asset.OutletId, &asset.AreaId, &assetMaintenanceDate, &asset.ClassificationAcquisitionValue, &asset.ClassificationLastBookValue,
 		&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming,
-		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
+		&positionId, &positionName, &maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -648,6 +667,12 @@ func (s *AssetService) GetAsset(ctx context.Context, req *assetpb.GetAssetReques
 	asset.AssetMaintenanceDate = assetMaintenanceDate.Format("2006-01-02")
 	asset.CreatedAt = createdAt.Format("2006-01-02 15:04:05")
 	asset.UpdatedAt = updatedAt.Format("2006-01-02 15:04:05")
+	if positionId.Valid {
+		asset.PositionId = positionId.Int32
+	}
+	if positionName.Valid {
+		asset.PositionName = positionName.String
+	}
 	if assetAge.Valid {
 		asset.AssetAge = int32(assetAge.Int64)
 	}
@@ -702,6 +727,8 @@ func getAssets(db *pgxpool.Pool, offset, limit int, q string, userRoleID int32, 
             assets.asset_quantity, 
             assets.asset_quantity_standard, 
             assets.id_asset_naming, 
+			assets.position_id,
+			positions.position_name,
             maintenance_periods.period_name AS maintenance_period_name, 
             areas.area_name AS area_name, 
             outlets.outlet_name AS outlet_name, 
@@ -714,6 +741,7 @@ func getAssets(db *pgxpool.Pool, offset, limit int, q string, userRoleID int32, 
         LEFT JOIN roles ON assets.asset_pic = roles.role_id
         LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id
         LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id
+		LEFT JOIN positions ON assets.position_id = positions.id
         WHERE 1=1 `
 
 	// Query parameters for prepared statement
@@ -769,16 +797,16 @@ func getAssets(db *pgxpool.Pool, offset, limit int, q string, userRoleID int32, 
 	// Parse results
 	for rows.Next() {
 		var asset assetpb.Asset
-		var assetIdHash, maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName sql.NullString
+		var assetIdHash, maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName, positionName sql.NullString
 		var assetAge sql.NullInt64
-		var idAssetNaming sql.NullInt32
+		var idAssetNaming, positionId sql.NullInt32
 		var assetPurchaseDate, assetMaintenanceDate, createdAt, updatedAt time.Time
 
 		if err := rows.Scan(
 			&asset.AssetId, &assetIdHash, &asset.AssetName, &asset.AssetBrand, &asset.AssetSpecification, &asset.AssetClassification,
 			&asset.AssetStatus, &asset.AssetCondition, &assetPurchaseDate, &asset.AssetPic, &asset.AssetImage, &asset.PersonalResponsible,
 			&asset.OutletId, &asset.AreaId, &assetMaintenanceDate, &asset.ClassificationAcquisitionValue, &asset.ClassificationLastBookValue,
-			&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming,
+			&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming, &positionId, &positionName,
 			&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
 		); err != nil {
 			logger.Error().Err(err).Msg("Error scanning row")
@@ -840,6 +868,8 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
             assets.asset_quantity, 
             assets.asset_quantity_standard, 
             assets.id_asset_naming, 
+			assets.position_id,
+			positions.position_name,
             maintenance_periods.period_name AS maintenance_period_name, 
             areas.area_name AS area_name, 
             outlets.outlet_name AS outlet_name, 
@@ -852,6 +882,7 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
         LEFT JOIN roles ON assets.asset_pic = roles.role_id
         LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id
         LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id
+		LEFT JOIN positions ON assets.position_id = positions.id
         WHERE assets.asset_id_hash = $1
         LIMIT 1;
     `
@@ -862,16 +893,16 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 	row := s.DB.QueryRow(ctx, query, req.GetHashId())
 
 	// Scan result
-	var assetIdHash, maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName sql.NullString
+	var assetIdHash, maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName, positionName sql.NullString
 	var assetAge sql.NullInt64
-	var idAssetNaming sql.NullInt32
+	var idAssetNaming, positionId sql.NullInt32
 	var assetPurchaseDate, assetMaintenanceDate, createdAt, updatedAt time.Time
 
 	err := row.Scan(
 		&asset.AssetId, &assetIdHash, &asset.AssetName, &asset.AssetBrand, &asset.AssetSpecification, &asset.AssetClassification,
 		&asset.AssetStatus, &asset.AssetCondition, &assetPurchaseDate, &asset.AssetPic, &asset.AssetImage, &asset.PersonalResponsible,
 		&asset.OutletId, &asset.AreaId, &assetMaintenanceDate, &asset.ClassificationAcquisitionValue, &asset.ClassificationLastBookValue,
-		&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming,
+		&createdAt, &updatedAt, &asset.DeprecationValue, &asset.AssetQuantity, &asset.AssetQuantityStandard, &idAssetNaming, &positionId, &positionName,
 		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
 	)
 	if err != nil {
@@ -893,6 +924,12 @@ func (s *AssetService) GetAssetByHash(ctx context.Context, req *assetpb.GetAsset
 	asset.AssetMaintenanceDate = assetMaintenanceDate.Format("2006-01-02")
 	asset.CreatedAt = createdAt.Format("2006-01-02 15:04:05")
 	asset.UpdatedAt = updatedAt.Format("2006-01-02 15:04:05")
+	if positionId.Valid {
+		asset.PositionId = positionId.Int32
+	}
+	if positionName.Valid {
+		asset.PositionName = positionName.String
+	}
 	if assetAge.Valid {
 		asset.AssetAge = int32(assetAge.Int64)
 	}
@@ -931,6 +968,7 @@ func GetAssetById(db *sql.DB, id int32) (*assetpb.Asset, error) {
 		LEFT JOIN roles ON assets.asset_pic = roles.role_id
 		LEFT JOIN classifications ON assets.asset_classification = classifications.classification_id
 		LEFT JOIN maintenance_periods ON classifications.maintenance_period_id = maintenance_periods.period_id
+		LEFT JOIN positions ON assets.position_id = positions.id
 		WHERE assets.asset_id = $1
 		LIMIT 1;
 	`
@@ -942,14 +980,15 @@ func GetAssetById(db *sql.DB, id int32) (*assetpb.Asset, error) {
 
 	// Scan result
 	var assetConditionStr sql.NullString
-	var maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName sql.NullString
+	var maintenancePeriodName, areaName, outletName, assetPicName, assetClassificationName, positionName sql.NullString
 	var assetAge sql.NullInt64
+	var positionId sql.NullInt32
 
 	err := row.Scan(
 		&asset.AssetId, &asset.AssetName, &asset.AssetBrand, &asset.AssetClassification,
 		&asset.AssetStatus, &assetConditionStr, &asset.AssetPurchaseDate, &asset.AssetPic,
 		&asset.AssetImage, &asset.PersonalResponsible, &asset.OutletId, &asset.AreaId,
-		&asset.AssetMaintenanceDate, &asset.ClassificationAcquisitionValue,
+		&asset.AssetMaintenanceDate, &asset.ClassificationAcquisitionValue, &positionId, &positionName,
 		&maintenancePeriodName, &areaName, &outletName, &assetPicName, &assetClassificationName, &assetAge,
 	)
 
